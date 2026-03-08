@@ -1,0 +1,107 @@
+{
+  "app": {
+    "title": "Identity Admin",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "roles": "Roles",
+    "permissions": "Permissions",
+    "settings": "Settings",
+    "placeholder": "More Pages"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "loginTitle": "Sign in",
+    "registerTitle": "Create account",
+    "resetPasswordTitle": "Reset password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "submit": "Submit",
+    "backToLogin": "Back to login"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "ok": "OK",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "loading": "Loading...",
+    "noData": "No data",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "name": "Name",
+    "description": "Description",
+    "code": "Code"
+  },
+  "users": {
+    "title": "Users",
+    "userName": "User name",
+    "email": "Email",
+    "roles": "Roles",
+    "createdAt": "Created",
+    "createUser": "Create user",
+    "editUser": "Edit user",
+    "assignRoles": "Assign roles"
+  },
+  "roles": {
+    "title": "Roles",
+    "permissions": "Permissions",
+    "createRole": "Create role",
+    "editRole": "Edit role",
+    "assignPermissions": "Assign permissions"
+  },
+  "permissions": {
+    "title": "Permissions",
+    "createPermission": "Create permission",
+    "editPermission": "Edit permission"
+  },
+  "settings": {
+    "general": "General settings",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language",
+    "fontSize": "Font size",
+    "fontSizePx": "Font size (px)",
+    "fontSizePxHint": "12–24 px",
+    "fontColor": "Font color",
+    "themeDefault": "Theme default",
+    "presetSlate": "Slate",
+    "presetSlateDark": "Slate dark",
+    "presetSlateMid": "Slate mid",
+    "presetNavy": "Navy",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "openSettings": "Open settings"
+  },
+  "dialog": {
+    "confirmDelete": "Are you sure?",
+    "confirmDeletePermission": "Delete permission \"{{name}}\"?",
+    "confirmDeleteUser": "Delete user \"{{name}}\"?",
+    "confirmDeleteRole": "Delete role \"{{name}}\"?",
+    "deleteFailed": "Delete failed"
+  },
+  "toast": {
+    "deleteSuccess": "Deleted successfully",
+    "createSuccess": "Created successfully",
+    "updateSuccess": "Saved successfully",
+    "saveFailed": "Save failed"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email",
+    "minLength": "Minimum length is {{value}}",
+    "passwordMismatch": "Passwords do not match",
+    "loginFailed": "Login failed",
+    "generic": "An error occurred"
+  }
+}

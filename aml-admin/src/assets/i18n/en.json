@@ -1,0 +1,66 @@
+{
+  "app": {
+    "title": "AML Screening",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "customers": "Customers",
+    "sanctionsScreening": "Sanctions Screening",
+    "riskAssignment": "Risk Assignment",
+    "cases": "Cases",
+    "auditLogs": "Audit Logs"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "loginTitle": "Sign in",
+    "submit": "Sign in"
+  },
+  "common": {
+    "search": "Search",
+    "loading": "Loading...",
+    "noData": "No data",
+    "actions": "Actions",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "isActive": "Active"
+  },
+  "customers": {
+    "fullName": "Full name",
+    "riskRating": "Risk rating",
+    "riskClassification": "Risk classification",
+    "createdAt": "Created",
+    "nationalIdOrPassport": "National ID / Passport",
+    "dateOfBirth": "Date of birth",
+    "nationality": "Nationality",
+    "address": "Address",
+    "occupation": "Occupation",
+    "sourceOfFunds": "Source of funds",
+    "isPep": "Politically exposed person",
+    "businessActivity": "Business activity"
+  },
+  "settings": {
+    "general": "General settings",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language",
+    "fontSizePx": "Font size (px)",
+    "fontSizePxHint": "12–24 px",
+    "fontColor": "Font color",
+    "themeDefault": "Theme default",
+    "presetSlate": "Slate",
+    "presetSlateDark": "Slate dark",
+    "presetSlateMid": "Slate mid",
+    "presetNavy": "Navy",
+    "openSettings": "Open settings"
+  },
+  "errors": {
+    "invalidEmail": "Invalid email",
+    "minLength": "Minimum length is {{value}}",
+    "loginFailed": "Login failed"
+  }
+}

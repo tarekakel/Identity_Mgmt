@@ -1,0 +1,42 @@
+<div class="auth-page-bg px-4">
+  <div class="absolute inset-0 bg-slate-900/50 dark:bg-slate-900/60" aria-hidden="true"></div>
+  <div class="relative z-10 w-full max-w-md animate-fade-in">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-8">
+      <h1 class="text-2xl font-bold text-center text-slate-800 dark:text-slate-100 mb-6">{{ 'auth.registerTitle' | translate }}</h1>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+        @if (message) {
+          <div class="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 text-sm">
+            {{ message }}
+          </div>
+        }
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'common.name' | translate }}</label>
+          <input type="text" formControlName="userName" class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'auth.email' | translate }}</label>
+          <input type="email" formControlName="email" class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'auth.password' | translate }}</label>
+          <input type="password" formControlName="password" class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'auth.confirmPassword' | translate }}</label>
+          <input type="password" formControlName="confirmPassword" class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" />
+          @if (form.hasError('passwordMismatch') && form.get('confirmPassword')?.touched) {
+            <p class="mt-1 text-sm text-red-600">{{ 'errors.passwordMismatch' | translate }}</p>
+          }
+        </div>
+        <div class="pt-2">
+          <button type="submit" [disabled]="loading" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium transition">
+            {{ 'auth.submit' | translate }}
+          </button>
+        </div>
+      </form>
+      <p class="mt-4 text-center text-sm text-slate-600 dark:text-slate-400">
+        <a routerLink="/login" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ 'auth.hasAccount' | translate }}</a>
+      </p>
+    </div>
+  </div>
+</div>

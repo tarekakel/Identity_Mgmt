@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: 99 102 241;
+  --color-primary-foreground: 255 255 255;
+  --color-background: 255 255 255;
+  --color-foreground: 15 23 42;
+  --color-muted: 241 245 249;
+  --color-muted-foreground: 100 116 139;
+  --color-border: 226 232 240;
+  --color-card: 255 255 255;
+  --font-size-base: 16px;
+}
+
+.dark {
+  --color-primary: 99 102 241;
+  --color-primary-foreground: 255 255 255;
+  --color-background: 15 23 42;
+  --color-foreground: 248 250 252;
+  --color-muted: 30 41 59;
+  --color-muted-foreground: 148 163 184;
+  --color-border: 51 65 85;
+  --color-card: 30 41 59;
+}
+
+html {
+  font-size: var(--font-size-base);
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--user-font-color, inherit);
+}
+
+[dir="rtl"] {
+  text-align: right;
+}
+
+.auth-page-bg {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background-color: #1e1b4b;
+  background-image: url('/assets/images/auth-bg.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}

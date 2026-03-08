@@ -1,0 +1,107 @@
+{
+  "app": {
+    "title": "إدارة الهوية",
+    "login": "تسجيل الدخول",
+    "register": "التسجيل",
+    "logout": "تسجيل الخروج",
+    "dashboard": "لوحة التحكم",
+    "users": "المستخدمون",
+    "roles": "الأدوار",
+    "permissions": "الصلاحيات",
+    "settings": "الإعدادات",
+    "placeholder": "صفحات أخرى"
+  },
+  "auth": {
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "loginTitle": "تسجيل الدخول",
+    "registerTitle": "إنشاء حساب",
+    "resetPasswordTitle": "إعادة تعيين كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "submit": "إرسال",
+    "backToLogin": "العودة لتسجيل الدخول"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "ok": "موافق",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "search": "بحث",
+    "loading": "جاري التحميل...",
+    "noData": "لا توجد بيانات",
+    "actions": "إجراءات",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "name": "الاسم",
+    "description": "الوصف",
+    "code": "الرمز"
+  },
+  "users": {
+    "title": "المستخدمون",
+    "userName": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "roles": "الأدوار",
+    "createdAt": "تاريخ الإنشاء",
+    "createUser": "إنشاء مستخدم",
+    "editUser": "تعديل المستخدم",
+    "assignRoles": "تعيين الأدوار"
+  },
+  "roles": {
+    "title": "الأدوار",
+    "permissions": "الصلاحيات",
+    "createRole": "إنشاء دور",
+    "editRole": "تعديل الدور",
+    "assignPermissions": "تعيين الصلاحيات"
+  },
+  "permissions": {
+    "title": "الصلاحيات",
+    "createPermission": "إنشاء صلاحية",
+    "editPermission": "تعديل الصلاحية"
+  },
+  "settings": {
+    "general": "الإعدادات العامة",
+    "theme": "المظهر",
+    "light": "فاتح",
+    "dark": "داكن",
+    "language": "اللغة",
+    "fontSize": "حجم الخط",
+    "fontSizePx": "حجم الخط (بكسل)",
+    "fontSizePxHint": "12–24 بكسل",
+    "fontColor": "لون الخط",
+    "themeDefault": "افتراضي المظهر",
+    "presetSlate": "رمادي",
+    "presetSlateDark": "رمادي غامق",
+    "presetSlateMid": "رمادي متوسط",
+    "presetNavy": "أزرق داكن",
+    "small": "صغير",
+    "medium": "متوسط",
+    "large": "كبير",
+    "openSettings": "فتح الإعدادات"
+  },
+  "dialog": {
+    "confirmDelete": "هل أنت متأكد؟",
+    "confirmDeletePermission": "حذف الصلاحية \"{{name}}\"؟",
+    "confirmDeleteUser": "حذف المستخدم \"{{name}}\"؟",
+    "confirmDeleteRole": "حذف الدور \"{{name}}\"؟",
+    "deleteFailed": "فشل الحذف"
+  },
+  "toast": {
+    "deleteSuccess": "تم الحذف بنجاح",
+    "createSuccess": "تم الإنشاء بنجاح",
+    "updateSuccess": "تم الحفظ بنجاح",
+    "saveFailed": "فشل الحفظ"
+  },
+  "errors": {
+    "required": "هذا الحقل مطلوب",
+    "invalidEmail": "بريد إلكتروني غير صالح",
+    "minLength": "الحد الأدنى للطول هو {{value}}",
+    "passwordMismatch": "كلمات المرور غير متطابقة",
+    "loginFailed": "فشل تسجيل الدخول",
+    "generic": "حدث خطأ"
+  }
+}

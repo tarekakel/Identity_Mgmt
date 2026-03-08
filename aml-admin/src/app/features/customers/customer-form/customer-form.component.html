@@ -1,0 +1,79 @@
+<div class="animate-fade-in max-w-2xl">
+  <div class="flex items-center gap-4 mb-6">
+    <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">
+      {{ isEdit() ? ('common.edit' | translate) : ('common.add' | translate) }} {{ 'app.customers' | translate }}
+    </h1>
+  </div>
+  @if (loading()) {
+    <p class="text-slate-600 dark:text-slate-400">{{ 'common.loading' | translate }}</p>
+  } @else {
+    @if (error()) {
+      <div class="mb-4 p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">{{ error() }}</div>
+    }
+    <form (ngSubmit)="submit()" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.fullName' | translate }} *</label>
+        <input type="text" [ngModel]="fullName()" name="fullName" (ngModelChange)="fullName.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" required />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.nationalIdOrPassport' | translate }}</label>
+        <input type="text" [ngModel]="nationalIdOrPassport()" name="nationalIdOrPassport" (ngModelChange)="nationalIdOrPassport.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.dateOfBirth' | translate }}</label>
+        <input type="date" [ngModel]="dateOfBirth()" name="dateOfBirth" (ngModelChange)="dateOfBirth.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.nationality' | translate }}</label>
+        <input type="text" [ngModel]="nationality()" name="nationality" (ngModelChange)="nationality.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.address' | translate }}</label>
+        <input type="text" [ngModel]="address()" name="address" (ngModelChange)="address.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.occupation' | translate }}</label>
+        <input type="text" [ngModel]="occupation()" name="occupation" (ngModelChange)="occupation.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.sourceOfFunds' | translate }}</label>
+        <input type="text" [ngModel]="sourceOfFunds()" name="sourceOfFunds" (ngModelChange)="sourceOfFunds.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" [ngModel]="isPep()" name="isPep" (ngModelChange)="isPep.set($event)" />
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ 'customers.isPep' | translate }}</label>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.businessActivity' | translate }}</label>
+        <input type="text" [ngModel]="businessActivity()" name="businessActivity" (ngModelChange)="businessActivity.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.riskClassification' | translate }} *</label>
+        <input type="text" [ngModel]="riskClassification()" name="riskClassification" (ngModelChange)="riskClassification.set($event)"
+          placeholder="e.g. Low, Medium, High" class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+      </div>
+      @if (isEdit()) {
+        <div class="flex items-center gap-2">
+          <input type="checkbox" [ngModel]="isActive()" name="isActive" (ngModelChange)="isActive.set($event)" />
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ 'common.isActive' | translate }}</label>
+        </div>
+      }
+      <div class="flex gap-2 pt-4">
+        <button type="submit" [disabled]="saving()" class="px-4 py-2 rounded-lg bg-slate-700 dark:bg-slate-600 text-white hover:bg-slate-600 dark:hover:bg-slate-500 disabled:opacity-50">
+          {{ saving() ? ('common.saving' | translate) : ('common.save' | translate) }}
+        </button>
+        <button type="button" (click)="cancel()" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+          {{ 'common.cancel' | translate }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

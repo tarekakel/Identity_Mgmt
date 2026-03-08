@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#312e81;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#4338ca;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e1b4b;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="locks" width="100" height="100" patternUnits="userSpaceOnUse">
+      <path d="M50 38v-6a8 8 0 00-16 0v6h-4a4 4 0 00-4 4v12a4 4 0 004 4h24a4 4 0 004-4V42a4 4 0 00-4-4h-4zm-4 0h8v-6a4 4 0 10-8 0v6z" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1" transform="translate(10,10)"/>
+    </pattern>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+    </pattern>
+    <radialGradient id="glow" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:transparent;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  <rect width="100%" height="100%" fill="url(#glow)"/>
+  <rect width="100%" height="100%" fill="url(#locks)"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+</svg>

@@ -1,0 +1,50 @@
+{
+  "app": {
+    "title": "الامتثال لمكافحة غسل الأموال",
+    "logout": "تسجيل الخروج",
+    "dashboard": "لوحة التحكم",
+    "customers": "العملاء",
+    "sanctionsScreening": "فحص العقوبات",
+    "riskAssignment": "تعيين المخاطر",
+    "cases": "القضايا",
+    "auditLogs": "سجلات التدقيق"
+  },
+  "auth": {
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "loginTitle": "تسجيل الدخول",
+    "submit": "دخول"
+  },
+  "common": {
+    "search": "بحث",
+    "loading": "جاري التحميل...",
+    "noData": "لا توجد بيانات",
+    "actions": "إجراءات"
+  },
+  "customers": {
+    "fullName": "الاسم الكامل",
+    "riskRating": "تصنيف المخاطر",
+    "createdAt": "تاريخ الإنشاء"
+  },
+  "settings": {
+    "general": "الإعدادات العامة",
+    "theme": "المظهر",
+    "light": "فاتح",
+    "dark": "داكن",
+    "language": "اللغة",
+    "fontSizePx": "حجم الخط (بكسل)",
+    "fontSizePxHint": "12–24 بكسل",
+    "fontColor": "لون الخط",
+    "themeDefault": "افتراضي المظهر",
+    "presetSlate": "رمادي",
+    "presetSlateDark": "رمادي غامق",
+    "presetSlateMid": "رمادي متوسط",
+    "presetNavy": "أزرق داكن",
+    "openSettings": "فتح الإعدادات"
+  },
+  "errors": {
+    "invalidEmail": "بريد إلكتروني غير صالح",
+    "minLength": "الحد الأدنى للطول هو {{value}}",
+    "loginFailed": "فشل تسجيل الدخول"
+  }
+}

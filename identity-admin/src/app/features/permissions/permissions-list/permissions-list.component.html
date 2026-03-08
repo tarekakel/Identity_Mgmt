@@ -1,0 +1,42 @@
+<div class="animate-fade-in">
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ 'permissions.title' | translate }}</h1>
+    <a routerLink="/permissions/new" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition">
+      {{ 'permissions.createPermission' | translate }}
+    </a>
+  </div>
+  @if (loading) {
+    <app-loader [message]="'common.loading' | translate" />
+  } @else if (error) {
+    <p class="text-red-600 dark:text-red-400">{{ error | translate }}</p>
+  } @else {
+    <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+        <thead class="bg-slate-50 dark:bg-slate-700/50">
+          <tr>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'common.name' | translate }}</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'common.code' | translate }}</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'common.description' | translate }}</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'common.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          @for (p of permissions; track p.id) {
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+              <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ p.name }}</td>
+              <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-sm">{{ p.code }}</td>
+              <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ p.description || '—' }}</td>
+              <td class="px-4 py-3 flex gap-2">
+                <a [routerLink]="['/permissions', p.id, 'edit']" class="text-indigo-600 dark:text-indigo-400 hover:underline text-sm">{{ 'common.edit' | translate }}</a>
+                <button type="button" (click)="deletePermission(p.id, p.name)" class="text-red-600 dark:text-red-400 hover:underline text-sm">{{ 'common.delete' | translate }}</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (permissions.length === 0) {
+        <p class="p-6 text-center text-slate-500 dark:text-slate-400">{{ 'common.noData' | translate }}</p>
+      }
+    </div>
+  }
+</div>

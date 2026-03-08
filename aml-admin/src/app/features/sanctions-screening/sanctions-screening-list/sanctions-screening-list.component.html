@@ -1,0 +1,63 @@
+<div class="animate-fade-in">
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ 'app.sanctionsScreening' | translate }}</h1>
+    <a routerLink="/sanctions-screening/new" class="px-4 py-2 rounded-lg bg-slate-700 dark:bg-slate-600 text-white hover:bg-slate-600 dark:hover:bg-slate-500 transition">
+      {{ 'common.add' | translate }}
+    </a>
+  </div>
+  <div class="flex gap-2 mb-4">
+    <input
+      type="text"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+      (keyup.enter)="onSearch()"
+      placeholder="{{ 'common.search' | translate }}"
+      class="flex-1 max-w-sm px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+    />
+    <button type="button" (click)="onSearch()" class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600 transition">
+      {{ 'common.search' | translate }}
+    </button>
+  </div>
+  @if (loading()) {
+    <app-loader [message]="'common.loading' | translate" />
+  } @else {
+    <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+        <thead class="bg-slate-50 dark:bg-slate-700/50">
+          <tr>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Id</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Customer</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Result</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Screened At</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'common.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          @for (s of list(); track s.id) {
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+              <td class="px-4 py-3 text-slate-800 dark:text-slate-100 text-sm">{{ s.id }}</td>
+              <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ s.customerId ?? '—' }}</td>
+              <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ s.result ?? '—' }}</td>
+              <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ s.screenedAt ?? '—' }}</td>
+              <td class="px-4 py-3 flex gap-2">
+                <a [routerLink]="['/sanctions-screening', s.id, 'edit']" class="text-slate-600 dark:text-slate-400 hover:underline">{{ 'common.edit' | translate }}</a>
+                <button type="button" (click)="deleteSanctionsScreening(s.id)" class="text-red-600 dark:text-red-400 hover:underline">{{ 'common.delete' | translate }}</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (list().length === 0) {
+        <p class="p-6 text-center text-slate-500 dark:text-slate-400">{{ 'common.noData' | translate }}</p>
+      } @else {
+        <app-pagination
+          [pageNumber]="pageNumber()"
+          [pageSize]="pageSize()"
+          [totalCount]="totalCount()"
+          [totalPages]="totalPages()"
+          (pageChange)="onPageChange($event)"
+        />
+      }
+    </div>
+  }
+</div>

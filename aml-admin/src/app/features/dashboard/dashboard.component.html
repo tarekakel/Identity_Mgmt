@@ -1,0 +1,49 @@
+<div class="space-y-6 animate-fade-in">
+  <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ 'app.dashboard' | translate }}</h1>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <a
+      routerLink="/customers"
+      class="block p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition"
+    >
+      <span class="text-3xl">👤</span>
+      <h2 class="mt-2 font-semibold text-slate-800 dark:text-slate-100">{{ 'app.customers' | translate }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Manage customers</p>
+    </a>
+    <a
+      routerLink="/sanctions-screening"
+      class="block p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition"
+    >
+      <span class="text-3xl">🔍</span>
+      <h2 class="mt-2 font-semibold text-slate-800 dark:text-slate-100">{{ 'app.sanctionsScreening' | translate }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Sanctions screening</p>
+    </a>
+    <a
+      routerLink="/risk-assignment"
+      class="block p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition"
+    >
+      <span class="text-3xl">⚠</span>
+      <h2 class="mt-2 font-semibold text-slate-800 dark:text-slate-100">{{ 'app.riskAssignment' | translate }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Risk assignment</p>
+    </a>
+    <a
+      routerLink="/cases"
+      class="block p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition"
+    >
+      <span class="text-3xl">📄</span>
+      <h2 class="mt-2 font-semibold text-slate-800 dark:text-slate-100">{{ 'app.cases' | translate }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Case management</p>
+    </a>
+    <a
+      routerLink="/audit-logs"
+      class="block p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition"
+    >
+      <span class="text-3xl">📋</span>
+      <h2 class="mt-2 font-semibold text-slate-800 dark:text-slate-100">{{ 'app.auditLogs' | translate }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Audit trail</p>
+    </a>
+  </div>
+  <div class="p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+    <h2 class="font-semibold text-slate-800 dark:text-slate-100">Welcome</h2>
+    <p class="text-slate-600 dark:text-slate-400 mt-1">Use the cards above or the sidebar to access AML screening and risk assignment.</p>
+  </div>
+</div>

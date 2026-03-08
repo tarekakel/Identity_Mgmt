@@ -1,0 +1,33 @@
+<div class="space-y-6 animate-fade-in">
+  <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ 'app.dashboard' | translate }}</h1>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <a
+      routerLink="/users"
+      class="block p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition"
+    >
+      <span class="text-3xl">👤</span>
+      <h2 class="mt-2 font-semibold text-slate-800 dark:text-slate-100">{{ 'app.users' | translate }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Manage users and roles</p>
+    </a>
+    <a
+      routerLink="/roles"
+      class="block p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition"
+    >
+      <span class="text-3xl">🔐</span>
+      <h2 class="mt-2 font-semibold text-slate-800 dark:text-slate-100">{{ 'app.roles' | translate }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Manage roles and permissions</p>
+    </a>
+    <a
+      routerLink="/permissions"
+      class="block p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition"
+    >
+      <span class="text-3xl">✓</span>
+      <h2 class="mt-2 font-semibold text-slate-800 dark:text-slate-100">{{ 'app.permissions' | translate }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">View permissions</p>
+    </a>
+  </div>
+  <div class="p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+    <h2 class="font-semibold text-slate-800 dark:text-slate-100">Welcome</h2>
+    <p class="text-slate-600 dark:text-slate-400 mt-1">Use the cards above or the sidebar to manage users, roles, and permissions.</p>
+  </div>
+</div>
