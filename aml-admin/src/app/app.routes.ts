@@ -18,6 +18,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
       },
       {
+        path: 'screening/new',
+        loadComponent: () => import('./features/screening/screening-stepper/screening-stepper.component').then((m) => m.ScreeningStepperComponent)
+      },
+      {
         path: 'customers',
         loadComponent: () => import('./features/customers/customers-list/customers-list.component').then((m) => m.CustomersListComponent)
       },
@@ -40,6 +44,10 @@ export const routes: Routes = [
       {
         path: 'sanctions-screening/:id/edit',
         loadComponent: () => import('./features/sanctions-screening/sanctions-screening-form/sanctions-screening-form.component').then((m) => m.SanctionsScreeningFormComponent)
+      },
+      {
+        path: 'sanction-lists',
+        loadComponent: () => import('./features/sanction-lists/sanction-list-upload/sanction-list-upload.component').then((m) => m.SanctionListUploadComponent)
       },
       {
         path: 'risk-assignment',

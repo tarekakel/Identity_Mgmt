@@ -23,6 +23,14 @@ import { CommonModule } from '@angular/common';
           <span>{{ 'app.dashboard' | translate }}</span>
         </a>
         <a
+          routerLink="/screening/new"
+          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+        >
+          <span class="w-5 text-center">📋</span>
+          <span>{{ 'app.screening' | translate }}</span>
+        </a>
+        <a
           routerLink="/customers"
           routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
           class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
@@ -37,6 +45,14 @@ import { CommonModule } from '@angular/common';
         >
           <span class="w-5 text-center">🔍</span>
           <span>{{ 'app.sanctionsScreening' | translate }}</span>
+        </a>
+        <a
+          routerLink="/sanction-lists"
+          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+        >
+          <span class="w-5 text-center">📑</span>
+          <span>{{ 'app.sanctionLists' | translate }}</span>
         </a>
         <a
           routerLink="/risk-assignment"

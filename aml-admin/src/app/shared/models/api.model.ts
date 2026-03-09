@@ -34,18 +34,108 @@ export interface LoginResponse {
   tokenType?: string;
 }
 
+export interface CustomerTypeDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface CustomerStatusDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface GenderDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface NationalityDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface CountryDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface DocumentTypeDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface OccupationDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface SourceOfFundsDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface CustomerDocumentDto {
+  id: string;
+  customerId: string;
+  documentTypeId: string;
+  documentTypeCode?: string;
+  documentTypeName?: string;
+  fileName: string;
+  uploadedBy?: string;
+  uploadedDate: string;
+  expiryDate?: string;
+}
+
 export interface CustomerDto {
   id: string;
   tenantId: string;
+  customerNumber?: string;
+  firstName?: string;
+  lastName?: string;
   fullName?: string;
-  nationalIdOrPassport?: string;
   dateOfBirth?: string;
-  nationality?: string;
+  genderId?: string;
+  genderName?: string;
+  nationalityId?: string;
+  nationalityName?: string;
+  passportNumber?: string;
+  passportExpiryDate?: string;
+  nationalId?: string;
+  countryOfResidenceId?: string;
+  countryOfResidenceName?: string;
+  email?: string;
+  phone?: string;
   address?: string;
-  occupation?: string;
-  sourceOfFunds?: string;
+  city?: string;
+  country?: string;
+  occupationId?: string;
+  occupationName?: string;
+  employerName?: string;
+  sourceOfFundsId?: string;
+  sourceOfFundsName?: string;
+  annualIncome?: number;
+  expectedMonthlyTransactionVolume?: number;
+  expectedMonthlyTransactionValue?: number;
+  customerTypeId?: string;
+  customerTypeCode?: string;
+  customerTypeName?: string;
+  accountPurpose?: string;
+  riskScore?: number;
+  riskLevel?: string;
+  statusId?: string;
+  statusCode?: string;
+  statusName?: string;
   isPep?: boolean;
   businessActivity?: string;
+  nationalIdOrPassport?: string;
   riskClassification?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -57,29 +147,55 @@ export interface CustomerDto {
 
 export interface CreateCustomerRequest {
   tenantId: string;
+  firstName?: string;
+  lastName?: string;
   fullName: string;
-  nationalIdOrPassport?: string;
   dateOfBirth?: string;
-  nationality?: string;
+  genderId?: string;
+  nationalityId?: string;
+  passportNumber?: string;
+  passportExpiryDate?: string;
+  nationalId?: string;
+  countryOfResidenceId?: string;
+  email?: string;
+  phone?: string;
   address?: string;
-  occupation?: string;
-  sourceOfFunds?: string;
-  isPep: boolean;
-  businessActivity?: string;
-  riskClassification: string;
+  city?: string;
+  country?: string;
+  occupationId?: string;
+  employerName?: string;
+  sourceOfFundsId?: string;
+  annualIncome?: number;
+  expectedMonthlyTransactionVolume?: number;
+  expectedMonthlyTransactionValue?: number;
+  customerTypeId: string;
+  accountPurpose?: string;
 }
 
 export interface UpdateCustomerRequest {
+  firstName?: string;
+  lastName?: string;
   fullName: string;
-  nationalIdOrPassport?: string;
   dateOfBirth?: string;
-  nationality?: string;
+  genderId?: string;
+  nationalityId?: string;
+  passportNumber?: string;
+  passportExpiryDate?: string;
+  nationalId?: string;
+  countryOfResidenceId?: string;
+  email?: string;
+  phone?: string;
   address?: string;
-  occupation?: string;
-  sourceOfFunds?: string;
-  isPep: boolean;
-  businessActivity?: string;
-  riskClassification: string;
+  city?: string;
+  country?: string;
+  occupationId?: string;
+  employerName?: string;
+  sourceOfFundsId?: string;
+  annualIncome?: number;
+  expectedMonthlyTransactionVolume?: number;
+  expectedMonthlyTransactionValue?: number;
+  customerTypeId: string;
+  accountPurpose?: string;
   isActive: boolean;
 }
 
@@ -162,6 +278,7 @@ export interface SanctionsScreeningDto {
   screeningList?: string;
   result?: string;
   matchedName?: string;
+  matchType?: string;
   score?: number;
   screenedAt?: string;
   createdAt?: string;
@@ -170,6 +287,22 @@ export interface SanctionsScreeningDto {
   updatedBy?: string;
   isActive?: boolean;
   isDeleted?: boolean;
+}
+
+export interface SanctionsScreeningResultItemDto {
+  id: string;
+  customerId: string;
+  matchedName?: string;
+  sanctionList?: string;
+  matchScore?: number;
+  matchType?: string;
+  screeningDate: string;
+  status: string;
+}
+
+export interface RunSanctionsScreeningResultDto {
+  results: SanctionsScreeningResultItemDto[];
+  hasConfirmedMatch: boolean;
 }
 
 export interface CreateSanctionsScreeningRequest {
@@ -188,6 +321,82 @@ export interface UpdateSanctionsScreeningRequest {
   score?: number;
   screenedAt: string;
   isActive: boolean;
+}
+
+export interface SanctionListSourceDto {
+  id: string;
+  name: string;
+  fileFormat: string;
+}
+
+export interface SanctionListUploadResultDto {
+  importedCount: number;
+  replacedCount: number;
+  errors: string[];
+}
+
+export interface SanctionListEntryDto {
+  id: string;
+  listSource: string;
+  fullName: string;
+  nationality?: string | null;
+  dateOfBirth?: string | null;
+  referenceNumber?: string | null;
+  entryType?: string | null;
+  dataId?: string | null;
+  versionNum?: string | null;
+  firstName?: string | null;
+  secondName?: string | null;
+  unListType?: string | null;
+  listType?: string | null;
+  listedOn?: string | null;
+  lastDayUpdated?: string | null;
+  gender?: string | null;
+  designation?: string | null;
+  comments?: string | null;
+  aliases?: string | null;
+  addressCity?: string | null;
+  addressCountry?: string | null;
+  addressNote?: string | null;
+  placeOfBirthCountry?: string | null;
+  sortKey?: string | null;
+  fullNameArabic?: string | null;
+  familyNameArabic?: string | null;
+  familyNameLatin?: string | null;
+  documentNumber?: string | null;
+  issuingAuthority?: string | null;
+  issueDate?: string | null;
+  endDate?: string | null;
+  otherInformation?: string | null;
+  typeDetail?: string | null;
+}
+
+export interface CreateSanctionListEntryRequest {
+  listSource: string;
+  fullName: string;
+  nationality?: string | null;
+  dateOfBirth?: string | null;
+  referenceNumber?: string | null;
+  entryType?: string | null;
+  firstName?: string | null;
+  secondName?: string | null;
+  gender?: string | null;
+  designation?: string | null;
+  comments?: string | null;
+  aliases?: string | null;
+  addressCity?: string | null;
+  addressCountry?: string | null;
+  addressNote?: string | null;
+  placeOfBirthCountry?: string | null;
+  fullNameArabic?: string | null;
+  familyNameArabic?: string | null;
+  familyNameLatin?: string | null;
+  documentNumber?: string | null;
+  issuingAuthority?: string | null;
+  issueDate?: string | null;
+  endDate?: string | null;
+  otherInformation?: string | null;
+  typeDetail?: string | null;
 }
 
 export interface AuditLogDto {

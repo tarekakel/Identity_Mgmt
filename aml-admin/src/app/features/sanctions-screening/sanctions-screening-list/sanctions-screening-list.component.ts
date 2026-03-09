@@ -2,8 +2,10 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../../core/services/api.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { ConfirmService } from '../../../shared/services/confirm.service';
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import type { ApiResponse, PagedResult, SanctionsScreeningDto, PagedRequest } from '../../../shared/models/api.model';
@@ -26,6 +28,9 @@ export class SanctionsScreeningListComponent implements OnInit {
   pageSize = computed(() => this.request().pageSize);
 
   private readonly api = inject(ApiService);
+  private readonly confirmService = inject(ConfirmService);
+  private readonly notification = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   ngOnInit(): void {
     this.load();
@@ -42,7 +47,10 @@ export class SanctionsScreeningListComponent implements OnInit {
           this.totalPages.set(res.data.totalPages);
         }
       },
-      error: () => this.loading.set(false)
+      error: () => {
+        this.loading.set(false);
+        this.notification.error(this.translate.instant('common.errorGeneric'));
+      }
     });
   }
 
@@ -57,11 +65,23 @@ export class SanctionsScreeningListComponent implements OnInit {
   }
 
   deleteSanctionsScreening(id: string): void {
-    if (!confirm('Are you sure you want to delete this sanctions screening?')) return;
-    this.api.deleteSanctionsScreening(id).subscribe({
-      next: (res) => {
-        if (res.success) this.load();
-      }
+    const title = this.translate.instant('common.confirmTitle');
+    const message = this.translate.instant('common.confirmDeleteSanctionsScreening');
+    this.confirmService.confirm(title, message).subscribe((ok) => {
+      if (!ok) return;
+      this.api.deleteSanctionsScreening(id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.notification.success(this.translate.instant('common.deleteSuccess'));
+            this.load();
+          } else {
+            this.notification.error(res.message ?? this.translate.instant('common.deleteFailed'));
+          }
+        },
+        error: (err) => {
+          this.notification.error(err?.error?.message ?? this.translate.instant('common.deleteFailed'));
+        }
+      });
     });
   }
 }

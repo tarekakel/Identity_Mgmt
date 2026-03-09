@@ -2,8 +2,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../../core/services/api.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import type { CaseDto, CreateCaseRequest, UpdateCaseRequest, ApiResponse } from '../../../shared/models/api.model';
 
 @Component({
@@ -16,6 +17,8 @@ export class CaseFormComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly notification = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   id = signal<string | null>(null);
   loading = signal(true);
@@ -48,7 +51,10 @@ export class CaseFormComponent implements OnInit {
             this.isActive.set(d.isActive ?? true);
           }
         },
-        error: () => this.loading.set(false)
+        error: () => {
+          this.loading.set(false);
+          this.notification.error(this.translate.instant('common.errorGeneric'));
+        }
       });
     } else {
       this.loading.set(false);
@@ -71,19 +77,37 @@ export class CaseFormComponent implements OnInit {
       this.api.updateCase(id, payload).subscribe({
         next: (res) => {
           this.saving.set(false);
-          if (res.success) this.router.navigate(['/cases']);
-          else this.error.set(res.message ?? 'Update failed');
+          if (res.success) {
+            this.notification.success(this.translate.instant('common.saveSuccess'));
+            this.router.navigate(['/cases']);
+          } else {
+            const msg = res.message ?? this.translate.instant('common.saveFailed');
+            this.error.set(msg);
+            this.notification.error(msg);
+          }
         },
-        error: () => this.saving.set(false)
+        error: (err) => {
+          this.saving.set(false);
+          this.notification.error(err?.error?.message ?? this.translate.instant('common.saveFailed'));
+        }
       });
     } else {
       this.api.createCase(payloadCreate).subscribe({
         next: (res) => {
           this.saving.set(false);
-          if (res.success) this.router.navigate(['/cases']);
-          else this.error.set(res.message ?? 'Create failed');
+          if (res.success) {
+            this.notification.success(this.translate.instant('common.saveSuccess'));
+            this.router.navigate(['/cases']);
+          } else {
+            const msg = res.message ?? this.translate.instant('common.saveFailed');
+            this.error.set(msg);
+            this.notification.error(msg);
+          }
         },
-        error: () => this.saving.set(false)
+        error: (err) => {
+          this.saving.set(false);
+          this.notification.error(err?.error?.message ?? this.translate.instant('common.saveFailed'));
+        }
       });
     }
   }

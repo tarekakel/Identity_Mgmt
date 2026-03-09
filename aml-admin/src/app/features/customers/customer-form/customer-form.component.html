@@ -16,6 +16,17 @@
         <input type="text" [ngModel]="fullName()" name="fullName" (ngModelChange)="fullName.set($event)"
           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" required />
       </div>
+      @if (customerTypes().length > 0) {
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'screening.customerType' | translate }} *</label>
+          <select [ngModel]="customerTypeId()" name="customerTypeId" (ngModelChange)="customerTypeId.set($event)"
+            class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" required>
+            @for (t of customerTypes(); track t.id) {
+              <option [value]="t.id">{{ t.name }}</option>
+            }
+          </select>
+        </div>
+      }
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.nationalIdOrPassport' | translate }}</label>
         <input type="text" [ngModel]="nationalIdOrPassport()" name="nationalIdOrPassport" (ngModelChange)="nationalIdOrPassport.set($event)"
@@ -28,8 +39,13 @@
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.nationality' | translate }}</label>
-        <input type="text" [ngModel]="nationality()" name="nationality" (ngModelChange)="nationality.set($event)"
-          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+        <select [ngModel]="nationalityId()" name="nationalityId" (ngModelChange)="nationalityId.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+          <option value="">{{ 'common.select' | translate }}</option>
+          @for (n of nationalities(); track n.id) {
+            <option [value]="n.id">{{ n.name }}</option>
+          }
+        </select>
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.address' | translate }}</label>
@@ -38,13 +54,23 @@
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.occupation' | translate }}</label>
-        <input type="text" [ngModel]="occupation()" name="occupation" (ngModelChange)="occupation.set($event)"
-          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+        <select [ngModel]="occupationId()" name="occupationId" (ngModelChange)="occupationId.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+          <option value="">{{ 'common.select' | translate }}</option>
+          @for (o of occupations(); track o.id) {
+            <option [value]="o.id">{{ o.name }}</option>
+          }
+        </select>
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'customers.sourceOfFunds' | translate }}</label>
-        <input type="text" [ngModel]="sourceOfFunds()" name="sourceOfFunds" (ngModelChange)="sourceOfFunds.set($event)"
-          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+        <select [ngModel]="sourceOfFundsId()" name="sourceOfFundsId" (ngModelChange)="sourceOfFundsId.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+          <option value="">{{ 'common.select' | translate }}</option>
+          @for (s of sourceOfFundsList(); track s.id) {
+            <option [value]="s.id">{{ s.name }}</option>
+          }
+        </select>
       </div>
       <div class="flex items-center gap-2">
         <input type="checkbox" [ngModel]="isPep()" name="isPep" (ngModelChange)="isPep.set($event)" />

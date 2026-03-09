@@ -9,7 +9,18 @@ import type {
   CustomerDto,
   CreateCustomerRequest,
   UpdateCustomerRequest,
+  CustomerTypeDto,
+  CustomerStatusDto,
+  GenderDto,
+  NationalityDto,
+  CountryDto,
+  DocumentTypeDto,
+  OccupationDto,
+  SourceOfFundsDto,
+  CustomerDocumentDto,
   SanctionsScreeningDto,
+  SanctionsScreeningResultItemDto,
+  RunSanctionsScreeningResultDto,
   CreateSanctionsScreeningRequest,
   UpdateSanctionsScreeningRequest,
   RiskAssignmentDto,
@@ -18,7 +29,11 @@ import type {
   CaseDto,
   CreateCaseRequest,
   UpdateCaseRequest,
-  AuditLogDto
+  AuditLogDto,
+  SanctionListSourceDto,
+  SanctionListUploadResultDto,
+  SanctionListEntryDto,
+  CreateSanctionListEntryRequest
 } from '../../shared/models/api.model';
 
 const BASE = environment.apiUrl;
@@ -37,6 +52,31 @@ export class ApiService {
     return params;
   }
 
+  getCustomerTypes(): Observable<ApiResponse<CustomerTypeDto[]>> {
+    return this.http.get<ApiResponse<CustomerTypeDto[]>>(`${BASE}/api/Lookups/customer-types`);
+  }
+  getCustomerStatuses(): Observable<ApiResponse<CustomerStatusDto[]>> {
+    return this.http.get<ApiResponse<CustomerStatusDto[]>>(`${BASE}/api/Lookups/customer-statuses`);
+  }
+  getGenders(): Observable<ApiResponse<GenderDto[]>> {
+    return this.http.get<ApiResponse<GenderDto[]>>(`${BASE}/api/Lookups/genders`);
+  }
+  getNationalities(): Observable<ApiResponse<NationalityDto[]>> {
+    return this.http.get<ApiResponse<NationalityDto[]>>(`${BASE}/api/Lookups/nationalities`);
+  }
+  getCountries(): Observable<ApiResponse<CountryDto[]>> {
+    return this.http.get<ApiResponse<CountryDto[]>>(`${BASE}/api/Lookups/countries`);
+  }
+  getDocumentTypes(): Observable<ApiResponse<DocumentTypeDto[]>> {
+    return this.http.get<ApiResponse<DocumentTypeDto[]>>(`${BASE}/api/Lookups/document-types`);
+  }
+  getOccupations(): Observable<ApiResponse<OccupationDto[]>> {
+    return this.http.get<ApiResponse<OccupationDto[]>>(`${BASE}/api/Lookups/occupations`);
+  }
+  getSourceOfFunds(): Observable<ApiResponse<SourceOfFundsDto[]>> {
+    return this.http.get<ApiResponse<SourceOfFundsDto[]>>(`${BASE}/api/Lookups/source-of-funds`);
+  }
+
   getCustomers(req: PagedRequest): Observable<ApiResponse<PagedResult<CustomerDto>>> {
     return this.http.get<ApiResponse<PagedResult<CustomerDto>>>(`${BASE}/api/Customers`, { params: this.pagedParams(req) });
   }
@@ -51,6 +91,25 @@ export class ApiService {
   }
   deleteCustomer(id: string): Observable<ApiResponse> {
     return this.http.delete<ApiResponse>(`${BASE}/api/Customers/${id}`);
+  }
+  getCustomerDocuments(customerId: string): Observable<ApiResponse<CustomerDocumentDto[]>> {
+    return this.http.get<ApiResponse<CustomerDocumentDto[]>>(`${BASE}/api/Customers/${customerId}/documents`);
+  }
+  uploadCustomerDocument(customerId: string, documentTypeCode: string, file: File, expiryDate?: string): Observable<ApiResponse<CustomerDocumentDto>> {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('documentTypeCode', documentTypeCode);
+    if (expiryDate) form.append('expiryDate', expiryDate);
+    return this.http.post<ApiResponse<CustomerDocumentDto>>(`${BASE}/api/Customers/${customerId}/documents`, form);
+  }
+  downloadCustomerDocument(customerId: string, documentId: string): Observable<Blob> {
+    return this.http.get(`${BASE}/api/Customers/${customerId}/documents/${documentId}/download`, { responseType: 'blob' });
+  }
+  runCustomerSanctionsScreening(customerId: string): Observable<ApiResponse<RunSanctionsScreeningResultDto>> {
+    return this.http.post<ApiResponse<RunSanctionsScreeningResultDto>>(`${BASE}/api/Customers/${customerId}/sanctions-screening/run`, {});
+  }
+  getCustomerSanctionsScreeningResults(customerId: string): Observable<ApiResponse<SanctionsScreeningResultItemDto[]>> {
+    return this.http.get<ApiResponse<SanctionsScreeningResultItemDto[]>>(`${BASE}/api/Customers/${customerId}/sanctions-screening/results`);
   }
 
   getCases(req: PagedRequest): Observable<ApiResponse<PagedResult<CaseDto>>> {
@@ -106,5 +165,31 @@ export class ApiService {
   }
   getAuditLog(id: string): Observable<ApiResponse<AuditLogDto>> {
     return this.http.get<ApiResponse<AuditLogDto>>(`${BASE}/api/AuditLogs/${id}`);
+  }
+
+  getSanctionListSources(): Observable<ApiResponse<SanctionListSourceDto[]>> {
+    return this.http.get<ApiResponse<SanctionListSourceDto[]>>(`${BASE}/api/SanctionLists/sources`);
+  }
+  uploadSanctionList(file: File, listSource: string): Observable<ApiResponse<SanctionListUploadResultDto>> {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('listSource', listSource);
+    return this.http.post<ApiResponse<SanctionListUploadResultDto>>(`${BASE}/api/SanctionLists/upload`, form);
+  }
+
+  getSanctionListEntries(params: { searchTerm?: string; listSource?: string; pageNumber?: number; pageSize?: number }): Observable<ApiResponse<PagedResult<SanctionListEntryDto>>> {
+    const { searchTerm, listSource, pageNumber = 1, pageSize = 20 } = params;
+    let url = `${BASE}/api/SanctionLists/entries?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+    if (searchTerm?.trim()) url += `&searchTerm=${encodeURIComponent(searchTerm.trim())}`;
+    if (listSource?.trim()) url += `&listSource=${encodeURIComponent(listSource.trim())}`;
+    return this.http.get<ApiResponse<PagedResult<SanctionListEntryDto>>>(url);
+  }
+
+  deleteSanctionListBySource(listSource: string): Observable<ApiResponse<number>> {
+    return this.http.delete<ApiResponse<number>>(`${BASE}/api/SanctionLists/entries?listSource=${encodeURIComponent(listSource)}`);
+  }
+
+  createSanctionEntry(body: CreateSanctionListEntryRequest): Observable<ApiResponse<SanctionListEntryDto>> {
+    return this.http.post<ApiResponse<SanctionListEntryDto>>(`${BASE}/api/SanctionLists/entries`, body);
   }
 }

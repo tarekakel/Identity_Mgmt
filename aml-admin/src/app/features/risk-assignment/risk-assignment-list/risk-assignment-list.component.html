@@ -36,7 +36,7 @@
           @for (r of list(); track r.id) {
             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
               <td class="px-4 py-3 text-slate-800 dark:text-slate-100 text-sm">{{ r.id }}</td>
-              <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ r.customerId ?? '—' }}</td>
+              <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ r.customerId }}</td>
               <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ r.riskLevel ?? '—' }}</td>
               <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ r.createdAt ?? '—' }}</td>
               <td class="px-4 py-3 flex gap-2">

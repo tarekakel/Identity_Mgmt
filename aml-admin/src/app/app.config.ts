@@ -5,6 +5,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader, provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { provideToastr } from 'ngx-toastr';
 
 import { routes } from './app.routes';
 
@@ -12,6 +13,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
+    provideToastr({ positionClass: 'toast-top-right', timeOut: 4000 }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideTranslateHttpLoader({ prefix: '/assets/i18n/', suffix: '.json' }),

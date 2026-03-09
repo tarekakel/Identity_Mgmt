@@ -63,6 +63,7 @@ public class SanctionsScreeningService : ISanctionsScreeningService
             ScreeningList = dto.ScreeningList,
             Result = dto.Result,
             MatchedName = dto.MatchedName,
+            MatchType = dto.MatchType,
             Score = dto.Score,
             ScreenedAt = dto.ScreenedAt
         };
@@ -79,6 +80,7 @@ public class SanctionsScreeningService : ISanctionsScreeningService
         entity.ScreeningList = dto.ScreeningList;
         entity.Result = dto.Result;
         entity.MatchedName = dto.MatchedName;
+        entity.MatchType = dto.MatchType;
         entity.Score = dto.Score;
         entity.ScreenedAt = dto.ScreenedAt;
         entity.IsActive = dto.IsActive;
@@ -115,6 +117,7 @@ public class SanctionsScreeningService : ISanctionsScreeningService
         ScreeningList = s.ScreeningList,
         Result = s.Result,
         MatchedName = s.MatchedName,
+        MatchType = s.MatchType,
         Score = s.Score,
         ScreenedAt = s.ScreenedAt,
         CreatedAt = s.CreatedAt,

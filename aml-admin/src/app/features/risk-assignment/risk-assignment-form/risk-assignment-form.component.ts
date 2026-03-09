@@ -2,8 +2,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../../core/services/api.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import type {
   RiskAssignmentDto,
   CreateRiskAssignmentRequest,
@@ -21,6 +22,8 @@ export class RiskAssignmentFormComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly notification = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   id = signal<string | null>(null);
   loading = signal(true);
@@ -59,7 +62,10 @@ export class RiskAssignmentFormComponent implements OnInit {
             this.isActive.set(d.isActive ?? true);
           }
         },
-        error: () => this.loading.set(false)
+        error: () => {
+          this.loading.set(false);
+          this.notification.error(this.translate.instant('common.errorGeneric'));
+        }
       });
     } else {
       this.loading.set(false);
@@ -84,10 +90,19 @@ export class RiskAssignmentFormComponent implements OnInit {
       this.api.updateRiskAssignment(id, payload).subscribe({
         next: (res) => {
           this.saving.set(false);
-          if (res.success) this.router.navigate(['/risk-assignment']);
-          else this.error.set(res.message ?? 'Update failed');
+          if (res.success) {
+            this.notification.success(this.translate.instant('common.saveSuccess'));
+            this.router.navigate(['/risk-assignment']);
+          } else {
+            const msg = res.message ?? this.translate.instant('common.saveFailed');
+            this.error.set(msg);
+            this.notification.error(msg);
+          }
         },
-        error: () => this.saving.set(false)
+        error: (err) => {
+          this.saving.set(false);
+          this.notification.error(err?.error?.message ?? this.translate.instant('common.saveFailed'));
+        }
       });
     } else {
       const payload: CreateRiskAssignmentRequest = {
@@ -95,17 +110,28 @@ export class RiskAssignmentFormComponent implements OnInit {
         ...payloadBase
       };
       if (!payload.customerId) {
-        this.error.set('Customer Id is required');
+        const msg = this.translate.instant('common.customerIdRequired');
+        this.error.set(msg);
+        this.notification.error(msg);
         this.saving.set(false);
         return;
       }
       this.api.createRiskAssignment(payload).subscribe({
         next: (res) => {
           this.saving.set(false);
-          if (res.success) this.router.navigate(['/risk-assignment']);
-          else this.error.set(res.message ?? 'Create failed');
+          if (res.success) {
+            this.notification.success(this.translate.instant('common.saveSuccess'));
+            this.router.navigate(['/risk-assignment']);
+          } else {
+            const msg = res.message ?? this.translate.instant('common.saveFailed');
+            this.error.set(msg);
+            this.notification.error(msg);
+          }
         },
-        error: () => this.saving.set(false)
+        error: (err) => {
+          this.saving.set(false);
+          this.notification.error(err?.error?.message ?? this.translate.instant('common.saveFailed'));
+        }
       });
     }
   }

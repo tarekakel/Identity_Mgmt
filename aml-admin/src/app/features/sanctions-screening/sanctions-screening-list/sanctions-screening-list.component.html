@@ -36,7 +36,7 @@
           @for (s of list(); track s.id) {
             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
               <td class="px-4 py-3 text-slate-800 dark:text-slate-100 text-sm">{{ s.id }}</td>
-              <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ s.customerId ?? '—' }}</td>
+              <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ s.customerId }}</td>
               <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ s.result ?? '—' }}</td>
               <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ s.screenedAt ?? '—' }}</td>
               <td class="px-4 py-3 flex gap-2">

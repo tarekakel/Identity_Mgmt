@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -16,6 +17,9 @@ export class LoginComponent {
   form: FormGroup;
   loading = false;
   errorMessage: string | null = null;
+
+  private readonly notification = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   constructor(
     private fb: FormBuilder,
@@ -41,12 +45,20 @@ export class LoginComponent {
       .subscribe({
         next: (res) => {
           this.loading = false;
-          if (res.success) this.router.navigate(['/dashboard']);
-          else this.errorMessage = res.message || 'errors.loginFailed';
+          if (res.success) {
+            this.notification.success(this.translate.instant('auth.loginSuccess'));
+            this.router.navigate(['/dashboard']);
+          } else {
+            const msg = res.message || this.translate.instant('errors.loginFailed');
+            this.errorMessage = msg;
+            this.notification.error(msg);
+          }
         },
         error: (err) => {
           this.loading = false;
-          this.errorMessage = err.error?.message || err.error?.errors?.[0] || 'errors.loginFailed';
+          const msg = err.error?.message || err.error?.errors?.[0] || this.translate.instant('errors.loginFailed');
+          this.errorMessage = msg;
+          this.notification.error(msg);
         }
       });
   }

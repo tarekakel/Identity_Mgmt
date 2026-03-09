@@ -9,6 +9,7 @@ public class SanctionsScreening : IEntity, IAuditable, ISoftDelete
     public string ScreeningList { get; set; } = string.Empty;
     public string Result { get; set; } = string.Empty;
     public string? MatchedName { get; set; }
+    public string? MatchType { get; set; }
     public decimal? Score { get; set; }
     public DateTime ScreenedAt { get; set; }
     public DateTime CreatedAt { get; set; }

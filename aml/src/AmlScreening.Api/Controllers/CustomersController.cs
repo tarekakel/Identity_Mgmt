@@ -1,5 +1,6 @@
 using AmlScreening.Application.Common;
 using AmlScreening.Application.DTOs.Customers;
+using AmlScreening.Application.DTOs.SanctionsScreening;
 using AmlScreening.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +12,17 @@ namespace AmlScreening.Api.Controllers;
 [AllowAnonymous]
 public class CustomersController : ControllerBase
 {
-    private readonly ICustomerService _service;
+    private const long MaxDocumentSizeBytes = 10 * 1024 * 1024; // 10MB
 
-    public CustomersController(ICustomerService service)
+    private readonly ICustomerService _service;
+    private readonly ICustomerDocumentService _documentService;
+    private readonly IRunSanctionsScreeningService _runSanctionsScreeningService;
+
+    public CustomersController(ICustomerService service, ICustomerDocumentService documentService, IRunSanctionsScreeningService runSanctionsScreeningService)
     {
         _service = service;
+        _documentService = documentService;
+        _runSanctionsScreeningService = runSanctionsScreeningService;
     }
 
     [HttpGet]
@@ -70,6 +77,74 @@ public class CustomersController : ControllerBase
         var result = await _service.DeleteAsync(id, cancellationToken);
         if (!result.Success)
             return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpPost("{customerId:guid}/documents")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ApiResponse<CustomerDocumentDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UploadDocument(
+        Guid customerId,
+        IFormFile file,
+        [FromForm] string documentTypeCode,
+        [FromForm] DateTime? expiryDate,
+        CancellationToken cancellationToken)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(ApiResponse<CustomerDocumentDto>.Fail("No file uploaded."));
+        if (file.Length > MaxDocumentSizeBytes)
+            return BadRequest(ApiResponse<CustomerDocumentDto>.Fail("File size must be less than 10MB."));
+        if (string.IsNullOrWhiteSpace(documentTypeCode))
+            return BadRequest(ApiResponse<CustomerDocumentDto>.Fail("Document type is required."));
+
+        await using var stream = file.OpenReadStream();
+        var result = await _documentService.UploadAsync(customerId, documentTypeCode.Trim(), stream, file.FileName, file.ContentType, expiryDate, cancellationToken);
+        if (!result.Success)
+            return result.Message == "Customer not found." ? NotFound(result) : BadRequest(result);
+        return Created($"/api/Customers/{customerId}/documents/{result.Data!.Id}", result);
+    }
+
+    [HttpGet("{customerId:guid}/documents")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<CustomerDocumentDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCustomerDocuments(Guid customerId, CancellationToken cancellationToken)
+    {
+        var result = await _documentService.GetByCustomerIdAsync(customerId, cancellationToken);
+        if (!result.Success)
+            return Ok(result);
+        return Ok(result);
+    }
+
+    [HttpGet("{customerId:guid}/documents/{documentId:guid}/download")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadDocument(Guid customerId, Guid documentId, CancellationToken cancellationToken)
+    {
+        var result = await _documentService.GetDownloadAsync(customerId, documentId, cancellationToken);
+        if (!result.Success)
+            return NotFound(ApiResponse.Fail(result.Message));
+        var (content, fileName, contentType) = result.Data!;
+        return File(content, contentType, fileName);
+    }
+
+    [HttpPost("{customerId:guid}/sanctions-screening/run")]
+    [ProducesResponseType(typeof(ApiResponse<RunSanctionsScreeningResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RunSanctionsScreening(Guid customerId, CancellationToken cancellationToken)
+    {
+        var result = await _runSanctionsScreeningService.RunScreeningForCustomerAsync(customerId, cancellationToken);
+        if (!result.Success)
+            return result.Message == "Customer not found." ? NotFound(result) : BadRequest(result);
+        return Ok(result);
+    }
+
+    [HttpGet("{customerId:guid}/sanctions-screening/results")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<SanctionsScreeningResultItemDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSanctionsScreeningResults(Guid customerId, CancellationToken cancellationToken)
+    {
+        var result = await _runSanctionsScreeningService.GetResultsForCustomerAsync(customerId, cancellationToken);
         return Ok(result);
     }
 }

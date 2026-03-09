@@ -47,7 +47,8 @@ public class AuthController : ControllerBase
     {
         var token = request?.RefreshToken ?? string.Empty;
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
-        await _authService.RevokeTokenAsync(token, ip, cancellationToken);
+        var accessToken = Request.Headers.Authorization.FirstOrDefault();
+        await _authService.RevokeTokenAsync(token, ip, accessToken, cancellationToken);
         return Ok(new { message = "Token revoked." });
     }
 }

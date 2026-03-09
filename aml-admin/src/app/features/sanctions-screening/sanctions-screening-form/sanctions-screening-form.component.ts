@@ -2,8 +2,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../../core/services/api.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import type {
   SanctionsScreeningDto,
   CreateSanctionsScreeningRequest,
@@ -21,6 +22,8 @@ export class SanctionsScreeningFormComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly notification = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   id = signal<string | null>(null);
   loading = signal(true);
@@ -55,7 +58,10 @@ export class SanctionsScreeningFormComponent implements OnInit {
             this.isActive.set(d.isActive ?? true);
           }
         },
-        error: () => this.loading.set(false)
+        error: () => {
+          this.loading.set(false);
+          this.notification.error(this.translate.instant('common.errorGeneric'));
+        }
       });
     } else {
       this.loading.set(false);
@@ -80,10 +86,19 @@ export class SanctionsScreeningFormComponent implements OnInit {
       this.api.updateSanctionsScreening(id, payload).subscribe({
         next: (res) => {
           this.saving.set(false);
-          if (res.success) this.router.navigate(['/sanctions-screening']);
-          else this.error.set(res.message ?? 'Update failed');
+          if (res.success) {
+            this.notification.success(this.translate.instant('common.saveSuccess'));
+            this.router.navigate(['/sanctions-screening']);
+          } else {
+            const msg = res.message ?? this.translate.instant('common.saveFailed');
+            this.error.set(msg);
+            this.notification.error(msg);
+          }
         },
-        error: () => this.saving.set(false)
+        error: (err) => {
+          this.saving.set(false);
+          this.notification.error(err?.error?.message ?? this.translate.instant('common.saveFailed'));
+        }
       });
     } else {
       const payload: CreateSanctionsScreeningRequest = {
@@ -95,17 +110,28 @@ export class SanctionsScreeningFormComponent implements OnInit {
         screenedAt: screenedAtVal
       };
       if (!payload.customerId) {
-        this.error.set('Customer Id is required');
+        const msg = this.translate.instant('common.customerIdRequired');
+        this.error.set(msg);
+        this.notification.error(msg);
         this.saving.set(false);
         return;
       }
       this.api.createSanctionsScreening(payload).subscribe({
         next: (res) => {
           this.saving.set(false);
-          if (res.success) this.router.navigate(['/sanctions-screening']);
-          else this.error.set(res.message ?? 'Create failed');
+          if (res.success) {
+            this.notification.success(this.translate.instant('common.saveSuccess'));
+            this.router.navigate(['/sanctions-screening']);
+          } else {
+            const msg = res.message ?? this.translate.instant('common.saveFailed');
+            this.error.set(msg);
+            this.notification.error(msg);
+          }
         },
-        error: () => this.saving.set(false)
+        error: (err) => {
+          this.saving.set(false);
+          this.notification.error(err?.error?.message ?? this.translate.instant('common.saveFailed'));
+        }
       });
     }
   }

@@ -52,3 +52,41 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 }
+
+/* ngx-toastr: ensure fixed position top-right, not full-width at bottom */
+.overlay-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  pointer-events: none !important;
+  z-index: 999999 !important;
+}
+#toast-container,
+.toast-container {
+  position: fixed !important;
+  top: 12px !important;
+  right: 12px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  max-width: 300px !important;
+  pointer-events: auto !important;
+  z-index: 1000000 !important;
+}
+#toast-container .ngx-toastr,
+.toast-container .ngx-toastr {
+  width: 300px !important;
+  max-width: 300px !important;
+}
+
+/* ngx-toastr: green success, red error */
+.toast-success {
+  background-color: #16a34a !important;
+  border-left: 4px solid #15803d !important;
+}
+.toast-error {
+  background-color: #dc2626 !important;
+  border-left: 4px solid #b91c1c !important;
+}
