@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<ISanctionsScreeningService, SanctionsScreeningService>();
         services.AddScoped<IRunSanctionsScreeningService, RunSanctionsScreeningService>();
+        services.AddScoped<ISanctionActionAuditLogService, SanctionActionAuditLogService>();
         services.AddScoped<IRiskAssignmentService, RiskAssignmentService>();
         services.AddScoped<ICaseService, CaseService>();
         services.AddScoped<IAuditLogService, AuditLogService>();

@@ -1,4 +1,4 @@
-<div class="animate-fade-in">
+<div class="animate-fade-in w-full">
   <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ 'app.auditLogs' | translate }}</h1>
   </div>
@@ -18,7 +18,7 @@
   @if (loading()) {
     <app-loader [message]="'common.loading' | translate" />
   } @else {
-    <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800">
+    <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto overflow-y-hidden bg-white dark:bg-slate-800 w-full">
       <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
         <thead class="bg-slate-50 dark:bg-slate-700/50">
           <tr>

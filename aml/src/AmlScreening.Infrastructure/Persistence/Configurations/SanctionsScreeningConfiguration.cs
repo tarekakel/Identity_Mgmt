@@ -16,6 +16,9 @@ public class SanctionsScreeningConfiguration : IEntityTypeConfiguration<Sanction
         builder.Property(e => e.MatchType).HasMaxLength(32);
         builder.Property(e => e.Score).HasPrecision(18, 2);
         builder.Property(e => e.ScreenedAt).IsRequired();
+        builder.Property(e => e.ReviewStatus).HasMaxLength(32);
+        builder.Property(e => e.ReviewedAt);
+        builder.Property(e => e.ReviewedBy).HasMaxLength(256);
         builder.Property(e => e.CreatedAt).IsRequired();
         builder.Property(e => e.UpdatedAt);
         builder.Property(e => e.CreatedBy).HasMaxLength(256);

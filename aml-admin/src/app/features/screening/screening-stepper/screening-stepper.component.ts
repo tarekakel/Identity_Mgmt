@@ -372,7 +372,23 @@ export class ScreeningStepperComponent implements OnInit {
   loadStep3Data(): void {
     const cid = this.createdCustomerId();
     if (!cid) return;
-    this.runSanctionsScreening();
+    this.screeningRunError.set(null);
+    this.api.getCustomerSanctionsScreeningResults(cid).subscribe({
+      next: (res: ApiResponse<SanctionsScreeningResultItemDto[]>) => {
+        if (res.success && res.data) {
+          this.screeningResults.set(res.data);
+          this.hasConfirmedMatch.set(res.data.some(r => r.status === 'ConfirmedMatch'));
+        } else {
+          this.screeningResults.set([]);
+          this.hasConfirmedMatch.set(false);
+        }
+      },
+      error: () => {
+        this.screeningResults.set([]);
+        this.hasConfirmedMatch.set(false);
+        this.notification.error(this.translate.instant('common.errorGeneric'));
+      }
+    });
   }
 
   runSanctionsScreening(): void {
@@ -408,5 +424,54 @@ export class ScreeningStepperComponent implements OnInit {
     if (status === 'ConfirmedMatch') return this.translate.instant('screening.statusConfirmedMatch');
     if (status === 'PossibleMatch') return this.translate.instant('screening.statusPossibleMatch');
     return this.translate.instant('screening.statusClear');
+  }
+
+  getReviewStatusLabel(reviewStatus: string | null | undefined): string {
+    if (reviewStatus === 'PendingReview') return this.translate.instant('screening.reviewPendingReview');
+    if (reviewStatus === 'Approved') return this.translate.instant('screening.reviewApproved');
+    if (reviewStatus === 'Rejected') return this.translate.instant('screening.reviewRejected');
+    return '—';
+  }
+
+  canShowCheckerActions(r: SanctionsScreeningResultItemDto): boolean {
+    return (r.status === 'PossibleMatch' || r.status === 'ConfirmedMatch') && r.reviewStatus === 'PendingReview';
+  }
+
+  actionNote = signal('');
+  actionScreeningId = signal<string | null>(null);
+  pendingAction = signal<'Approve' | 'Reject' | null>(null);
+
+  openAction(screeningId: string, action: 'Approve' | 'Reject'): void {
+    this.actionScreeningId.set(screeningId);
+    this.pendingAction.set(action);
+    this.actionNote.set('');
+  }
+
+  cancelAction(): void {
+    this.actionScreeningId.set(null);
+    this.pendingAction.set(null);
+    this.actionNote.set('');
+  }
+
+  submitCheckerAction(): void {
+    const action = this.pendingAction();
+    const cid = this.createdCustomerId();
+    const screeningId = this.actionScreeningId();
+    if (!cid || !screeningId || !action) return;
+    this.api.recordSanctionScreeningAction(cid, screeningId, { action, notes: this.actionNote()?.trim() || undefined }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.cancelAction();
+          this.loadStep3Data();
+          this.notification.success(this.translate.instant('screening.actionRecorded'));
+        } else {
+          this.notification.error(res.message ?? this.translate.instant('common.errorGeneric'));
+        }
+      },
+      error: (err: unknown) => {
+        const errMsg = (err as { error?: { message?: string } })?.error?.message ?? this.translate.instant('common.errorGeneric');
+        this.notification.error(errMsg);
+      }
+    });
   }
 }

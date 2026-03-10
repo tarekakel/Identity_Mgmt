@@ -17,12 +17,14 @@ public class CustomersController : ControllerBase
     private readonly ICustomerService _service;
     private readonly ICustomerDocumentService _documentService;
     private readonly IRunSanctionsScreeningService _runSanctionsScreeningService;
+    private readonly ISanctionActionAuditLogService _sanctionActionAuditLogService;
 
-    public CustomersController(ICustomerService service, ICustomerDocumentService documentService, IRunSanctionsScreeningService runSanctionsScreeningService)
+    public CustomersController(ICustomerService service, ICustomerDocumentService documentService, IRunSanctionsScreeningService runSanctionsScreeningService, ISanctionActionAuditLogService sanctionActionAuditLogService)
     {
         _service = service;
         _documentService = documentService;
         _runSanctionsScreeningService = runSanctionsScreeningService;
+        _sanctionActionAuditLogService = sanctionActionAuditLogService;
     }
 
     [HttpGet]
@@ -145,6 +147,20 @@ public class CustomersController : ControllerBase
     public async Task<IActionResult> GetSanctionsScreeningResults(Guid customerId, CancellationToken cancellationToken)
     {
         var result = await _runSanctionsScreeningService.GetResultsForCustomerAsync(customerId, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPost("{customerId:guid}/sanctions-screening/{screeningId:guid}/action")]
+    [ProducesResponseType(typeof(ApiResponse<SanctionsScreeningResultItemDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RecordSanctionScreeningAction(Guid customerId, Guid screeningId, [FromBody] RecordSanctionScreeningActionRequest request, CancellationToken cancellationToken)
+    {
+        if (request == null)
+            return BadRequest(ApiResponse<SanctionsScreeningResultItemDto>.Fail("Request body is required."));
+        var result = await _sanctionActionAuditLogService.RecordCheckerActionAsync(customerId, screeningId, request, cancellationToken);
+        if (!result.Success)
+            return result.Message == "Screening result not found." ? NotFound(result) : BadRequest(result);
         return Ok(result);
     }
 }

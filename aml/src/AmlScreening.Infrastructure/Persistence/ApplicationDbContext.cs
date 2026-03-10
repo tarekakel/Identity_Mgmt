@@ -28,6 +28,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Case> Cases => Set<Case>();
     public DbSet<RiskAssignment> RiskAssignments => Set<RiskAssignment>();
     public DbSet<SanctionsScreening> SanctionsScreenings => Set<SanctionsScreening>();
+    public DbSet<SanctionActionAuditLog> SanctionActionAuditLogs => Set<SanctionActionAuditLog>();
     public DbSet<SanctionListEntry> SanctionListEntries => Set<SanctionListEntry>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 

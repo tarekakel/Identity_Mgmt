@@ -76,6 +76,10 @@ export const routes: Routes = [
       {
         path: 'audit-logs',
         loadComponent: () => import('./features/audit-logs/audit-logs-list/audit-logs-list.component').then((m) => m.AuditLogsListComponent)
+      },
+      {
+        path: 'sanction-action-history',
+        loadComponent: () => import('./features/sanction-action-history/sanction-action-history-list.component').then((m) => m.SanctionActionHistoryListComponent)
       }
     ]
   },

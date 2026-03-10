@@ -33,7 +33,9 @@ import type {
   SanctionListSourceDto,
   SanctionListUploadResultDto,
   SanctionListEntryDto,
-  CreateSanctionListEntryRequest
+  CreateSanctionListEntryRequest,
+  RecordSanctionScreeningActionRequest,
+  SanctionActionAuditLogDto
 } from '../../shared/models/api.model';
 
 const BASE = environment.apiUrl;
@@ -110,6 +112,17 @@ export class ApiService {
   }
   getCustomerSanctionsScreeningResults(customerId: string): Observable<ApiResponse<SanctionsScreeningResultItemDto[]>> {
     return this.http.get<ApiResponse<SanctionsScreeningResultItemDto[]>>(`${BASE}/api/Customers/${customerId}/sanctions-screening/results`);
+  }
+  recordSanctionScreeningAction(customerId: string, screeningId: string, body: RecordSanctionScreeningActionRequest): Observable<ApiResponse<SanctionsScreeningResultItemDto>> {
+    return this.http.post<ApiResponse<SanctionsScreeningResultItemDto>>(`${BASE}/api/Customers/${customerId}/sanctions-screening/${screeningId}/action`, body);
+  }
+  getSanctionActionAuditLogs(params: { customerId?: string; sanctionsScreeningId?: string; fromDate?: string; toDate?: string }): Observable<ApiResponse<SanctionActionAuditLogDto[]>> {
+    let httpParams = new HttpParams();
+    if (params.customerId) httpParams = httpParams.set('customerId', params.customerId);
+    if (params.sanctionsScreeningId) httpParams = httpParams.set('sanctionsScreeningId', params.sanctionsScreeningId);
+    if (params.fromDate) httpParams = httpParams.set('fromDate', params.fromDate);
+    if (params.toDate) httpParams = httpParams.set('toDate', params.toDate);
+    return this.http.get<ApiResponse<SanctionActionAuditLogDto[]>>(`${BASE}/api/SanctionActionAuditLogs`, { params: httpParams });
   }
 
   getCases(req: PagedRequest): Observable<ApiResponse<PagedResult<CaseDto>>> {

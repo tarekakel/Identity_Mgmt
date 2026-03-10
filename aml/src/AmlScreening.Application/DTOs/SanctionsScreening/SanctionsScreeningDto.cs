@@ -53,6 +53,37 @@ public class SanctionsScreeningResultItemDto
     public string? MatchType { get; set; }
     public DateTime ScreeningDate { get; set; }
     public string Status { get; set; } = string.Empty; // Clear, PossibleMatch, ConfirmedMatch
+    public string? ReviewStatus { get; set; } // PendingReview, Approved, Rejected
+    public DateTime? ReviewedAt { get; set; }
+    public string? ReviewedBy { get; set; }
+}
+
+/// <summary>
+/// Request to record a checker action (Approve/Reject) on a screening result.
+/// </summary>
+public class RecordSanctionScreeningActionRequest
+{
+    public string Action { get; set; } = string.Empty; // Approve, Reject
+    public string? Notes { get; set; }
+}
+
+/// <summary>
+/// Sanction action audit log entry (history).
+/// </summary>
+public class SanctionActionAuditLogDto
+{
+    public Guid Id { get; set; }
+    public Guid SanctionsScreeningId { get; set; }
+    public Guid CustomerId { get; set; }
+    public string? CustomerName { get; set; }
+    public string? MatchedName { get; set; }
+    public string? SanctionList { get; set; }
+    public string Action { get; set; } = string.Empty;
+    public string? Notes { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public string? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public string? UpdatedBy { get; set; }
 }
 
 /// <summary>

@@ -12,6 +12,9 @@ public class SanctionsScreening : IEntity, IAuditable, ISoftDelete
     public string? MatchType { get; set; }
     public decimal? Score { get; set; }
     public DateTime ScreenedAt { get; set; }
+    public string? ReviewStatus { get; set; } // PendingReview, Approved, Rejected
+    public DateTime? ReviewedAt { get; set; }
+    public string? ReviewedBy { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public string? CreatedBy { get; set; }

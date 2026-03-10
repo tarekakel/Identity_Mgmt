@@ -1,4 +1,8 @@
 {
+  "sidebar": {
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
+  },
   "app": {
     "title": "AML Screening",
     "logout": "Logout",
@@ -9,7 +13,8 @@
     "sanctionLists": "Sanction Lists",
     "riskAssignment": "Risk Assignment",
     "cases": "Cases",
-    "auditLogs": "Audit Logs"
+    "auditLogs": "Audit Logs",
+    "sanctionActionHistory": "Sanction Action History"
   },
   "screening": {
     "title": "Customer Onboarding – Screening Stepper",
@@ -71,6 +76,15 @@
     "statusConfirmedMatch": "Confirmed match",
     "onboardingBlocked": "Onboarding blocked – confirmed sanctions match.",
     "screeningComplete": "Sanctions screening completed.",
+    "noResultsYet": "No results yet. Run screening below.",
+    "reviewStatus": "Review status",
+    "reviewPendingReview": "Pending review",
+    "reviewApproved": "Approved",
+    "reviewRejected": "Rejected",
+    "approve": "Approve",
+    "reject": "Reject",
+    "notes": "Notes",
+    "actionRecorded": "Action recorded successfully.",
     "continueToStep4": "Continue to Step 4",
     "continueToSanctions": "Continue to Sanctions Screening",
     "backToKyc": "Back to KYC"
@@ -81,6 +95,18 @@
     "loginTitle": "Sign in",
     "submit": "Sign in",
     "loginSuccess": "Signed in successfully."
+  },
+  "sanctionActionHistory": {
+    "title": "Sanction Action History",
+    "createdAt": "Created date",
+    "createdBy": "Created by",
+    "updatedAt": "Updated date",
+    "updatedBy": "Updated by",
+    "action": "Action",
+    "customerName": "Customer",
+    "matchedName": "Matched name",
+    "sanctionList": "Sanction list",
+    "notes": "Notes"
   },
   "common": {
     "search": "Search",

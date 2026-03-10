@@ -298,6 +298,29 @@ export interface SanctionsScreeningResultItemDto {
   matchType?: string;
   screeningDate: string;
   status: string;
+  reviewStatus?: string | null;
+  reviewedAt?: string | null;
+  reviewedBy?: string | null;
+}
+
+export interface RecordSanctionScreeningActionRequest {
+  action: string;
+  notes?: string;
+}
+
+export interface SanctionActionAuditLogDto {
+  id: string;
+  sanctionsScreeningId: string;
+  customerId: string;
+  customerName?: string | null;
+  matchedName?: string | null;
+  sanctionList?: string | null;
+  action: string;
+  notes?: string | null;
+  createdAt: string;
+  createdBy?: string | null;
+  updatedAt?: string | null;
+  updatedBy?: string | null;
 }
 
 export interface RunSanctionsScreeningResultDto {
