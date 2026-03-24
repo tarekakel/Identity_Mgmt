@@ -55,14 +55,11 @@ public class RunSanctionsScreeningService : IRunSanctionsScreeningService
         var results = new List<SanctionsScreeningResultItemDto>();
         var hasConfirmedMatch = false;
 
-        // Group by list source and take best match per list
+        // Group by list source; for each list add all entries with score >= 70 (all matches)
         var byList = entries.GroupBy(e => e.ListSource);
         foreach (var group in byList)
         {
             var listName = group.Key;
-            double bestScore = 0;
-            string bestMatchType = MatchTypeFullName;
-            string? bestMatchedName = null;
 
             foreach (var entry in group)
             {
@@ -78,43 +75,41 @@ public class RunSanctionsScreeningService : IRunSanctionsScreeningService
                     entry.Nationality?.Trim() ?? string.Empty,
                     entry.DateOfBirth);
 
-                if (score > bestScore)
+                if (score < ThresholdPossibleMatch)
+                    continue;
+
+                var status = GetStatusFromScore(score);
+                if (status == StatusConfirmedMatch)
+                    hasConfirmedMatch = true;
+
+                var reviewStatus = (status == StatusPossibleMatch || status == StatusConfirmedMatch)
+                    ? ReviewStatusPendingReview
+                    : null;
+
+                var entity = new SanctionsScreening
                 {
-                    bestScore = score;
-                    bestMatchType = matchType;
-                    bestMatchedName = entry.FullName;
-                }
+                    Id = Guid.NewGuid(),
+                    CustomerId = customerId,
+                    ScreeningList = listName,
+                    Result = status,
+                    MatchedName = entry.FullName,
+                    MatchType = matchType,
+                    Score = (decimal)Math.Round(score, 2),
+                    ScreenedAt = screenedAt,
+                    ReviewStatus = reviewStatus
+                };
+                _context.SanctionsScreenings.Add(entity);
+                results.Add(MapToResultItem(entity));
             }
-
-            var status = GetStatusFromScore(bestScore);
-            if (status == StatusConfirmedMatch)
-                hasConfirmedMatch = true;
-
-            var reviewStatus = (status == StatusPossibleMatch || status == StatusConfirmedMatch)
-                ? ReviewStatusPendingReview
-                : null;
-
-            var entity = new SanctionsScreening
-            {
-                Id = Guid.NewGuid(),
-                CustomerId = customerId,
-                ScreeningList = listName,
-                Result = status,
-                MatchedName = bestMatchedName,
-                MatchType = bestMatchType,
-                Score = (decimal)Math.Round(bestScore, 2),
-                ScreenedAt = screenedAt,
-                ReviewStatus = reviewStatus
-            };
-            _context.SanctionsScreenings.Add(entity);
-            results.Add(MapToResultItem(entity));
         }
 
         await _context.SaveChangesAsync(cancellationToken);
 
+        var sortedResults = results.OrderByDescending(r => r.MatchScore).ToList();
+
         return ApiResponse<RunSanctionsScreeningResultDto>.Ok(new RunSanctionsScreeningResultDto
         {
-            Results = results,
+            Results = sortedResults,
             HasConfirmedMatch = hasConfirmedMatch
         });
     }
@@ -124,7 +119,8 @@ public class RunSanctionsScreeningService : IRunSanctionsScreeningService
         var items = await _context.SanctionsScreenings
             .AsNoTracking()
             .Where(s => s.CustomerId == customerId)
-            .OrderByDescending(s => s.ScreenedAt)
+            .OrderByDescending(s => s.Score)
+            .ThenByDescending(s => s.ScreenedAt)
             .Take(50)
             .ToListAsync(cancellationToken);
 

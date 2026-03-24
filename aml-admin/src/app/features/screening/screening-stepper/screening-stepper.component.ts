@@ -378,6 +378,9 @@ export class ScreeningStepperComponent implements OnInit {
         if (res.success && res.data) {
           this.screeningResults.set(res.data);
           this.hasConfirmedMatch.set(res.data.some(r => r.status === 'ConfirmedMatch'));
+          if (res.data.length === 0) {
+            this.runSanctionsScreening();
+          }
         } else {
           this.screeningResults.set([]);
           this.hasConfirmedMatch.set(false);

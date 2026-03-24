@@ -42,6 +42,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<RiskAssignment>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<SanctionsScreening>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => !e.IsDeleted);
+
+        // Matching filters so dependents are only visible when principal is not soft-deleted (fixes EF 10622)
+        modelBuilder.Entity<CustomerDocument>().HasQueryFilter(d => !d.Customer!.IsDeleted);
+        modelBuilder.Entity<SanctionActionAuditLog>().HasQueryFilter(a => !a.SanctionsScreening!.IsDeleted);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
