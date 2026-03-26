@@ -1,0 +1,386 @@
+<div class="animate-fade-in w-full space-y-6">
+  <div class="flex items-start justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">
+        {{ 'pages.individualScreening.title' | translate }}
+      </h1>
+      <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+        {{ 'individualScreening.subtitle' | translate }}
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        (click)="selectAllCategories()"
+        class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition text-sm"
+      >
+        {{ 'common.selectAll' | translate }}
+      </button>
+      <button
+        type="button"
+        (click)="clearAllCategories()"
+        class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition text-sm"
+      >
+        {{ 'common.clearAll' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+      <div class="lg:col-span-1">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.customer' | translate }} *
+        </label>
+        <div class="relative">
+          <input
+            type="text"
+            [ngModel]="customerSearchTerm()"
+            (ngModelChange)="onCustomerSearchChange($event)"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [placeholder]="'individualScreening.customerSearchPlaceholder' | translate"
+          />
+
+          @if (customerLoading()) {
+            <div class="absolute right-3 top-2.5 text-xs text-slate-500">{{ 'common.loading' | translate }}</div>
+          }
+
+          @if (customerDropdownOpen() && customerOptions().length > 0) {
+            <div class="absolute z-10 mt-1 w-full max-h-64 overflow-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow">
+              @for (c of customerOptions(); track c.id) {
+                <button
+                  type="button"
+                  (click)="selectCustomer(c)"
+                  class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                >
+                  <div class="text-sm text-slate-900 dark:text-slate-100 truncate">{{ c.fullName ?? ('—') }}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ c.customerNumber ?? c.id }}</div>
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        @if (selectedCustomer(); as sc) {
+          <div class="mt-2 text-xs text-slate-600 dark:text-slate-400">
+            {{ 'individualScreening.selectedCustomer' | translate }}:
+            <span class="font-medium text-slate-800 dark:text-slate-200">{{ sc.fullName ?? '—' }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="space-y-2">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkPepUkOnly()" (ngModelChange)="checkPepUkOnly.set(!!$event)" />
+            {{ 'individualScreening.categories.pepUkOnly' | translate }}
+          </label>
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkDisqualifiedDirectorUkOnly()" (ngModelChange)="checkDisqualifiedDirectorUkOnly.set(!!$event)" />
+            {{ 'individualScreening.categories.disqualifiedDirectorUkOnly' | translate }}
+          </label>
+        </div>
+        <div class="space-y-2">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkSanctions()" (ngModelChange)="checkSanctions.set(!!$event)" />
+            {{ 'individualScreening.categories.sanctions' | translate }}
+          </label>
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkProfileOfInterest()" (ngModelChange)="checkProfileOfInterest.set(!!$event)" />
+            {{ 'individualScreening.categories.profileOfInterest' | translate }}
+          </label>
+        </div>
+        <div class="space-y-2">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkReputationalRiskExposure()" (ngModelChange)="checkReputationalRiskExposure.set(!!$event)" />
+            {{ 'individualScreening.categories.reputationalRiskExposure' | translate }}
+          </label>
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkRegulatoryEnforcementList()" (ngModelChange)="checkRegulatoryEnforcementList.set(!!$event)" />
+            {{ 'individualScreening.categories.regulatoryEnforcementList' | translate }}
+          </label>
+        </div>
+        <div class="space-y-2">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkInsolvencyUkIreland()" (ngModelChange)="checkInsolvencyUkIreland.set(!!$event)" />
+            {{ 'individualScreening.categories.insolvencyUkIreland' | translate }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.referenceId' | translate }}
+        </label>
+        <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          [ngModel]="referenceId()" (ngModelChange)="referenceId.set($event)" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.fullName' | translate }} *
+        </label>
+        <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.dateOfBirth' | translate }}
+        </label>
+        <input type="date" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          [ngModel]="dateOfBirth()" (ngModelChange)="dateOfBirth.set($event)" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.nationality' | translate }}
+        </label>
+        <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          [ngModel]="nationalityId()" (ngModelChange)="nationalityId.set($event)">
+          <option value="">{{ 'common.select' | translate }}</option>
+          @for (n of nationalities(); track n.id) {
+            <option [value]="n.id">{{ n.name }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.placeOfBirth' | translate }}
+        </label>
+        <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          [ngModel]="placeOfBirthCountryId()" (ngModelChange)="placeOfBirthCountryId.set($event)">
+          <option value="">{{ 'common.select' | translate }}</option>
+          @for (c of countries(); track c.id) {
+            <option [value]="c.id">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.gender' | translate }}
+        </label>
+        <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          [ngModel]="genderId()" (ngModelChange)="genderId.set($event)">
+          <option value="">{{ 'common.select' | translate }}</option>
+          @for (g of genders(); track g.id) {
+            <option [value]="g.id">{{ g.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.idType' | translate }}
+        </label>
+        <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          [ngModel]="idType()" (ngModelChange)="idType.set($event)">
+          <option value="">{{ 'common.select' | translate }}</option>
+          @for (t of documentTypes(); track t.id) {
+            <option [value]="t.code">{{ t.name }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.idNumber' | translate }}
+        </label>
+        <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          [ngModel]="idNumber()" (ngModelChange)="idNumber.set($event)" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.address' | translate }}
+        </label>
+        <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          [ngModel]="address()" (ngModelChange)="address.set($event)" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          {{ 'individualScreening.matchThreshold' | translate }}: <span class="font-semibold">{{ matchThreshold() }}</span>
+        </label>
+        <input type="range" min="0" max="100" step="1" class="w-full"
+          [ngModel]="matchThreshold()" (ngModelChange)="matchThreshold.set(toNumber($event))" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualScreening.birthYearRange' | translate }}
+        </label>
+        <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          [ngModel]="birthYearRange()" (ngModelChange)="birthYearRange.set($event === '' ? null : toNumber($event))">
+          <option value="">{{ 'individualScreening.birthYearRangeSameYear' | translate }}</option>
+          <option value="1">±1</option>
+          <option value="2">±2</option>
+          <option value="3">±3</option>
+          <option value="5">±5</option>
+        </select>
+      </div>
+    </div>
+
+    <fieldset id="kycSection" class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+      <legend class="text-lg font-semibold text-slate-800 dark:text-slate-100 px-2">{{ 'screening.uploadKyc' | translate }}</legend>
+
+      @if (uploadError()) {
+        <div class="mb-3 p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-sm">{{ uploadError() }}</div>
+      }
+      @if (uploadSuccess()) {
+        <div class="mb-3 p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-sm">{{ uploadSuccess() }}</div>
+      }
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'screening.documentType' | translate }} *</label>
+          <select [ngModel]="selectedDocumentTypeCode()" (ngModelChange)="selectedDocumentTypeCode.set($event)"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+            <option value="">{{ 'common.select' | translate }}</option>
+            @for (t of documentTypes(); track t.id) {
+              <option [value]="t.code">{{ t.name }}</option>
+            }
+          </select>
+        </div>
+
+        @if (isPassport()) {
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'screening.expiryDate' | translate }} *</label>
+            <input type="date" [ngModel]="documentExpiryDate()" (ngModelChange)="documentExpiryDate.set($event)"
+              class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+          </div>
+        }
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'screening.selectFile' | translate }} ({{ 'screening.allowedFormats' | translate }}, {{ 'screening.fileSizeMax' | translate }})</label>
+          <input type="file" name="individualKycFile" accept=".pdf,.jpg,.jpeg,.png" (change)="onFileSelected($event)"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+          @if (selectedFile()) {
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{{ selectedFile()!.name }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <button type="button" (click)="uploadDocument()" [disabled]="uploading() || !selectedCustomerId()"
+          class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50">
+          {{ uploading() ? ('common.loading' | translate) : ('screening.upload' | translate) }}
+        </button>
+      </div>
+
+      <div class="mt-6">
+        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">{{ 'screening.uploadedDocuments' | translate }}</h3>
+        @if (!selectedCustomerId()) {
+          <p class="text-slate-600 dark:text-slate-400">{{ 'individualScreening.selectCustomerToViewResults' | translate }}</p>
+        } @else if (loadingDocuments()) {
+          <p class="text-slate-600 dark:text-slate-400">{{ 'common.loading' | translate }}</p>
+        } @else if (documents().length === 0) {
+          <p class="text-slate-600 dark:text-slate-400">{{ 'screening.noDocumentsYet' | translate }}</p>
+        } @else {
+          <ul class="divide-y divide-slate-200 dark:divide-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg">
+            @for (doc of documents(); track doc.id) {
+              <li class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <span class="text-slate-700 dark:text-slate-300">{{ doc.documentTypeName ?? doc.documentTypeCode }} - {{ doc.fileName }}</span>
+                <div class="flex gap-2">
+                  <span class="text-sm text-slate-500 dark:text-slate-400">{{ doc.uploadedDate | date:'short' }}</span>
+                  <button type="button" (click)="downloadDocument(doc)" class="text-indigo-600 dark:text-indigo-400 hover:underline text-sm">
+                    {{ 'screening.download' | translate }}
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </fieldset>
+
+    @if (error(); as err) {
+      <div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-sm">{{ err }}</div>
+    }
+    @if (success(); as msg) {
+      <div class="p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-sm">{{ msg }}</div>
+    }
+
+    <div class="flex items-center justify-end gap-2">
+      <button
+        type="button"
+        (click)="resetToLastSaved()"
+        class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition"
+        [disabled]="loading()"
+      >
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        type="button"
+        (click)="submit()"
+        class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50"
+        [disabled]="loading() || !fullName().trim()"
+      >
+        {{ loading() ? ('common.loading' | translate) : ('common.submit' | translate) }}
+      </button>
+    </div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
+    <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">{{ 'individualScreening.results' | translate }}</h2>
+      <button
+        type="button"
+        (click)="refreshResults()"
+        class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition text-sm"
+        [disabled]="!selectedCustomerId()"
+      >
+        {{ 'common.refresh' | translate }}
+      </button>
+    </div>
+
+    <div class="p-4">
+      @if (!selectedCustomerId()) {
+        <p class="text-slate-600 dark:text-slate-400 text-sm">{{ 'individualScreening.selectCustomerToViewResults' | translate }}</p>
+      } @else if (resultsLoading()) {
+        <p class="text-slate-600 dark:text-slate-400 text-sm">{{ 'common.loading' | translate }}</p>
+      } @else if (results().length === 0) {
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <p class="text-slate-600 dark:text-slate-400 text-sm">{{ 'individualScreening.noMatchingResults' | translate }}</p>
+          <button
+            type="button"
+            (click)="proceedToKyc()"
+            class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition text-sm"
+          >
+            {{ 'individualScreening.proceedToKyc' | translate }}
+          </button>
+        </div>
+      } @else {
+        <div class="overflow-auto max-w-full">
+          <table class="min-w-[900px] w-full text-sm text-left">
+            <thead class="text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50">
+              <tr>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.matchedName' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.list' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.score' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.matchType' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.date' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.status' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.review' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+              @for (r of results(); track r.id) {
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                  <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ r.matchedName ?? '—' }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ r.sanctionList ?? '—' }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ r.matchScore ?? '—' }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ r.matchType ?? '—' }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ r.screeningDate | date:'short' }}</td>
+                  <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ getStatusLabel(r.status) }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ getReviewStatusLabel(r.reviewStatus) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+

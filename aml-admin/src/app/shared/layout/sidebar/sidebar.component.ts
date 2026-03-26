@@ -1,190 +1,112 @@
-import { Component, signal, OnInit } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
+import { filter } from 'rxjs/operators';
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebarCollapsed';
+
+type NavItem = {
+  labelKey: string;
+  route: string;
+  icon?: string;
+  exact?: boolean;
+};
+
+type NavGroup = {
+  id: string;
+  labelKey: string;
+  icon?: string;
+  items: NavItem[];
+};
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule],
-  template: `
-    <aside
-      class="min-h-screen bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all duration-300 shrink-0"
-      [class.w-64]="!collapsed()"
-      [class.w-20]="collapsed()"
-    >
-      <div
-        class="border-b border-slate-200 dark:border-slate-700 flex items-center overflow-hidden transition-all duration-300"
-        [class.p-4]="!collapsed()"
-        [class.p-3]="collapsed()"
-        [class.justify-center]="collapsed()"
-      >
-        <a routerLink="/dashboard" class="text-xl font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap flex items-center gap-2 min-w-0">
-          <span class="shrink-0 text-center">📊</span>
-          @if (!collapsed()) {
-            <span class="truncate">{{ 'app.title' | translate }}</span>
-          }
-        </a>
-      </div>
-      <nav class="flex-1 p-4 space-y-1 overflow-hidden">
-        <a
-          routerLink="/dashboard"
-          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"
-          [class.gap-3]="!collapsed()"
-          [class.px-3]="!collapsed()"
-          [class.justify-center]="collapsed()"
-          [class.px-2]="collapsed()"
-          [title]="collapsed() ? ('app.dashboard' | translate) : null"
-        >
-          <span class="w-5 text-center shrink-0">📊</span>
-          @if (!collapsed()) {
-            <span>{{ 'app.dashboard' | translate }}</span>
-          }
-        </a>
-        <a
-          routerLink="/screening/new"
-          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-          class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"
-          [class.gap-3]="!collapsed()"
-          [class.px-3]="!collapsed()"
-          [class.justify-center]="collapsed()"
-          [class.px-2]="collapsed()"
-          [title]="collapsed() ? ('app.screening' | translate) : null"
-        >
-          <span class="w-5 text-center shrink-0">📋</span>
-          @if (!collapsed()) {
-            <span>{{ 'app.screening' | translate }}</span>
-          }
-        </a>
-        <a
-          routerLink="/customers"
-          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-          class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"
-          [class.gap-3]="!collapsed()"
-          [class.px-3]="!collapsed()"
-          [class.justify-center]="collapsed()"
-          [class.px-2]="collapsed()"
-          [title]="collapsed() ? ('app.customers' | translate) : null"
-        >
-          <span class="w-5 text-center shrink-0">👤</span>
-          @if (!collapsed()) {
-            <span>{{ 'app.customers' | translate }}</span>
-          }
-        </a>
-        <a
-          routerLink="/sanctions-screening"
-          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-          class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"
-          [class.gap-3]="!collapsed()"
-          [class.px-3]="!collapsed()"
-          [class.justify-center]="collapsed()"
-          [class.px-2]="collapsed()"
-          [title]="collapsed() ? ('app.sanctionsScreening' | translate) : null"
-        >
-          <span class="w-5 text-center shrink-0">🔍</span>
-          @if (!collapsed()) {
-            <span>{{ 'app.sanctionsScreening' | translate }}</span>
-          }
-        </a>
-        <a
-          routerLink="/sanction-lists"
-          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-          class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"
-          [class.gap-3]="!collapsed()"
-          [class.px-3]="!collapsed()"
-          [class.justify-center]="collapsed()"
-          [class.px-2]="collapsed()"
-          [title]="collapsed() ? ('app.sanctionLists' | translate) : null"
-        >
-          <span class="w-5 text-center shrink-0">📑</span>
-          @if (!collapsed()) {
-            <span>{{ 'app.sanctionLists' | translate }}</span>
-          }
-        </a>
-        <a
-          routerLink="/risk-assignment"
-          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-          class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"
-          [class.gap-3]="!collapsed()"
-          [class.px-3]="!collapsed()"
-          [class.justify-center]="collapsed()"
-          [class.px-2]="collapsed()"
-          [title]="collapsed() ? ('app.riskAssignment' | translate) : null"
-        >
-          <span class="w-5 text-center shrink-0">⚠</span>
-          @if (!collapsed()) {
-            <span>{{ 'app.riskAssignment' | translate }}</span>
-          }
-        </a>
-        <a
-          routerLink="/cases"
-          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-          class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"
-          [class.gap-3]="!collapsed()"
-          [class.px-3]="!collapsed()"
-          [class.justify-center]="collapsed()"
-          [class.px-2]="collapsed()"
-          [title]="collapsed() ? ('app.cases' | translate) : null"
-        >
-          <span class="w-5 text-center shrink-0">📄</span>
-          @if (!collapsed()) {
-            <span>{{ 'app.cases' | translate }}</span>
-          }
-        </a>
-        <a
-          routerLink="/audit-logs"
-          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-          class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"
-          [class.gap-3]="!collapsed()"
-          [class.px-3]="!collapsed()"
-          [class.justify-center]="collapsed()"
-          [class.px-2]="collapsed()"
-          [title]="collapsed() ? ('app.auditLogs' | translate) : null"
-        >
-          <span class="w-5 text-center shrink-0">📋</span>
-          @if (!collapsed()) {
-            <span>{{ 'app.auditLogs' | translate }}</span>
-          }
-        </a>
-        <a
-          routerLink="/sanction-action-history"
-          routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-          class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"
-          [class.gap-3]="!collapsed()"
-          [class.px-3]="!collapsed()"
-          [class.justify-center]="collapsed()"
-          [class.px-2]="collapsed()"
-          [title]="collapsed() ? ('app.sanctionActionHistory' | translate) : null"
-        >
-          <span class="w-5 text-center shrink-0">📜</span>
-          @if (!collapsed()) {
-            <span>{{ 'app.sanctionActionHistory' | translate }}</span>
-          }
-        </a>
-      </nav>
-      <div class="p-2 border-t border-slate-200 dark:border-slate-700 flex justify-center">
-        <button
-          type="button"
-          (click)="toggleCollapsed()"
-          class="w-full flex items-center justify-center py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
-          [attr.title]="collapsed() ? ('sidebar.expand' | translate) : ('sidebar.collapse' | translate)"
-        >
-          @if (collapsed()) {
-            <span class="text-sm font-medium" aria-hidden="true">&gt;&gt;</span>
-          } @else {
-            <span class="text-sm font-medium" aria-hidden="true">&lt;&lt;</span>
-          }
-        </button>
-      </div>
-    </aside>
-  `
+  templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
   collapsed = signal(false);
+  openGroupId = signal<string | null>(null);
+
+  readonly navGroups: NavGroup[] = [
+    {
+      id: 'main',
+      labelKey: 'nav.main',
+      icon: '📊',
+      items: [
+        { labelKey: 'app.dashboard', route: '/dashboard', icon: '📊', exact: true },
+        { labelKey: 'app.customers', route: '/customers', icon: '👤' },
+        { labelKey: 'app.sanctionsScreening', route: '/sanctions-screening', icon: '🔍' },
+        { labelKey: 'app.sanctionLists', route: '/sanction-lists', icon: '📑' },
+        { labelKey: 'app.riskAssignment', route: '/risk-assignment', icon: '⚠' },
+        { labelKey: 'app.cases', route: '/cases', icon: '📄' },
+        { labelKey: 'app.auditLogs', route: '/audit-logs', icon: '📋' },
+        { labelKey: 'app.sanctionActionHistory', route: '/sanction-action-history', icon: '📜' }
+      ]
+    },
+    {
+      id: 'screening',
+      labelKey: 'nav.screening',
+      icon: '🧪',
+      items: [
+        { labelKey: 'screeningMenu.individual', route: '/screening/individual', icon: '👤' },
+        { labelKey: 'screeningMenu.corporate', route: '/screening/corporate', icon: '🏢' },
+        { labelKey: 'screeningMenu.individualBulkUpload', route: '/screening/individual-bulk-upload', icon: '⬆' },
+        { labelKey: 'screeningMenu.corporateBulkUpload', route: '/screening/corporate-bulk-upload', icon: '⬆' },
+        { labelKey: 'screeningMenu.instantSanctionScreening', route: '/screening/instant-sanction-screening', icon: '🔍' },
+        { labelKey: 'screeningMenu.internalWatchlist', route: '/screening/internal-watchlist', icon: '🧾' }
+      ]
+    },
+    {
+      id: 'kyc',
+      labelKey: 'nav.kyc',
+      icon: '🪪',
+      items: [{ labelKey: 'nav.kyc', route: '/kyc', icon: '🪪', exact: true }]
+    },
+    {
+      id: 'caseManagement',
+      labelKey: 'nav.caseManagement',
+      icon: '🗂',
+      items: [{ labelKey: 'nav.caseManagement', route: '/case-management', icon: '🗂', exact: true }]
+    },
+    {
+      id: 'riskAssessment',
+      labelKey: 'nav.riskAssessment',
+      icon: '⚠',
+      items: [{ labelKey: 'nav.riskAssessment', route: '/risk-assessment', icon: '⚠', exact: true }]
+    },
+    {
+      id: 'ewra',
+      labelKey: 'nav.ewra',
+      icon: '🧮',
+      items: [{ labelKey: 'nav.ewra', route: '/ewra', icon: '🧮', exact: true }]
+    },
+    {
+      id: 'reports',
+      labelKey: 'nav.reports',
+      icon: '📈',
+      items: [{ labelKey: 'nav.reports', route: '/reports', icon: '📈', exact: true }]
+    },
+    {
+      id: 'masters',
+      labelKey: 'nav.masters',
+      icon: '🛠',
+      items: [{ labelKey: 'nav.masters', route: '/masters', icon: '🛠', exact: true }]
+    },
+    {
+      id: 'support',
+      labelKey: 'nav.support',
+      icon: '💬',
+      items: [{ labelKey: 'nav.support', route: '/support', icon: '💬', exact: true }]
+    }
+  ];
 
   ngOnInit(): void {
     try {
@@ -195,6 +117,16 @@ export class SidebarComponent implements OnInit {
     } catch {
       // ignore localStorage errors
     }
+
+    this.openGroupForUrl(this.router.url);
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((e) => {
+        this.openGroupForUrl(e.urlAfterRedirects);
+      });
   }
 
   toggleCollapsed(): void {
@@ -204,5 +136,29 @@ export class SidebarComponent implements OnInit {
     } catch {
       // ignore
     }
+  }
+
+  toggleGroup(groupId: string): void {
+    if (this.collapsed()) return;
+    this.openGroupId.update((current) => (current === groupId ? null : groupId));
+  }
+
+  isGroupOpen(groupId: string): boolean {
+    return this.openGroupId() === groupId;
+  }
+
+  private openGroupForUrl(url: string): void {
+    const groupId = this.findGroupIdByUrl(url);
+    if (groupId) this.openGroupId.set(groupId);
+  }
+
+  private findGroupIdByUrl(url: string): string | null {
+    for (const group of this.navGroups) {
+      for (const item of group.items) {
+        const match = item.exact ? url === item.route : url.startsWith(item.route);
+        if (match) return group.id;
+      }
+    }
+    return null;
   }
 }

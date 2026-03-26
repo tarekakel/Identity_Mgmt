@@ -32,6 +32,8 @@ public static class DependencyInjection
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<ISanctionsScreeningService, SanctionsScreeningService>();
         services.AddScoped<IRunSanctionsScreeningService, RunSanctionsScreeningService>();
+        services.AddScoped<IIndividualScreeningRunnerService, IndividualScreeningRunnerService>();
+        services.AddScoped<IIndividualScreeningService, IndividualScreeningService>();
         services.AddScoped<ISanctionActionAuditLogService, SanctionActionAuditLogService>();
         services.AddScoped<IRiskAssignmentService, RiskAssignmentService>();
         services.AddScoped<ICaseService, CaseService>();
@@ -40,6 +42,8 @@ public static class DependencyInjection
         services.AddScoped<ILookupService, LookupService>();
         services.AddScoped<IFileStorageService, FileStorageService>();
         services.AddScoped<ICustomerDocumentService, CustomerDocumentService>();
+        services.AddScoped<IIndividualKycService, IndividualKycService>();
+        services.AddScoped<IIndividualKycDocumentService, IndividualKycDocumentService>();
         services.AddScoped<IUnConsolidatedListParser, UnConsolidatedListParser>();
         services.AddScoped<IUaeSanctionListParser, UaeSanctionListParser>();
         services.AddScoped<ISanctionListUploadService, SanctionListUploadService>();

@@ -22,6 +22,78 @@ export const routes: Routes = [
         loadComponent: () => import('./features/screening/screening-stepper/screening-stepper.component').then((m) => m.ScreeningStepperComponent)
       },
       {
+        path: 'screening/individual',
+        loadComponent: () =>
+          import('./features/screening/individual-screening/individual-screening.component').then(
+            (m) => m.IndividualScreeningComponent
+          )
+      },
+      {
+        path: 'screening/corporate',
+        loadComponent: () =>
+          import('./features/screening/corporate-screening/corporate-screening.component').then((m) => m.CorporateScreeningComponent)
+      },
+      {
+        path: 'screening/individual-bulk-upload',
+        loadComponent: () =>
+          import('./features/screening/individual-bulk-upload/individual-bulk-upload.component').then(
+            (m) => m.IndividualBulkUploadComponent
+          )
+      },
+      {
+        path: 'screening/corporate-bulk-upload',
+        loadComponent: () =>
+          import('./features/screening/corporate-bulk-upload/corporate-bulk-upload.component').then(
+            (m) => m.CorporateBulkUploadComponent
+          )
+      },
+      {
+        path: 'screening/instant-sanction-screening',
+        loadComponent: () =>
+          import('./features/screening/instant-sanction-screening/instant-sanction-screening.component').then(
+            (m) => m.InstantSanctionScreeningComponent
+          )
+      },
+      {
+        path: 'screening/internal-watchlist',
+        loadComponent: () =>
+          import('./features/screening/internal-watchlist/internal-watchlist.component').then((m) => m.InternalWatchlistComponent)
+      },
+      {
+        path: 'kyc',
+        loadComponent: () => import('./features/kyc/kyc/kyc.component').then((m) => m.KycComponent)
+      },
+      {
+        path: 'kyc/individual/:customerId',
+        loadComponent: () => import('./features/kyc/individual-kyc/individual-kyc.component').then((m) => m.IndividualKycComponent)
+      },
+      {
+        path: 'case-management',
+        loadComponent: () =>
+          import('./features/case-management/case-management/case-management.component').then((m) => m.CaseManagementComponent)
+      },
+      {
+        path: 'risk-assessment',
+        loadComponent: () =>
+          import('./features/risk-assessment/risk-assessment/risk-assessment.component').then((m) => m.RiskAssessmentComponent)
+      },
+      {
+        path: 'ewra',
+        loadComponent: () => import('./features/ewra/ewra/ewra.component').then((m) => m.EwraComponent)
+      },
+      {
+        path: 'reports',
+        loadComponent: () => import('./features/reports/reports/reports.component').then((m) => m.ReportsComponent)
+      },
+      {
+        path: 'masters',
+        loadComponent: () => import('./features/masters/masters/masters.component').then((m) => m.MastersComponent)
+      },
+      {
+        path: 'support',
+        loadComponent: () => import('./features/support/support/support.component').then((m) => m.SupportComponent)
+      },
+      {
         path: 'customers',
         loadComponent: () => import('./features/customers/customers-list/customers-list.component').then((m) => m.CustomersListComponent)
       },

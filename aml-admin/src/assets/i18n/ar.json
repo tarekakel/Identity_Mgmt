@@ -3,6 +3,56 @@
     "collapse": "طي الشريط الجانبي",
     "expand": "توسيع الشريط الجانبي"
   },
+  "nav": {
+    "main": "الرئيسية",
+    "screening": "الفحص",
+    "kyc": "اعرف عميلك",
+    "caseManagement": "إدارة القضايا",
+    "riskAssessment": "تقييم المخاطر",
+    "ewra": "EWRA",
+    "reports": "التقارير",
+    "masters": "البيانات الأساسية",
+    "support": "الدعم"
+  },
+  "screeningMenu": {
+    "individual": "فردي",
+    "corporate": "شركات",
+    "individualBulkUpload": "رفع جماعي (أفراد)",
+    "corporateBulkUpload": "رفع جماعي (شركات)",
+    "instantSanctionScreening": "فحص عقوبات فوري",
+    "internalWatchlist": "قائمة مراقبة داخلية"
+  },
+  "pages": {
+    "individualScreening": { "title": "فحص الأفراد" },
+    "corporateScreening": { "title": "فحص الشركات" },
+    "individualBulkUpload": { "title": "رفع جماعي (أفراد)" },
+    "corporateBulkUpload": { "title": "رفع جماعي (شركات)" },
+    "instantSanctionScreening": { "title": "فحص عقوبات فوري" },
+    "internalWatchlist": { "title": "قائمة مراقبة داخلية" },
+    "kyc": { "title": "اعرف عميلك" },
+    "caseManagement": { "title": "إدارة القضايا" },
+    "riskAssessment": { "title": "تقييم المخاطر" },
+    "ewra": { "title": "EWRA" },
+    "reports": { "title": "التقارير" },
+    "masters": { "title": "البيانات الأساسية" },
+    "support": { "title": "الدعم" }
+  },
+  "individualKyc": {
+    "customerSearch": "بحث عن العميل",
+    "selectAll": "تحديد الكل",
+    "add": "إضافة",
+    "remove": "إزالة",
+    "saving": "جارٍ الحفظ...",
+    "submit": "إرسال",
+    "customerRequired": "العميل مطلوب.",
+    "applicantNameRequired": "اسم مقدم الطلب مطلوب.",
+    "savedSuccess": "تم حفظ بيانات KYC بنجاح.",
+    "onlyPdfPng": "يسمح فقط بملفات PDF و JPG و PNG.",
+    "fileSizeMax": "يجب ألا يتجاوز حجم الملف 10 ميجابايت.",
+    "selectPlaceholder": "اختر…",
+    "yes": "نعم",
+    "no": "لا"
+  },
   "app": {
     "title": "الامتثال لمكافحة غسل الأموال",
     "logout": "تسجيل الخروج",
@@ -110,6 +160,7 @@
   },
   "common": {
     "search": "بحث",
+    "comingSoon": "قريباً.",
     "loading": "جاري التحميل...",
     "noData": "لا توجد بيانات",
     "actions": "إجراءات",
@@ -132,7 +183,56 @@
     "customerIdRequired": "معرف العميل مطلوب.",
     "saving": "جاري الحفظ...",
     "isActive": "نشط",
-    "select": "اختر..."
+    "select": "اختر...",
+    "submit": "إرسال",
+    "refresh": "تحديث",
+    "selectAll": "تحديد الكل",
+    "clearAll": "مسح الكل"
+  },
+  "individualScreening": {
+    "subtitle": "ابحث وافحص فرداً مقابل القوائم المحددة.",
+    "customer": "العميل",
+    "customerSearchPlaceholder": "اكتب حرفين على الأقل...",
+    "selectedCustomer": "المحدد",
+    "referenceId": "رقم المرجع",
+    "fullName": "الاسم الكامل",
+    "dateOfBirth": "تاريخ الميلاد",
+    "nationality": "الجنسية",
+    "placeOfBirth": "مكان الميلاد",
+    "idType": "نوع الهوية",
+    "idNumber": "رقم الهوية",
+    "address": "العنوان",
+    "gender": "الجنس",
+    "matchThreshold": "عتبة المطابقة",
+    "birthYearRange": "سنة الميلاد ± نطاق",
+    "birthYearRangeSameYear": "نفس السنة (±0)",
+    "savedAndRun": "تم الحفظ وبدء الفحص.",
+    "results": "النتائج",
+    "selectCustomerToViewResults": "اختر عميلاً لعرض النتائج.",
+    "noMatchingResults": "لا توجد نتائج مطابقة.",
+    "proceedToKyc": "المتابعة إلى KYC",
+    "errors": {
+      "customerRequired": "العميل مطلوب.",
+      "fullNameRequired": "الاسم الكامل مطلوب."
+    },
+    "categories": {
+      "pepUkOnly": "شخصية سياسية (المملكة المتحدة فقط)",
+      "disqualifiedDirectorUkOnly": "مدير مستبعد (المملكة المتحدة فقط)",
+      "sanctions": "عقوبات",
+      "profileOfInterest": "ملف اهتمام",
+      "reputationalRiskExposure": "تعرض لمخاطر السمعة",
+      "regulatoryEnforcementList": "قائمة الإنفاذ التنظيمي",
+      "insolvencyUkIreland": "إعسار (المملكة المتحدة وأيرلندا)"
+    },
+    "result": {
+      "matchedName": "الاسم المطابق",
+      "list": "قائمة العقوبات",
+      "score": "درجة المطابقة",
+      "matchType": "نوع المطابقة",
+      "date": "تاريخ الفحص",
+      "status": "الحالة",
+      "review": "حالة المراجعة"
+    }
   },
   "customers": {
     "fullName": "الاسم الكامل",

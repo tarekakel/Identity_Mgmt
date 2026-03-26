@@ -30,6 +30,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<SanctionsScreening> SanctionsScreenings => Set<SanctionsScreening>();
     public DbSet<SanctionActionAuditLog> SanctionActionAuditLogs => Set<SanctionActionAuditLog>();
     public DbSet<SanctionListEntry> SanctionListEntries => Set<SanctionListEntry>();
+    public DbSet<IndividualScreeningRequest> IndividualScreeningRequests => Set<IndividualScreeningRequest>();
+    public DbSet<IndividualKyc> IndividualKyc => Set<IndividualKyc>();
+    public DbSet<IndividualKycDocument> IndividualKycDocuments => Set<IndividualKycDocument>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -41,6 +44,9 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Case>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<RiskAssignment>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<SanctionsScreening>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<IndividualScreeningRequest>().HasQueryFilter(e => !e.IsDeleted && !e.Customer!.IsDeleted);
+        modelBuilder.Entity<IndividualKyc>().HasQueryFilter(e => !e.IsDeleted && !e.Customer!.IsDeleted);
+        modelBuilder.Entity<IndividualKycDocument>().HasQueryFilter(d => !d.IsDeleted && d.IndividualKyc != null && !d.IndividualKyc!.IsDeleted && !d.IndividualKyc.Customer!.IsDeleted);
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => !e.IsDeleted);
 
         // Matching filters so dependents are only visible when principal is not soft-deleted (fixes EF 10622)

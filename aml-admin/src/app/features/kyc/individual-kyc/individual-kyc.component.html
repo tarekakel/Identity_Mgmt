@@ -1,0 +1,873 @@
+<div class="animate-fade-in w-full space-y-6">
+  <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">
+    {{ 'pages.kyc.title' | translate }} - Individual
+  </h1>
+
+  <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 space-y-4">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div>
+        <div class="text-sm text-slate-600 dark:text-slate-400 mb-1">
+          Customer ID: <span class="font-medium">{{ routeCustomerId() }}</span>
+        </div>
+        <div class="text-slate-700 dark:text-slate-200 text-sm">
+          {{ selectedCustomer()?.fullName ?? '—' }}
+        </div>
+      </div>
+
+      <div class="min-w-[280px]">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualKyc.customerSearch' | translate }}
+        </label>
+        <div class="relative">
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="customerSearchTerm()"
+            (ngModelChange)="customerSearchTerm.set($event)"
+            (focus)="customerDropdownOpen.set(true)"
+            [placeholder]="'Customer name or number'"
+          />
+
+          @if (customerDropdownOpen() && customerOptions().length > 0) {
+            <div class="absolute z-20 mt-1 w-full max-h-64 overflow-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow">
+              @for (c of customerOptions(); track c.id) {
+                <button
+                  type="button"
+                  class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                  (click)="selectCustomer(c)"
+                >
+                  <div class="text-sm text-slate-900 dark:text-slate-100 truncate">{{ c.fullName ?? '—' }}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ c.customerNumber ?? c.id }}</div>
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mt-2 flex items-center gap-2">
+          <button
+            type="button"
+            (click)="searchCustomers()"
+            class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition text-sm disabled:opacity-50"
+            [disabled]="customerSearchTerm().trim().length < 2 || customerLoading()"
+          >
+            {{ customerLoading() ? 'Searching...' : 'Search' }}
+          </button>
+          @if (customerSearchTerm().trim().length < 2) {
+            <span class="text-xs text-slate-500">Type at least 2 characters</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+      <div class="space-y-2">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              class="rounded border-slate-300 dark:border-slate-600"
+              [checked]="isAllCategoriesSelected()"
+              (change)="onToggleSelectAll($event)"
+            />
+            {{ 'individualKyc.selectAll' | translate }}
+          </label>
+          <div class="text-sm text-slate-500 dark:text-slate-400">
+            Reputation threshold: <span class="font-semibold">{{ matchThreshold() }}</span>
+          </div>
+        </div>
+
+        <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+          <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkPepUkOnly()" (ngModelChange)="checkPepUkOnly.set(!!$event)" />
+          PEP
+        </label>
+        <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+          <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkDisqualifiedDirectorUkOnly()" (ngModelChange)="checkDisqualifiedDirectorUkOnly.set(!!$event)" />
+          Disqualified Director (UK Only)
+        </label>
+        <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+          <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkSanctions()" (ngModelChange)="checkSanctions.set(!!$event)" />
+          Sanction
+        </label>
+        <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+          <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkProfileOfInterest()" (ngModelChange)="checkProfileOfInterest.set(!!$event)" />
+          Profile of Interest
+        </label>
+        <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+          <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkReputationalRiskExposure()" (ngModelChange)="checkReputationalRiskExposure.set(!!$event)" />
+          Reputational Risk Exposure
+        </label>
+        <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+          <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkRegulatoryEnforcementList()" (ngModelChange)="checkRegulatoryEnforcementList.set(!!$event)" />
+          Regulatory Enforcement List
+        </label>
+        <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+          <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="checkInsolvencyUkIreland()" (ngModelChange)="checkInsolvencyUkIreland.set(!!$event)" />
+          Insolvency (UK & ireland)
+        </label>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+          Reputation Risk Exposure threshold
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          class="w-full"
+          [ngModel]="matchThreshold()"
+          (ngModelChange)="matchThreshold.set(toNumber($event))"
+        />
+        <div class="text-xs text-slate-500 dark:text-slate-400">
+          {{ matchThreshold() }} (max 100)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <details class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden" open>
+      <summary class="px-4 py-3 bg-indigo-600 text-white font-semibold cursor-pointer">
+        1. Applicant's Personal Details
+      </summary>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Name *</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantName()"
+            (ngModelChange)="applicantName.set($event)"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Aliases (if any)</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantAliases()"
+            (ngModelChange)="applicantAliases.set($event)"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mobile No.</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantMobileNo()"
+            (ngModelChange)="applicantMobileNo.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nationality</label>
+          <select
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantNationalityId()"
+            (ngModelChange)="applicantNationalityId.set($event)"
+          >
+            <option value="" disabled>{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (n of nationalities(); track n.id) {
+              <option [value]="n.id">{{ n.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="!!applicantDualNationality()" (ngModelChange)="applicantDualNationality.set(!!$event)" />
+            Dual Nationality
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Gender</label>
+          <select
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantGenderId()"
+            (ngModelChange)="applicantGenderId.set($event)"
+          >
+            <option value="" disabled>{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (g of genders(); track g.id) {
+              <option [value]="g.id">{{ g.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date of Birth</label>
+          <input
+            type="date"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantDateOfBirth()"
+            (ngModelChange)="applicantDateOfBirth.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Place of Birth</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantCountryOfBirth()"
+            (ngModelChange)="applicantCountryOfBirth.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">City</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantCity()"
+            (ngModelChange)="applicantCity.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Residence Status</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantResidenceStatus()"
+            (ngModelChange)="applicantResidenceStatus.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Emirate</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantEmirate()"
+            (ngModelChange)="applicantEmirate.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email ID</label>
+          <input
+            type="email"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantEmail()"
+            (ngModelChange)="applicantEmail.set($event)"
+          />
+        </div>
+
+        <div class="md:col-span-3">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Residential Address</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantResidentialAddress()"
+            (ngModelChange)="applicantResidentialAddress.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Office No / Building name / Street/area</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantOfficeNoBuildingNameStreetArea()"
+            (ngModelChange)="applicantOfficeNoBuildingNameStreetArea.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">P.O Box</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantPOBox()"
+            (ngModelChange)="applicantPOBox.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Customer Relationship</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantCustomerRelationship()"
+            (ngModelChange)="applicantCustomerRelationship.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Preferred Channel</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantPreferredChannel()"
+            (ngModelChange)="applicantPreferredChannel.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Product Type</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantProductType()"
+            (ngModelChange)="applicantProductType.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Industry Type</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantIndustryType()"
+            (ngModelChange)="applicantIndustryType.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Source of funds</label>
+          <select
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantSourceOfFundsId()"
+            (ngModelChange)="applicantSourceOfFundsId.set($event)"
+          >
+            <option value="" disabled>{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (s of sourceOfFunds(); track s.id) {
+              <option [value]="s.id">{{ s.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Source of funds Comments</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantSourceOfFundsComments()"
+            (ngModelChange)="applicantSourceOfFundsComments.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Is Proof of Source Fund Obtained?</label>
+          <div class="flex items-center gap-2 pt-1">
+            <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.no' | translate }}</span>
+            <label class="kyc-switch">
+              <input
+                type="checkbox"
+                role="switch"
+                [checked]="applicantIsProofOfSourceFundsObtained() === true"
+                (change)="setProofObtained(applicantIsProofOfSourceFundsObtained, $event)"
+              />
+              <span class="kyc-switch-track"></span>
+            </label>
+            <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.yes' | translate }}</span>
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Proof of Source Funds Comments</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantSourceOfFundsProofComments()"
+            (ngModelChange)="applicantSourceOfFundsProofComments.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Source of Wealth</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantSourceOfWealth()"
+            (ngModelChange)="applicantSourceOfWealth.set($event)"
+          />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Source of Wealth Comments</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantSourceOfWealthComments()"
+            (ngModelChange)="applicantSourceOfWealthComments.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Is Proof of Source Wealth Obtained?</label>
+          <div class="flex items-center gap-2 pt-1">
+            <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.no' | translate }}</span>
+            <label class="kyc-switch">
+              <input
+                type="checkbox"
+                role="switch"
+                [checked]="applicantIsProofOfSourceWealthObtained() === true"
+                (change)="setProofObtained(applicantIsProofOfSourceWealthObtained, $event)"
+              />
+              <span class="kyc-switch-track"></span>
+            </label>
+            <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.yes' | translate }}</span>
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Proof of Source Wealth Comments</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="applicantSourceOfWealthProofComments()"
+            (ngModelChange)="applicantSourceOfWealthProofComments.set($event)"
+          />
+        </div>
+      </div>
+    </details>
+
+    <details class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden" open>
+      <summary class="px-4 py-3 bg-indigo-600 text-white font-semibold cursor-pointer">
+        2. Client Identification Document Details
+      </summary>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Id Type</label>
+          <select
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="clientIdTypeCode()"
+            (ngModelChange)="clientIdTypeCode.set($event)"
+          >
+            <option value="" disabled>{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (t of documentTypes(); track t.id) {
+              <option [value]="t.code">{{ t.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Id Number</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="clientIdNumber()"
+            (ngModelChange)="clientIdNumber.set($event)"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Passport Number</label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="clientPassportNumber()"
+            (ngModelChange)="clientPassportNumber.set($event)"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date of Issue</label>
+          <input
+            type="date"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="clientPassportDateOfIssue()"
+            (ngModelChange)="clientPassportDateOfIssue.set($event)"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date of Expiry</label>
+          <input
+            type="date"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="clientIdExpiryDate()"
+            (ngModelChange)="clientIdExpiryDate.set($event)"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Country Issuance</label>
+          <select
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="clientCountryIssuanceId()"
+            (ngModelChange)="clientCountryIssuanceId.set($event)"
+          >
+            <option value="" disabled>{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (c of countries(); track c.id) {
+              <option [value]="c.id">{{ c.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </details>
+
+    <details class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden" open>
+      <summary class="px-4 py-3 bg-indigo-600 text-white font-semibold cursor-pointer">
+        3. Sponsor Details
+      </summary>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Name</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="sponsorName()" (ngModelChange)="sponsorName.set($event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Aliases (if any)</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="sponsorAliases()" (ngModelChange)="sponsorAliases.set($event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Id Type</label>
+          <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="sponsorIdTypeCode()" (ngModelChange)="sponsorIdTypeCode.set($event)">
+            <option value="" disabled>{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (t of documentTypes(); track t.id) {
+              <option [value]="t.code">{{ t.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Id Number</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="sponsorIdNumber()" (ngModelChange)="sponsorIdNumber.set($event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date of birth</label>
+          <input type="date" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="sponsorDateOfBirth()" (ngModelChange)="sponsorDateOfBirth.set($event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nationality</label>
+          <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="sponsorNationalityId()" (ngModelChange)="sponsorNationalityId.set($event)">
+            <option value="" disabled>{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (n of nationalities(); track n.id) {
+              <option [value]="n.id">{{ n.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600" [ngModel]="!!sponsorDualNationality()" (ngModelChange)="sponsorDualNationality.set(!!$event)" />
+            Dual Nationality
+          </label>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Gender</label>
+          <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="sponsorGenderId()" (ngModelChange)="sponsorGenderId.set($event)">
+            <option value="" disabled>{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (g of genders(); track g.id) {
+              <option [value]="g.id">{{ g.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Other Details</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="sponsorOtherDetails()" (ngModelChange)="sponsorOtherDetails.set($event)" />
+        </div>
+      </div>
+    </details>
+
+    <details class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden" open>
+      <summary class="px-4 py-3 bg-indigo-600 text-white font-semibold cursor-pointer">
+        4. Bank Details
+      </summary>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bank Country</label>
+          <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="bankCountryId()" (ngModelChange)="bankCountryId.set($event)">
+            <option value="" disabled>{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (c of countries(); track c.id) {
+              <option [value]="c.id">{{ c.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">IBAN/Account No</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="bankIbanAccountNo()" (ngModelChange)="bankIbanAccountNo.set($event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bank Name</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="bankName()" (ngModelChange)="bankName.set($event)" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Account Name</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="accountName()" (ngModelChange)="accountName.set($event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Swift Code</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="bankSwiftCode()" (ngModelChange)="bankSwiftCode.set($event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Currency</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="bankCurrency()" (ngModelChange)="bankCurrency.set($event)" />
+        </div>
+
+        <div class="md:col-span-3">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bank Address</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="bankAddress()" (ngModelChange)="bankAddress.set($event)" />
+        </div>
+      </div>
+    </details>
+
+    <details class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden" open>
+      <summary class="px-4 py-3 bg-indigo-600 text-white font-semibold cursor-pointer">
+        5. Employer Details
+      </summary>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Company Name</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="employerCompanyName()" (ngModelChange)="employerCompanyName.set($event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Company Website</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="employerCompanyWebsite()" (ngModelChange)="employerCompanyWebsite.set($event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="employerEmailAddress()" (ngModelChange)="employerEmailAddress.set($event)" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tel. No.</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="employerTelNo()" (ngModelChange)="employerTelNo.set($event)" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Company Address</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="employerAddress()" (ngModelChange)="employerAddress.set($event)" />
+        </div>
+        <div class="md:col-span-3">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Industry and Business Details</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="employerIndustryAndBusinessDetails()" (ngModelChange)="employerIndustryAndBusinessDetails.set($event)" />
+        </div>
+      </div>
+    </details>
+
+    <details class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden" open>
+      <summary class="px-4 py-3 bg-indigo-600 text-white font-semibold cursor-pointer">
+        6. Politically Exposed Person Status
+      </summary>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="md:col-span-3">
+          <div class="text-sm text-slate-700 dark:text-slate-200">
+            Is the country subject to increased monitoring by FATF?
+          </div>
+        </div>
+        <div class="md:col-span-2 flex items-center gap-2">
+          <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.no' | translate }}</span>
+          <label class="kyc-switch">
+            <input
+              type="checkbox"
+              role="switch"
+              [checked]="pepFATFIncreasedMonitoringAnswer() === 'Yes'"
+              (change)="setYesNoStringAnswer(pepFATFIncreasedMonitoringAnswer, $event)"
+            />
+            <span class="kyc-switch-track"></span>
+          </label>
+          <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.yes' | translate }}</span>
+        </div>
+
+        <div class="md:col-span-3 text-sm text-slate-700 dark:text-slate-200">
+          Does Ubo/Customer Name/Beneficiary Name feature in any Sanction List or Inverse Media?
+        </div>
+        <div class="md:col-span-2 flex items-center gap-2">
+          <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.no' | translate }}</span>
+          <label class="kyc-switch">
+            <input
+              type="checkbox"
+              role="switch"
+              [checked]="pepSanctionListOrInverseMediaAnswer() === 'Yes'"
+              (change)="setYesNoStringAnswer(pepSanctionListOrInverseMediaAnswer, $event)"
+            />
+            <span class="kyc-switch-track"></span>
+          </label>
+          <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.yes' | translate }}</span>
+        </div>
+
+        <div class="md:col-span-3 text-sm text-slate-700 dark:text-slate-200">
+          Are you entrusted with prominent public functions in your national country/current country of residence/foreign country?
+        </div>
+        <div class="md:col-span-2 flex items-center gap-2">
+          <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.no' | translate }}</span>
+          <label class="kyc-switch">
+            <input
+              type="checkbox"
+              role="switch"
+              [checked]="pepProminentPublicFunctionsAnswer() === 'Yes'"
+              (change)="setYesNoStringAnswer(pepProminentPublicFunctionsAnswer, $event)"
+            />
+            <span class="kyc-switch-track"></span>
+          </label>
+          <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.yes' | translate }}</span>
+        </div>
+
+        <div class="md:col-span-3 text-sm text-slate-700 dark:text-slate-200">
+          Specifically if any of the above individuals are Politically Exposed Persons (PEPs) after screening
+        </div>
+        <div class="md:col-span-2 flex items-center gap-2">
+          <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.no' | translate }}</span>
+          <label class="kyc-switch">
+            <input
+              type="checkbox"
+              role="switch"
+              [checked]="pepAnyPEPsAfterScreeningAnswer() === 'Yes'"
+              (change)="setYesNoStringAnswer(pepAnyPEPsAfterScreeningAnswer, $event)"
+            />
+            <span class="kyc-switch-track"></span>
+          </label>
+          <span class="text-xs text-slate-500 dark:text-slate-400">{{ 'individualKyc.yes' | translate }}</span>
+        </div>
+
+        <div class="md:col-span-3">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Specify if any of above individuals are PEPs after screening
+          </label>
+          <input class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="pepSpecificPEPsAfterScreeningDetails()"
+            (ngModelChange)="pepSpecificPEPsAfterScreeningDetails.set($event)" />
+        </div>
+      </div>
+    </details>
+
+    <details class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden" open>
+      <summary class="px-4 py-3 bg-indigo-600 text-white font-semibold cursor-pointer">
+        7. Follow Up Document Details
+      </summary>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">FollowUp Date</label>
+          <input type="date" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="followUpDate()" (ngModelChange)="followUpDate.set($event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">FollowUp Remarks</label>
+          <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+            [ngModel]="followUpRemarks()" (ngModelChange)="followUpRemarks.set($event)" />
+        </div>
+      </div>
+    </details>
+
+    <details class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden" open>
+      <summary class="px-4 py-3 bg-indigo-600 text-white font-semibold cursor-pointer">
+        8. Add Individual Document Details
+      </summary>
+      <div class="p-4 space-y-4">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <button
+            type="button"
+            (click)="addDocumentRow()"
+            class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition text-sm"
+          >
+            {{ 'individualKyc.add' | translate }}
+          </button>
+          <div class="text-xs text-slate-500 dark:text-slate-400">
+            Choose a file per row to upload on Submit.
+          </div>
+        </div>
+
+        <div class="overflow-auto">
+          <table class="min-w-[900px] w-full text-sm">
+            <thead class="text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50">
+              <tr>
+                <th class="px-3 py-2 font-medium">Document No</th>
+                <th class="px-3 py-2 font-medium">Issued Date</th>
+                <th class="px-3 py-2 font-medium">Expiry Date</th>
+                <th class="px-3 py-2 font-medium">Document</th>
+                <th class="px-3 py-2 font-medium">Approved by</th>
+                <th class="px-3 py-2 font-medium">Folder Path</th>
+                <th class="px-3 py-2 font-medium">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+              @for (row of documentRows(); track row.existingDocId ?? $index) {
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                  <td class="px-3 py-2">
+                    <input class="w-full px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+                      [ngModel]="row.documentNo" (ngModelChange)="updateDocumentRow($index, { documentNo: $event })" />
+                  </td>
+                  <td class="px-3 py-2">
+                    <input type="date" class="w-full px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+                      [ngModel]="row.issuedDate" (ngModelChange)="updateDocumentRow($index, { issuedDate: $event })" />
+                  </td>
+                  <td class="px-3 py-2">
+                    <input type="date" class="w-full px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+                      [ngModel]="row.expiryDate" (ngModelChange)="updateDocumentRow($index, { expiryDate: $event })" />
+                  </td>
+                  <td class="px-3 py-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        (change)="onDocumentFileSelected($event, $index)"
+                      />
+                      @if (row.existingFileName) {
+                        <span class="text-xs text-slate-500">{{ row.existingFileName }}</span>
+                        <button type="button" (click)="downloadDocumentRow(row)" class="text-indigo-600 dark:text-indigo-400 hover:underline text-xs">
+                          Download
+                        </button>
+                      }
+                    </div>
+                  </td>
+                  <td class="px-3 py-2">
+                    <input class="w-full px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+                      [ngModel]="row.approvedBy" (ngModelChange)="updateDocumentRow($index, { approvedBy: $event })" />
+                  </td>
+                  <td class="px-3 py-2">
+                    <input class="w-full px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+                      [ngModel]="row.folderPath" (ngModelChange)="updateDocumentRow($index, { folderPath: $event })" />
+                  </td>
+                  <td class="px-3 py-2">
+                    <button
+                      type="button"
+                      (click)="removeDocumentRow($index)"
+                      class="px-2 py-1 rounded-lg bg-red-600 text-white hover:bg-red-500 disabled:opacity-50 text-xs"
+                      [disabled]="submitting()"
+                    >
+                      {{ 'individualKyc.remove' | translate }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (submitError()) {
+          <div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-sm">
+            {{ submitError() }}
+          </div>
+        }
+        @if (submitSuccess()) {
+          <div class="p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-sm">
+            {{ submitSuccess() }}
+          </div>
+        }
+
+        <div class="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            (click)="submit()"
+            [disabled]="submitting() || !routeCustomerId() || !applicantName().trim()"
+            class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 transition text-sm"
+          >
+            {{ submitting() ? ('individualKyc.saving' | translate) : ('individualKyc.submit' | translate) }}
+          </button>
+        </div>
+      </div>
+    </details>
+  </div>
+</div>

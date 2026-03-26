@@ -3,6 +3,56 @@
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar"
   },
+  "nav": {
+    "main": "Main",
+    "screening": "Screening",
+    "kyc": "KYC",
+    "caseManagement": "Case Management",
+    "riskAssessment": "Risk Assessment",
+    "ewra": "EWRA",
+    "reports": "Reports",
+    "masters": "Masters",
+    "support": "Support"
+  },
+  "screeningMenu": {
+    "individual": "Individual",
+    "corporate": "Corporate",
+    "individualBulkUpload": "Individual Bulk Upload",
+    "corporateBulkUpload": "Corporate Bulk Upload",
+    "instantSanctionScreening": "Instant Sanction Screening",
+    "internalWatchlist": "Internal Watchlist"
+  },
+  "pages": {
+    "individualScreening": { "title": "Individual Screening" },
+    "corporateScreening": { "title": "Corporate Screening" },
+    "individualBulkUpload": { "title": "Individual Bulk Upload" },
+    "corporateBulkUpload": { "title": "Corporate Bulk Upload" },
+    "instantSanctionScreening": { "title": "Instant Sanction Screening" },
+    "internalWatchlist": { "title": "Internal Watchlist" },
+    "kyc": { "title": "KYC" },
+    "caseManagement": { "title": "Case Management" },
+    "riskAssessment": { "title": "Risk Assessment" },
+    "ewra": { "title": "EWRA" },
+    "reports": { "title": "Reports" },
+    "masters": { "title": "Masters" },
+    "support": { "title": "Support" }
+  },
+  "individualKyc": {
+    "customerSearch": "Customer search",
+    "selectAll": "Select All",
+    "add": "Add",
+    "remove": "Remove",
+    "saving": "Saving...",
+    "submit": "SUBMIT",
+    "customerRequired": "Customer is required.",
+    "applicantNameRequired": "Applicant Name is required.",
+    "savedSuccess": "KYC saved successfully.",
+    "onlyPdfPng": "Only PDF, JPG, and PNG are allowed.",
+    "fileSizeMax": "File size must be less than 10MB.",
+    "selectPlaceholder": "Select…",
+    "yes": "Yes",
+    "no": "No"
+  },
   "app": {
     "title": "AML Screening",
     "logout": "Logout",
@@ -110,6 +160,7 @@
   },
   "common": {
     "search": "Search",
+    "comingSoon": "Coming soon.",
     "loading": "Loading...",
     "noData": "No data",
     "actions": "Actions",
@@ -132,7 +183,56 @@
     "customerIdRequired": "Customer ID is required.",
     "saving": "Saving...",
     "isActive": "Active",
-    "select": "Select..."
+    "select": "Select...",
+    "submit": "Submit",
+    "refresh": "Refresh",
+    "selectAll": "Select all",
+    "clearAll": "Clear all"
+  },
+  "individualScreening": {
+    "subtitle": "Search and screen an individual customer against selected lists.",
+    "customer": "Customer",
+    "customerSearchPlaceholder": "Type at least 2 characters...",
+    "selectedCustomer": "Selected",
+    "referenceId": "Reference ID",
+    "fullName": "Full name",
+    "dateOfBirth": "Date of birth",
+    "nationality": "Nationality",
+    "placeOfBirth": "Place of birth",
+    "idType": "ID type",
+    "idNumber": "ID number",
+    "address": "Address",
+    "gender": "Gender",
+    "matchThreshold": "Matching threshold",
+    "birthYearRange": "Birth year ± range",
+    "birthYearRangeSameYear": "Same year (±0)",
+    "savedAndRun": "Saved and screening started.",
+    "results": "Results",
+    "selectCustomerToViewResults": "Select a customer to view results.",
+    "noMatchingResults": "No matching results.",
+    "proceedToKyc": "Proceed to KYC",
+    "errors": {
+      "customerRequired": "Customer is required.",
+      "fullNameRequired": "Full name is required."
+    },
+    "categories": {
+      "pepUkOnly": "PEP (UK only)",
+      "disqualifiedDirectorUkOnly": "Disqualified Director (UK only)",
+      "sanctions": "Sanctions",
+      "profileOfInterest": "Profile of Interest",
+      "reputationalRiskExposure": "Reputational Risk Exposure",
+      "regulatoryEnforcementList": "Regulatory Enforcement List",
+      "insolvencyUkIreland": "Insolvency (UK & Ireland)"
+    },
+    "result": {
+      "matchedName": "Matched name",
+      "list": "Sanction list",
+      "score": "Match score",
+      "matchType": "Match type",
+      "date": "Screening date",
+      "status": "Status",
+      "review": "Review status"
+    }
   },
   "customers": {
     "fullName": "Full name",

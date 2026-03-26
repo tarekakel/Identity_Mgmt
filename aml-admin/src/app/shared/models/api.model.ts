@@ -94,6 +94,203 @@ export interface CustomerDocumentDto {
   expiryDate?: string;
 }
 
+export interface IndividualKycDto {
+  id: string;
+  tenantId: string;
+  customerId: string;
+
+  isActive: boolean;
+  isDeleted: boolean;
+
+  // 1) Applicant personal details
+  applicantName: string;
+  applicantAliases?: string | null;
+  applicantMobileNo?: string | null;
+  applicantNationalityId?: string | null;
+  applicantDualNationality?: boolean | null;
+  applicantGenderId?: string | null;
+  applicantDateOfBirth?: string | null;
+  applicantResidenceStatus?: string | null;
+  applicantEmirate?: string | null;
+  applicantCountryOfBirth?: string | null;
+  applicantCity?: string | null;
+  applicantEmail?: string | null;
+  applicantResidentialAddress?: string | null;
+  applicantOfficeNoBuildingNameStreetArea?: string | null;
+  applicantPOBox?: string | null;
+  applicantCustomerRelationship?: string | null;
+  applicantPreferredChannel?: string | null;
+  applicantProductType?: string | null;
+  applicantIndustryType?: string | null;
+  applicantOccupationId?: string | null;
+
+  applicantSourceOfFundsId?: string | null;
+  applicantSourceOfFundsComments?: string | null;
+  applicantIsProofOfSourceFundsObtained?: boolean | null;
+  applicantSourceOfFundsProofComments?: string | null;
+
+  applicantSourceOfWealth?: string | null;
+  applicantSourceOfWealthComments?: string | null;
+  applicantIsProofOfSourceWealthObtained?: boolean | null;
+  applicantSourceOfWealthProofComments?: string | null;
+
+  // 2) Client identification document details
+  clientIdTypeCode?: string | null;
+  clientIdNumber?: string | null;
+  clientEmiratesIdNumber?: string | null;
+  clientIdExpiryDate?: string | null;
+  clientPassportNumber?: string | null;
+  clientPassportDateOfIssue?: string | null;
+  clientCountryIssuanceId?: string | null;
+
+  // 3) Sponsor details
+  sponsorName?: string | null;
+  sponsorAliases?: string | null;
+  sponsorIdTypeCode?: string | null;
+  sponsorIdNumber?: string | null;
+  sponsorDateOfBirth?: string | null;
+  sponsorNationalityId?: string | null;
+  sponsorGenderId?: string | null;
+  sponsorDualNationality?: boolean | null;
+  sponsorOtherDetails?: string | null;
+
+  // 4) Bank details
+  bankCountryId?: string | null;
+  bankIbanAccountNo?: string | null;
+  bankName?: string | null;
+  accountName?: string | null;
+  bankSwiftCode?: string | null;
+  bankAddress?: string | null;
+  bankCurrency?: string | null;
+
+  // 5) Employer details
+  employerCompanyName?: string | null;
+  employerCompanyWebsite?: string | null;
+  employerEmailAddress?: string | null;
+  employerTelNo?: string | null;
+  employerAddress?: string | null;
+  employerIndustryAndBusinessDetails?: string | null;
+
+  // 6) Politically exposed person status
+  pepFATFIncreasedMonitoringAnswer?: string | null;
+  pepSanctionListOrInverseMediaAnswer?: string | null;
+  pepProminentPublicFunctionsAnswer?: string | null;
+  pepAnyPEPsAfterScreeningAnswer?: string | null;
+  pepSpecificPEPsAfterScreeningDetails?: string | null;
+
+  // 7) Follow-up document details
+  followUpDate?: string | null;
+  followUpRemarks?: string | null;
+}
+
+export interface UpsertIndividualKycRequest {
+  tenantId: string;
+
+  // 1) Applicant personal details
+  applicantName: string;
+  applicantAliases?: string | null;
+  applicantMobileNo?: string | null;
+  applicantNationalityId?: string | null;
+  applicantDualNationality?: boolean | null;
+  applicantGenderId?: string | null;
+  applicantDateOfBirth?: string | null;
+  applicantResidenceStatus?: string | null;
+  applicantEmirate?: string | null;
+  applicantCountryOfBirth?: string | null;
+  applicantCity?: string | null;
+  applicantEmail?: string | null;
+  applicantResidentialAddress?: string | null;
+  applicantOfficeNoBuildingNameStreetArea?: string | null;
+  applicantPOBox?: string | null;
+  applicantCustomerRelationship?: string | null;
+  applicantPreferredChannel?: string | null;
+  applicantProductType?: string | null;
+  applicantIndustryType?: string | null;
+  applicantOccupationId?: string | null;
+
+  applicantSourceOfFundsId?: string | null;
+  applicantSourceOfFundsComments?: string | null;
+  applicantIsProofOfSourceFundsObtained?: boolean | null;
+  applicantSourceOfFundsProofComments?: string | null;
+
+  applicantSourceOfWealth?: string | null;
+  applicantSourceOfWealthComments?: string | null;
+  applicantIsProofOfSourceWealthObtained?: boolean | null;
+  applicantSourceOfWealthProofComments?: string | null;
+
+  // 2) Client identification document details
+  clientIdTypeCode?: string | null;
+  clientIdNumber?: string | null;
+  clientEmiratesIdNumber?: string | null;
+  clientIdExpiryDate?: string | null;
+  clientPassportNumber?: string | null;
+  clientPassportDateOfIssue?: string | null;
+  clientCountryIssuanceId?: string | null;
+
+  // 3) Sponsor details
+  sponsorName?: string | null;
+  sponsorAliases?: string | null;
+  sponsorIdTypeCode?: string | null;
+  sponsorIdNumber?: string | null;
+  sponsorDateOfBirth?: string | null;
+  sponsorNationalityId?: string | null;
+  sponsorGenderId?: string | null;
+  sponsorDualNationality?: boolean | null;
+  sponsorOtherDetails?: string | null;
+
+  // 4) Bank details
+  bankCountryId?: string | null;
+  bankIbanAccountNo?: string | null;
+  bankName?: string | null;
+  accountName?: string | null;
+  bankSwiftCode?: string | null;
+  bankAddress?: string | null;
+  bankCurrency?: string | null;
+
+  // 5) Employer details
+  employerCompanyName?: string | null;
+  employerCompanyWebsite?: string | null;
+  employerEmailAddress?: string | null;
+  employerTelNo?: string | null;
+  employerAddress?: string | null;
+  employerIndustryAndBusinessDetails?: string | null;
+
+  // 6) Politically exposed person status
+  pepFATFIncreasedMonitoringAnswer?: string | null;
+  pepSanctionListOrInverseMediaAnswer?: string | null;
+  pepProminentPublicFunctionsAnswer?: string | null;
+  pepAnyPEPsAfterScreeningAnswer?: string | null;
+  pepSpecificPEPsAfterScreeningDetails?: string | null;
+
+  // 7) Follow-up document details
+  followUpDate?: string | null;
+  followUpRemarks?: string | null;
+}
+
+export interface IndividualKycDocumentDto {
+  id: string;
+  individualKycId: string;
+  customerId: string;
+
+  documentNo?: string | null;
+  issuedDate?: string | null;
+  expiryDate?: string | null;
+  approvedBy?: string | null;
+  folderPath?: string | null;
+
+  fileName: string;
+  uploadedDate: string;
+  uploadedBy?: string | null;
+}
+
+export interface UploadIndividualKycDocumentRequest {
+  documentNo?: string | null;
+  issuedDate?: string | null;
+  expiryDate?: string | null;
+  approvedBy?: string | null;
+  folderPath?: string | null;
+}
+
 export interface CustomerDto {
   id: string;
   tenantId: string;
@@ -326,6 +523,52 @@ export interface SanctionActionAuditLogDto {
 export interface RunSanctionsScreeningResultDto {
   results: SanctionsScreeningResultItemDto[];
   hasConfirmedMatch: boolean;
+}
+
+export interface IndividualScreeningRequestDto {
+  id: string;
+  tenantId: string;
+  customerId: string;
+  referenceId?: string | null;
+  fullName: string;
+  dateOfBirth?: string | null;
+  nationalityId?: string | null;
+  placeOfBirthCountryId?: string | null;
+  idType?: string | null;
+  idNumber?: string | null;
+  address?: string | null;
+  genderId?: string | null;
+  matchThreshold: number;
+  birthYearRange?: number | null;
+  checkPepUkOnly: boolean;
+  checkSanctions: boolean;
+  checkProfileOfInterest: boolean;
+  checkDisqualifiedDirectorUkOnly: boolean;
+  checkReputationalRiskExposure: boolean;
+  checkRegulatoryEnforcementList: boolean;
+  checkInsolvencyUkIreland: boolean;
+}
+
+export interface UpsertIndividualScreeningRequest {
+  tenantId: string;
+  referenceId?: string | null;
+  fullName: string;
+  dateOfBirth?: string | null;
+  nationalityId?: string | null;
+  placeOfBirthCountryId?: string | null;
+  idType?: string | null;
+  idNumber?: string | null;
+  address?: string | null;
+  genderId?: string | null;
+  matchThreshold: number;
+  birthYearRange?: number | null;
+  checkPepUkOnly: boolean;
+  checkSanctions: boolean;
+  checkProfileOfInterest: boolean;
+  checkDisqualifiedDirectorUkOnly: boolean;
+  checkReputationalRiskExposure: boolean;
+  checkRegulatoryEnforcementList: boolean;
+  checkInsolvencyUkIreland: boolean;
 }
 
 export interface CreateSanctionsScreeningRequest {

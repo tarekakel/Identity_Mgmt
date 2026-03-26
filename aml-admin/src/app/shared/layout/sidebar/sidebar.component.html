@@ -1,0 +1,79 @@
+<aside
+  class="min-h-screen bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all duration-300 shrink-0"
+  [class.w-64]="!collapsed()"
+  [class.w-20]="collapsed()"
+>
+  <div
+    class="border-b border-slate-200 dark:border-slate-700 flex items-center overflow-hidden transition-all duration-300"
+    [class.p-4]="!collapsed()"
+    [class.p-3]="collapsed()"
+    [class.justify-center]="collapsed()"
+  >
+    <a
+      routerLink="/dashboard"
+      class="text-xl font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap flex items-center gap-2 min-w-0"
+    >
+      <span class="shrink-0 text-center">📊</span>
+      @if (!collapsed()) {
+        <span class="truncate">{{ 'app.title' | translate }}</span>
+      }
+    </a>
+  </div>
+
+  <nav class="flex-1 p-4 space-y-1 overflow-hidden">
+    @for (group of navGroups; track group.id) {
+      <div class="space-y-1">
+        <button
+          type="button"
+          (click)="toggleGroup(group.id)"
+          class="w-full flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10 text-left"
+          [class.gap-3]="!collapsed()"
+          [class.px-3]="!collapsed()"
+          [class.justify-center]="collapsed()"
+          [class.px-2]="collapsed()"
+          [attr.title]="collapsed() ? (group.labelKey | translate) : null"
+        >
+          <span class="w-5 text-center shrink-0">{{ group.icon }}</span>
+          @if (!collapsed()) {
+            <span class="flex-1 truncate text-sm font-medium">{{ group.labelKey | translate }}</span>
+            <span class="text-xs shrink-0" aria-hidden="true">{{ isGroupOpen(group.id) ? '▾' : '▸' }}</span>
+          }
+        </button>
+
+        @if (!collapsed() && isGroupOpen(group.id)) {
+          <div class="space-y-1 pl-2">
+            @for (item of group.items; track item.route) {
+              <a
+                [routerLink]="item.route"
+                routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+                [routerLinkActiveOptions]="{ exact: !!item.exact }"
+                class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"
+                [class.gap-3]="!collapsed()"
+                [class.px-3]="!collapsed()"
+                [title]="collapsed() ? (item.labelKey | translate) : null"
+              >
+                <span class="w-5 text-center shrink-0">{{ item.icon }}</span>
+                <span class="truncate text-sm">{{ item.labelKey | translate }}</span>
+              </a>
+            }
+          </div>
+        }
+      </div>
+    }
+  </nav>
+
+  <div class="p-2 border-t border-slate-200 dark:border-slate-700 flex justify-center">
+    <button
+      type="button"
+      (click)="toggleCollapsed()"
+      class="w-full flex items-center justify-center py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+      [attr.title]="collapsed() ? ('sidebar.expand' | translate) : ('sidebar.collapse' | translate)"
+    >
+      @if (collapsed()) {
+        <span class="text-sm font-medium" aria-hidden="true">&gt;&gt;</span>
+      } @else {
+        <span class="text-sm font-medium" aria-hidden="true">&lt;&lt;</span>
+      }
+    </button>
+  </div>
+</aside>
