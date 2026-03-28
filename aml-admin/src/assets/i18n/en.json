@@ -1,4 +1,4 @@
-﻿{
+{
   "sidebar": {
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar"
@@ -13,6 +13,7 @@
     "reports": "Reports",
     "customerBulkUploadLogs": "Customer Bulk Upload Logs",
     "masters": "Masters",
+    "mastersOverview": "Masters overview",
     "support": "Support"
   },
   "screeningMenu": {
@@ -39,6 +40,25 @@
     "masters": { "title": "Masters" },
     "support": { "title": "Support" }
   },
+  "masters": {
+    "intro": "Maintain lookup values used across screening and customer profiles.",
+    "backToOverview": "Back to masters",
+    "backToList": "Back to list",
+    "code": "Code",
+    "name": "Name",
+    "confirmDelete": "Are you sure you want to delete this record?",
+    "codeNameRequired": "Code and name are required.",
+    "segments": {
+      "countries": "Countries",
+      "nationalities": "Nationalities",
+      "genders": "Genders",
+      "customerTypes": "Customer types",
+      "customerStatuses": "Customer statuses",
+      "documentTypes": "Document types",
+      "occupations": "Occupations",
+      "sourceOfFunds": "Source of funds"
+    }
+  },
   "individualKyc": {
     "customerSearch": "Customer search",
     "selectAll": "Select All",
@@ -51,7 +71,7 @@
     "savedSuccess": "KYC saved successfully.",
     "onlyPdfPng": "Only PDF, JPG, and PNG are allowed.",
     "fileSizeMax": "File size must be less than 10MB.",
-    "selectPlaceholder": "Selectâ€¦",
+    "selectPlaceholder": "Select…",
     "yes": "Yes",
     "no": "No"
   },
@@ -69,7 +89,7 @@
     "sanctionActionHistory": "Sanction Action History"
   },
   "screening": {
-    "title": "Customer Onboarding â€“ Screening Stepper",
+    "title": "Customer Onboarding – Screening Stepper",
     "step1CustomerProfile": "Customer Profile",
     "step2Kyc": "KYC",
     "step3Sanctions": "Sanctions Screening",
@@ -126,7 +146,7 @@
     "statusClear": "Clear",
     "statusPossibleMatch": "Possible match",
     "statusConfirmedMatch": "Confirmed match",
-    "onboardingBlocked": "Onboarding blocked â€“ confirmed sanctions match.",
+    "onboardingBlocked": "Onboarding blocked – confirmed sanctions match.",
     "screeningComplete": "Sanctions screening completed.",
     "noResultsYet": "No results yet. Run screening below.",
     "reviewStatus": "Review status",
@@ -190,6 +210,34 @@
     "refresh": "Refresh",
     "selectAll": "Select all",
     "clearAll": "Clear all"
+  },
+  "instantSanctionScreening": {
+    "filterSectionTitle": "Instant sanction screening filter",
+    "resultsSectionTitle": "API results",
+    "name": "Name",
+    "namePlaceholder": "Name",
+    "nationality": "Nationality",
+    "nationalityPlaceholder": "-- SELECT --",
+    "dateOfBirth": "Date of birth",
+    "search": "SEARCH",
+    "reset": "RESET",
+    "pdfExport": "PDF EXPORT",
+    "noRecords": "No Record Found !!",
+    "resultsHint": "Use Search to load matches from sanction lists.",
+    "nameMinLength": "Enter at least 2 characters for name.",
+    "searchFailed": "Search failed. Please try again.",
+    "noRowsToExport": "No results to export.",
+    "colScore": "Score",
+    "colCustomerId": "Customer ID",
+    "colUid": "UID",
+    "colType": "Type",
+    "colName": "Name",
+    "colNationality": "Nationality / country",
+    "colDob": "DOB",
+    "colIdNumber": "ID number",
+    "colSource": "Source",
+    "colCreatedOn": "Created on",
+    "colRemarks": "Remarks"
   },
   "individualScreening": {
     "subtitle": "Search and screen an individual customer against selected lists.",
@@ -343,10 +391,28 @@
       "ok": "OK"
     }
   },
+  "corporateBulkUpload": {
+    "uploadExcel": "Upload Excel",
+    "uploadFromExcel": "Upload from Excel File",
+    "sampleDownloadFailed": "Could not download the sample file. Check that the API is running.",
+    "fileRequired": "Please select a file to upload.",
+    "uploadReport": {
+      "title": "UPLOAD REPORT",
+      "customerId": "Customer ID",
+      "entityName": "Full name of entity",
+      "incorporatedCountry": "Incorporated country",
+      "dateOfIncorporation": "Date of incorporation",
+      "companyReferenceCode": "Company reference code",
+      "tradeLicense": "Trade license"
+    }
+  },
   "customerBulkUploadLogs": {
     "breadcrumb": {
       "home": "Home"
     },
+    "uploadKind": "Upload type",
+    "uploadKindIndividual": "Individual",
+    "uploadKindCorporate": "Corporate",
     "startDate": "Start date",
     "endDate": "End date",
     "uploadedBy": "Uploaded by",
@@ -367,8 +433,13 @@
     "caseStatusCleared": "Cleared",
     "customerId": "Customer ID",
     "customerName": "Customer name",
+    "entityName": "Entity name",
     "nationality": "Nationality",
+    "incorporatedCountry": "Incorporated country",
     "dateOfBirth": "Date of birth",
+    "dateOfIncorporation": "Date of incorporation",
+    "companyReferenceCode": "Company ref.",
+    "tradeLicense": "Trade license",
     "status": "Status",
     "source": "Source",
     "uid": "UID",
@@ -382,7 +453,7 @@
     "dark": "Dark",
     "language": "Language",
     "fontSizePx": "Font size (px)",
-    "fontSizePxHint": "12â€“24 px",
+    "fontSizePxHint": "12–24 px",
     "fontColor": "Font color",
     "themeDefault": "Theme default",
     "presetSlate": "Slate",

@@ -1,0 +1,194 @@
+<div class="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="upload-report-title">
+  <div class="dialog-panel">
+    <div class="dialog-header">
+      <h2 id="upload-report-title" class="dialog-title">
+        @if (kind() === 'cor') {
+          {{ 'corporateBulkUpload.uploadReport.title' | translate }}
+        } @else {
+          {{ 'individualBulkUpload.uploadReport.title' | translate }}
+        }
+      </h2>
+      <button type="button" class="btn-close" (click)="ok()" aria-label="Close">×</button>
+    </div>
+
+    <div class="dialog-body">
+      <div class="toolbar">
+        <div class="flex items-center gap-2 flex-wrap">
+          <select
+            class="rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm px-2 py-1"
+            [ngModel]="pageSize()"
+            (ngModelChange)="onPageSizeChange($event)"
+          >
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+          </select>
+          <span class="text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">
+            {{ 'individualBulkUpload.uploadReport.entriesPerPage' | translate }}
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-semibold uppercase text-slate-600 dark:text-slate-400" for="upload-report-search">
+            {{ 'individualBulkUpload.uploadReport.search' | translate }}
+          </label>
+          <input
+            id="upload-report-search"
+            type="search"
+            class="rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm px-3 py-1 min-w-[180px]"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="onSearchChange($event)"
+          />
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        @if (kind() === 'ind') {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th (click)="toggleSortInd('customerId')">
+                  {{ 'individualBulkUpload.uploadReport.customerId' | translate }} {{ sortIndicatorInd('customerId') }}
+                </th>
+                <th (click)="toggleSortInd('fullName')">
+                  {{ 'individualBulkUpload.uploadReport.fullName' | translate }} {{ sortIndicatorInd('fullName') }}
+                </th>
+                <th (click)="toggleSortInd('country')">
+                  {{ 'individualBulkUpload.uploadReport.country' | translate }} {{ sortIndicatorInd('country') }}
+                </th>
+                <th (click)="toggleSortInd('dob')">
+                  {{ 'individualBulkUpload.uploadReport.dob' | translate }} {{ sortIndicatorInd('dob') }}
+                </th>
+                <th (click)="toggleSortInd('placeOfBirth')">
+                  {{ 'individualBulkUpload.uploadReport.placeOfBirth' | translate }} {{ sortIndicatorInd('placeOfBirth') }}
+                </th>
+                <th (click)="toggleSortInd('error')">
+                  {{ 'individualBulkUpload.uploadReport.error' | translate }} {{ sortIndicatorInd('error') }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of pagedIndRows(); track $index) {
+                <tr>
+                  <td>{{ row.customerId }}</td>
+                  <td>{{ row.fullName }}</td>
+                  <td>{{ row.country }}</td>
+                  <td>{{ row.dob }}</td>
+                  <td>{{ row.placeOfBirth }}</td>
+                  <td>{{ row.error ?? '' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="text-center text-slate-500 py-6">{{ 'individualBulkUpload.uploadReport.noRows' | translate }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th (click)="toggleSortCor('customerId')">
+                  {{ 'corporateBulkUpload.uploadReport.customerId' | translate }} {{ sortIndicatorCor('customerId') }}
+                </th>
+                <th (click)="toggleSortCor('entityName')">
+                  {{ 'corporateBulkUpload.uploadReport.entityName' | translate }} {{ sortIndicatorCor('entityName') }}
+                </th>
+                <th (click)="toggleSortCor('incorporatedCountry')">
+                  {{ 'corporateBulkUpload.uploadReport.incorporatedCountry' | translate }} {{ sortIndicatorCor('incorporatedCountry') }}
+                </th>
+                <th (click)="toggleSortCor('dateOfIncorporation')">
+                  {{ 'corporateBulkUpload.uploadReport.dateOfIncorporation' | translate }} {{ sortIndicatorCor('dateOfIncorporation') }}
+                </th>
+                <th (click)="toggleSortCor('companyReferenceCode')">
+                  {{ 'corporateBulkUpload.uploadReport.companyReferenceCode' | translate }} {{ sortIndicatorCor('companyReferenceCode') }}
+                </th>
+                <th (click)="toggleSortCor('tradeLicense')">
+                  {{ 'corporateBulkUpload.uploadReport.tradeLicense' | translate }} {{ sortIndicatorCor('tradeLicense') }}
+                </th>
+                <th (click)="toggleSortCor('error')">
+                  {{ 'individualBulkUpload.uploadReport.error' | translate }} {{ sortIndicatorCor('error') }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of pagedCorRows(); track $index) {
+                <tr>
+                  <td>{{ row.customerId }}</td>
+                  <td>{{ row.entityName }}</td>
+                  <td>{{ row.incorporatedCountry }}</td>
+                  <td>{{ row.dateOfIncorporation }}</td>
+                  <td>{{ row.companyReferenceCode }}</td>
+                  <td>{{ row.tradeLicense }}</td>
+                  <td>{{ row.error ?? '' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center text-slate-500 py-6">{{ 'individualBulkUpload.uploadReport.noRows' | translate }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
+        <p class="text-sm text-slate-600 dark:text-slate-400">
+          {{
+            'individualBulkUpload.uploadReport.showing'
+              | translate
+                : { from: showingFrom(), to: showingTo(), total: activeSortedRows().length }
+          }}
+        </p>
+        <div class="flex items-center gap-1">
+          <button type="button" class="px-2 py-1 border rounded text-sm" (click)="firstPage()" [disabled]="pageIndex() === 0">
+            «
+          </button>
+          <button type="button" class="px-2 py-1 border rounded text-sm" (click)="prevPage()" [disabled]="pageIndex() === 0">
+            ‹
+          </button>
+          <span class="px-3 py-1 border rounded text-sm font-medium">{{ pageIndex() + 1 }}</span>
+          <button
+            type="button"
+            class="px-2 py-1 border rounded text-sm"
+            (click)="nextPage()"
+            [disabled]="pageIndex() >= totalPages() - 1"
+          >
+            ›
+          </button>
+          <button
+            type="button"
+            class="px-2 py-1 border rounded text-sm"
+            (click)="lastPage()"
+            [disabled]="pageIndex() >= totalPages() - 1"
+          >
+            »
+          </button>
+        </div>
+      </div>
+
+      @if (mode() === 'validationFailed') {
+        <p class="mt-4 text-sm font-bold uppercase text-slate-800 dark:text-slate-100">
+          {{ 'individualBulkUpload.uploadReport.entriesFailed' | translate: { count: failedCount() } }}
+        </p>
+      }
+
+      @if (mode() === 'queued') {
+        <div class="mt-4 space-y-2">
+          <p class="text-sm font-bold uppercase text-slate-800 dark:text-slate-100">
+            {{ 'individualBulkUpload.uploadReport.entriesQueued' | translate: { count: queuedCount() } }}
+          </p>
+          <p class="text-sm text-slate-700 dark:text-slate-300">
+            <a [routerLink]="logsRoute" [queryParams]="queryParamsForLogs()" class="link-progress" (click)="ok()">{{
+              'individualBulkUpload.uploadReport.clickHere' | translate
+            }}</a>
+            {{ 'individualBulkUpload.uploadReport.progressHint' | translate }}
+          </p>
+        </div>
+      }
+    </div>
+
+    <div class="flex justify-end px-4 py-3 border-t border-slate-200 dark:border-slate-600 shrink-0">
+      <button type="button" class="btn-ok" (click)="ok()">{{ 'individualBulkUpload.uploadReport.ok' | translate }}</button>
+    </div>
+  </div>
+</div>

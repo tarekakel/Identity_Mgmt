@@ -42,9 +42,10 @@
 
         @if (!collapsed() && isGroupOpen(group.id)) {
           <div class="space-y-1 pl-2">
-            @for (item of group.items; track item.route) {
+            @for (item of group.items; track item.labelKey + item.route) {
               <a
                 [routerLink]="item.route"
+                [queryParams]="item.queryParams"
                 routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
                 [routerLinkActiveOptions]="{ exact: !!item.exact }"
                 class="flex items-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-h-10"

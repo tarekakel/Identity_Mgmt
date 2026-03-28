@@ -1,0 +1,56 @@
+<div class="animate-fade-in w-full">
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div>
+      <a routerLink="/masters" class="text-sm text-slate-600 dark:text-slate-400 hover:underline mb-1 inline-block">
+        {{ 'masters.backToOverview' | translate }}
+      </a>
+      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ titleKey() | translate }}</h1>
+    </div>
+    @if (segment()) {
+      <a [routerLink]="['/masters', segment(), 'new']" class="px-4 py-2 rounded-lg bg-slate-700 dark:bg-slate-600 text-white hover:bg-slate-600 dark:hover:bg-slate-500 transition">
+        {{ 'common.add' | translate }}
+      </a>
+    }
+  </div>
+  <div class="flex gap-2 mb-4">
+    <input
+      type="text"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+      placeholder="{{ 'common.search' | translate }}"
+      class="flex-1 max-w-sm px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+    />
+  </div>
+  @if (loading()) {
+    <app-loader [message]="'common.loading' | translate" />
+  } @else {
+    <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto overflow-y-hidden bg-white dark:bg-slate-800 w-full">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+        <thead class="bg-slate-50 dark:bg-slate-700/50">
+          <tr>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'masters.code' | translate }}</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'masters.name' | translate }}</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'common.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          @for (row of filteredList(); track row.id) {
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+              <td class="px-4 py-3 text-slate-800 dark:text-slate-100 text-sm font-mono">{{ row.code }}</td>
+              <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ row.name }}</td>
+              <td class="px-4 py-3 flex gap-2">
+                @if (segment()) {
+                  <a [routerLink]="['/masters', segment(), row.id, 'edit']" class="text-slate-600 dark:text-slate-400 hover:underline">{{ 'common.edit' | translate }}</a>
+                  <button type="button" (click)="deleteRow(row.id)" class="text-red-600 dark:text-red-400 hover:underline">{{ 'common.delete' | translate }}</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (filteredList().length === 0) {
+        <p class="p-6 text-center text-slate-500 dark:text-slate-400">{{ 'common.noData' | translate }}</p>
+      }
+    </div>
+  }
+</div>

@@ -1,9 +1,15 @@
-﻿import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { combineLatest } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import type {
+  BulkUploadKind,
+  CorporateBulkUploadReportRow,
+  CorporateBulkUploadResultDto,
   IndividualBulkUploadReportMode,
   IndividualBulkUploadReportRow,
   IndividualBulkUploadResultDto
@@ -11,15 +17,19 @@ import type {
 import { UploadReportDialogComponent } from './upload-report-dialog.component';
 
 @Component({
-  selector: 'app-individual-bulk-upload',
+  selector: 'app-bulk-upload',
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule, UploadReportDialogComponent],
-  templateUrl: './individual-bulk-upload.component.html',
-  styleUrls: ['./individual-bulk-upload.component.scss']
+  templateUrl: './bulk-upload.component.html',
+  styleUrls: ['./bulk-upload.component.scss']
 })
-export class IndividualBulkUploadComponent {
+export class BulkUploadComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly translate = inject(TranslateService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
+
+  bulkKind = signal<BulkUploadKind>('ind');
 
   checkPepUkOnly = signal(true);
   checkDisqualifiedDirectorUkOnly = signal(true);
@@ -37,8 +47,27 @@ export class IndividualBulkUploadComponent {
   sampleDownloading = signal(false);
 
   reportOpen = signal(false);
-  reportRows = signal<IndividualBulkUploadReportRow[]>([]);
+  indReportRows = signal<IndividualBulkUploadReportRow[]>([]);
+  corReportRows = signal<CorporateBulkUploadReportRow[]>([]);
   reportMode = signal<IndividualBulkUploadReportMode>('queued');
+
+  ngOnInit(): void {
+    combineLatest([this.route.queryParamMap, this.route.data])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([q, d]) => {
+        const qk = q.get('kind');
+        if (qk === 'ind' || qk === 'cor') {
+          this.bulkKind.set(qk);
+          return;
+        }
+        const dk = d['bulkKind'] as BulkUploadKind | undefined;
+        if (dk === 'ind' || dk === 'cor') {
+          this.bulkKind.set(dk);
+          return;
+        }
+        this.bulkKind.set('ind');
+      });
+  }
 
   selectAllCategories(): void {
     this.checkPepUkOnly.set(true);
@@ -70,19 +99,25 @@ export class IndividualBulkUploadComponent {
   downloadSample(): void {
     this.sampleDownloading.set(true);
     this.submitError.set(null);
-    this.api.downloadIndividualBulkSample().subscribe({
+    const kind = this.bulkKind();
+    this.api.downloadBulkSample(kind).subscribe({
       next: (blob) => {
         this.sampleDownloading.set(false);
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'Data-Customer_Bulk_upload_Sample_Individual.xlsx';
+        a.download =
+          kind === 'cor'
+            ? 'Data-Customer_Bulk_upload_Sample_Corporate.xlsx'
+            : 'Data-Customer_Bulk_upload_Sample_Individual.xlsx';
         a.click();
         URL.revokeObjectURL(url);
       },
       error: () => {
         this.sampleDownloading.set(false);
-        this.submitError.set(this.translate.instant('individualBulkUpload.sampleDownloadFailed'));
+        const key =
+          kind === 'cor' ? 'corporateBulkUpload.sampleDownloadFailed' : 'individualBulkUpload.sampleDownloadFailed';
+        this.submitError.set(this.translate.instant(key));
       }
     });
   }
@@ -126,10 +161,12 @@ export class IndividualBulkUploadComponent {
     this.submitError.set(null);
     const file = this.selectedFile();
     if (!file) {
-      this.submitError.set(this.translate.instant('individualBulkUpload.fileRequired'));
+      const key = this.bulkKind() === 'cor' ? 'corporateBulkUpload.fileRequired' : 'individualBulkUpload.fileRequired';
+      this.submitError.set(this.translate.instant(key));
       return;
     }
     this.submitting.set(true);
+    const kind = this.bulkKind();
     const options = {
       matchThreshold: this.matchThreshold(),
       checkPepUkOnly: this.checkPepUkOnly(),
@@ -140,11 +177,15 @@ export class IndividualBulkUploadComponent {
       checkRegulatoryEnforcementList: this.checkRegulatoryEnforcementList(),
       checkInsolvencyUkIreland: this.checkInsolvencyUkIreland()
     };
-    this.api.uploadIndividualBulk(file, options).subscribe({
+    this.api.uploadBulk(kind, file, options).subscribe({
       next: (res) => {
         this.submitting.set(false);
         if (res.success && res.data) {
-          this.applyUploadResult(res.data);
+          if (kind === 'cor') {
+            this.applyCorporateUploadResult(res.data as CorporateBulkUploadResultDto);
+          } else {
+            this.applyIndividualUploadResult(res.data as IndividualBulkUploadResultDto);
+          }
           return;
         }
         this.submitError.set(res.message ?? this.translate.instant('common.errorGeneric'));
@@ -157,7 +198,7 @@ export class IndividualBulkUploadComponent {
     });
   }
 
-  private applyUploadResult(data: IndividualBulkUploadResultDto): void {
+  private applyIndividualUploadResult(data: IndividualBulkUploadResultDto): void {
     const rows: IndividualBulkUploadReportRow[] = (data.rows ?? []).map((r) => ({
       customerId: r.customerId,
       fullName: r.fullName,
@@ -166,7 +207,26 @@ export class IndividualBulkUploadComponent {
       placeOfBirth: r.placeOfBirth,
       error: r.error
     }));
-    this.reportRows.set(rows);
+    this.indReportRows.set(rows);
+    this.corReportRows.set([]);
+    const mode: IndividualBulkUploadReportMode =
+      data.mode === 'validationFailed' ? 'validationFailed' : 'queued';
+    this.reportMode.set(mode);
+    this.reportOpen.set(true);
+  }
+
+  private applyCorporateUploadResult(data: CorporateBulkUploadResultDto): void {
+    const rows: CorporateBulkUploadReportRow[] = (data.rows ?? []).map((r) => ({
+      customerId: r.customerId,
+      entityName: r.entityName,
+      incorporatedCountry: r.incorporatedCountry,
+      dateOfIncorporation: r.dateOfIncorporation,
+      companyReferenceCode: r.companyReferenceCode,
+      tradeLicense: r.tradeLicense,
+      error: r.error
+    }));
+    this.corReportRows.set(rows);
+    this.indReportRows.set([]);
     const mode: IndividualBulkUploadReportMode =
       data.mode === 'validationFailed' ? 'validationFailed' : 'queued';
     this.reportMode.set(mode);

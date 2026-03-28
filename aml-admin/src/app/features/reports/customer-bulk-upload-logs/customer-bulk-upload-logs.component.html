@@ -1,4 +1,4 @@
-﻿<div class="animate-fade-in w-full space-y-6 max-w-7xl mx-auto">
+<div class="animate-fade-in w-full space-y-6 max-w-7xl mx-auto">
   <nav class="text-sm text-slate-500 dark:text-slate-400">
     <a routerLink="/dashboard" class="hover:text-teal-600 dark:hover:text-teal-400">{{ 'customerBulkUploadLogs.breadcrumb.home' | translate }}</a>
     <span class="mx-1">/</span>
@@ -11,7 +11,33 @@
     <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">
       {{ 'pages.customerBulkUploadLogs.title' | translate }}
     </h1>
-    <span class="text-slate-400 text-xl select-none" aria-hidden="true">â–¦</span>
+    <span class="text-slate-400 text-xl select-none" aria-hidden="true">&#x25C6;</span>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-2">
+    <span class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ 'customerBulkUploadLogs.uploadKind' | translate }}</span>
+    <button
+      type="button"
+      class="px-3 py-1.5 rounded-lg text-sm font-medium transition"
+      [class.bg-indigo-600]="logKind() === 'ind'"
+      [class.text-white]="logKind() === 'ind'"
+      [class.bg-slate-200]="logKind() !== 'ind'"
+      [class.dark:bg-slate-700]="logKind() !== 'ind'"
+      (click)="setLogKind('ind')"
+    >
+      {{ 'customerBulkUploadLogs.uploadKindIndividual' | translate }}
+    </button>
+    <button
+      type="button"
+      class="px-3 py-1.5 rounded-lg text-sm font-medium transition"
+      [class.bg-indigo-600]="logKind() === 'cor'"
+      [class.text-white]="logKind() === 'cor'"
+      [class.bg-slate-200]="logKind() !== 'cor'"
+      [class.dark:bg-slate-700]="logKind() !== 'cor'"
+      (click)="setLogKind('cor')"
+    >
+      {{ 'customerBulkUploadLogs.uploadKindCorporate' | translate }}
+    </button>
   </div>
 
   <!-- Upper section: file logs -->
@@ -140,9 +166,17 @@
           <tr>
             <th>#</th>
             <th>{{ 'customerBulkUploadLogs.customerId' | translate }}</th>
-            <th>{{ 'customerBulkUploadLogs.customerName' | translate }}</th>
-            <th>{{ 'customerBulkUploadLogs.nationality' | translate }}</th>
-            <th>{{ 'customerBulkUploadLogs.dateOfBirth' | translate }}</th>
+            @if (logKind() === 'cor') {
+              <th>{{ 'customerBulkUploadLogs.entityName' | translate }}</th>
+              <th>{{ 'customerBulkUploadLogs.incorporatedCountry' | translate }}</th>
+              <th>{{ 'customerBulkUploadLogs.dateOfIncorporation' | translate }}</th>
+              <th>{{ 'customerBulkUploadLogs.companyReferenceCode' | translate }}</th>
+              <th>{{ 'customerBulkUploadLogs.tradeLicense' | translate }}</th>
+            } @else {
+              <th>{{ 'customerBulkUploadLogs.customerName' | translate }}</th>
+              <th>{{ 'customerBulkUploadLogs.nationality' | translate }}</th>
+              <th>{{ 'customerBulkUploadLogs.dateOfBirth' | translate }}</th>
+            }
             <th>{{ 'customerBulkUploadLogs.status' | translate }}</th>
             <th>{{ 'customerBulkUploadLogs.source' | translate }}</th>
             <th>{{ 'customerBulkUploadLogs.uid' | translate }}</th>
@@ -154,9 +188,17 @@
             <tr>
               <td>{{ row.index }}</td>
               <td>{{ row.customerId }}</td>
-              <td>{{ row.customerName }}</td>
-              <td>{{ row.nationality }}</td>
-              <td>{{ row.dateOfBirth }}</td>
+              @if (logKind() === 'cor') {
+                <td>{{ row.customerName }}</td>
+                <td>{{ row.nationality }}</td>
+                <td>{{ row.dateOfBirth }}</td>
+                <td>{{ row.companyReferenceCode }}</td>
+                <td>{{ row.tradeLicense }}</td>
+              } @else {
+                <td>{{ row.customerName }}</td>
+                <td>{{ row.nationality }}</td>
+                <td>{{ row.dateOfBirth }}</td>
+              }
               <td>{{ row.status }}</td>
               <td>{{ row.source }}</td>
               <td>{{ row.uid }}</td>
@@ -164,7 +206,9 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="9" class="text-center text-slate-500 py-8">{{ 'customerBulkUploadLogs.noDetails' | translate }}</td>
+              <td [attr.colspan]="logKind() === 'cor' ? 11 : 9" class="text-center text-slate-500 py-8">
+                {{ 'customerBulkUploadLogs.noDetails' | translate }}
+              </td>
             </tr>
           }
         </tbody>

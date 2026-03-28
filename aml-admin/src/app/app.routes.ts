@@ -35,17 +35,15 @@ export const routes: Routes = [
       },
       {
         path: 'screening/individual-bulk-upload',
+        data: { bulkKind: 'ind' },
         loadComponent: () =>
-          import('./features/screening/individual-bulk-upload/individual-bulk-upload.component').then(
-            (m) => m.IndividualBulkUploadComponent
-          )
+          import('./features/screening/bulk-upload/bulk-upload.component').then((m) => m.BulkUploadComponent)
       },
       {
         path: 'screening/corporate-bulk-upload',
+        data: { bulkKind: 'cor' },
         loadComponent: () =>
-          import('./features/screening/corporate-bulk-upload/corporate-bulk-upload.component').then(
-            (m) => m.CorporateBulkUploadComponent
-          )
+          import('./features/screening/bulk-upload/bulk-upload.component').then((m) => m.BulkUploadComponent)
       },
       {
         path: 'screening/instant-sanction-screening',
@@ -91,6 +89,21 @@ export const routes: Routes = [
           import('./features/reports/customer-bulk-upload-logs/customer-bulk-upload-logs.component').then(
             (m) => m.CustomerBulkUploadLogsComponent
           )
+      },
+      {
+        path: 'masters/:segment/new',
+        loadComponent: () =>
+          import('./features/masters/master-lookup-form/master-lookup-form.component').then((m) => m.MasterLookupFormComponent)
+      },
+      {
+        path: 'masters/:segment/:id/edit',
+        loadComponent: () =>
+          import('./features/masters/master-lookup-form/master-lookup-form.component').then((m) => m.MasterLookupFormComponent)
+      },
+      {
+        path: 'masters/:segment',
+        loadComponent: () =>
+          import('./features/masters/master-lookup-list/master-lookup-list.component').then((m) => m.MasterLookupListComponent)
       },
       {
         path: 'masters',

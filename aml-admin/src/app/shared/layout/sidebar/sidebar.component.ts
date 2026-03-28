@@ -12,6 +12,7 @@ type NavItem = {
   route: string;
   icon?: string;
   exact?: boolean;
+  queryParams?: Record<string, string>;
 };
 
 type NavGroup = {
@@ -58,8 +59,18 @@ export class SidebarComponent implements OnInit {
       items: [
         { labelKey: 'screeningMenu.individual', route: '/screening/individual', icon: '👤' },
         { labelKey: 'screeningMenu.corporate', route: '/screening/corporate', icon: '🏢' },
-        { labelKey: 'screeningMenu.individualBulkUpload', route: '/screening/individual-bulk-upload', icon: '⬆' },
-        { labelKey: 'screeningMenu.corporateBulkUpload', route: '/screening/corporate-bulk-upload', icon: '⬆' },
+        {
+          labelKey: 'screeningMenu.individualBulkUpload',
+          route: '/screening/individual-bulk-upload',
+          queryParams: { kind: 'ind' },
+          icon: '⬆'
+        },
+        {
+          labelKey: 'screeningMenu.corporateBulkUpload',
+          route: '/screening/corporate-bulk-upload',
+          queryParams: { kind: 'cor' },
+          icon: '⬆'
+        },
         { labelKey: 'screeningMenu.instantSanctionScreening', route: '/screening/instant-sanction-screening', icon: '🔍' },
         { labelKey: 'screeningMenu.internalWatchlist', route: '/screening/internal-watchlist', icon: '🧾' }
       ]
@@ -101,7 +112,17 @@ export class SidebarComponent implements OnInit {
       id: 'masters',
       labelKey: 'nav.masters',
       icon: '🛠',
-      items: [{ labelKey: 'nav.masters', route: '/masters', icon: '🛠', exact: true }]
+      items: [
+        { labelKey: 'nav.mastersOverview', route: '/masters', icon: '📋', exact: true },
+        { labelKey: 'masters.segments.countries', route: '/masters/countries', icon: '🌍' },
+        { labelKey: 'masters.segments.nationalities', route: '/masters/nationalities', icon: '🏳' },
+        { labelKey: 'masters.segments.genders', route: '/masters/genders', icon: '⚥' },
+        { labelKey: 'masters.segments.customerTypes', route: '/masters/customer-types', icon: '👥' },
+        { labelKey: 'masters.segments.customerStatuses', route: '/masters/customer-statuses', icon: '📌' },
+        { labelKey: 'masters.segments.documentTypes', route: '/masters/document-types', icon: '📄' },
+        { labelKey: 'masters.segments.occupations', route: '/masters/occupations', icon: '💼' },
+        { labelKey: 'masters.segments.sourceOfFunds', route: '/masters/source-of-funds', icon: '💰' }
+      ]
     },
     {
       id: 'support',

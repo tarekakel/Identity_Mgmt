@@ -10,18 +10,10 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <button
-        type="button"
-        (click)="selectAllCategories()"
-        class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition text-sm"
-      >
+      <button type="button" (click)="selectAllCategories()" class="cs-btn cs-btn-select-all">
         {{ 'common.selectAll' | translate }}
       </button>
-      <button
-        type="button"
-        (click)="clearAllCategories()"
-        class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition text-sm"
-      >
+      <button type="button" (click)="clearAllCategories()" class="cs-btn cs-btn-clear-all">
         {{ 'common.clearAll' | translate }}
       </button>
     </div>
@@ -38,7 +30,7 @@
             type="text"
             [ngModel]="customerSearchTerm()"
             (ngModelChange)="onCustomerSearchChange($event)"
-            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            class="cs-input w-full"
             [placeholder]="'individualScreening.customerSearchPlaceholder' | translate"
           />
 
@@ -115,21 +107,21 @@
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
           {{ 'individualScreening.referenceId' | translate }}
         </label>
-        <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        <input type="text" class="cs-input"
           [ngModel]="referenceId()" (ngModelChange)="referenceId.set($event)" />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
           {{ 'individualScreening.fullName' | translate }} *
         </label>
-        <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        <input type="text" class="cs-input"
           [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
           {{ 'individualScreening.dateOfBirth' | translate }}
         </label>
-        <input type="date" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        <input type="date" class="cs-input"
           [ngModel]="dateOfBirth()" (ngModelChange)="dateOfBirth.set($event)" />
       </div>
 
@@ -137,7 +129,7 @@
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
           {{ 'individualScreening.nationality' | translate }}
         </label>
-        <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        <select class="cs-input"
           [ngModel]="nationalityId()" (ngModelChange)="nationalityId.set($event)">
           <option value="">{{ 'common.select' | translate }}</option>
           @for (n of nationalities(); track n.id) {
@@ -149,7 +141,7 @@
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
           {{ 'individualScreening.placeOfBirth' | translate }}
         </label>
-        <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        <select class="cs-input"
           [ngModel]="placeOfBirthCountryId()" (ngModelChange)="placeOfBirthCountryId.set($event)">
           <option value="">{{ 'common.select' | translate }}</option>
           @for (c of countries(); track c.id) {
@@ -161,7 +153,7 @@
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
           {{ 'individualScreening.gender' | translate }}
         </label>
-        <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        <select class="cs-input"
           [ngModel]="genderId()" (ngModelChange)="genderId.set($event)">
           <option value="">{{ 'common.select' | translate }}</option>
           @for (g of genders(); track g.id) {
@@ -174,7 +166,7 @@
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
           {{ 'individualScreening.idType' | translate }}
         </label>
-        <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        <select class="cs-input"
           [ngModel]="idType()" (ngModelChange)="idType.set($event)">
           <option value="">{{ 'common.select' | translate }}</option>
           @for (t of documentTypes(); track t.id) {
@@ -186,14 +178,14 @@
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
           {{ 'individualScreening.idNumber' | translate }}
         </label>
-        <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        <input type="text" class="cs-input"
           [ngModel]="idNumber()" (ngModelChange)="idNumber.set($event)" />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
           {{ 'individualScreening.address' | translate }}
         </label>
-        <input type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        <input type="text" class="cs-input"
           [ngModel]="address()" (ngModelChange)="address.set($event)" />
       </div>
     </div>
@@ -210,7 +202,7 @@
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
           {{ 'individualScreening.birthYearRange' | translate }}
         </label>
-        <select class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        <select class="cs-input"
           [ngModel]="birthYearRange()" (ngModelChange)="birthYearRange.set($event === '' ? null : toNumber($event))">
           <option value="">{{ 'individualScreening.birthYearRangeSameYear' | translate }}</option>
           <option value="1">±1</option>
@@ -235,7 +227,7 @@
         <div>
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'screening.documentType' | translate }} *</label>
           <select [ngModel]="selectedDocumentTypeCode()" (ngModelChange)="selectedDocumentTypeCode.set($event)"
-            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+            class="cs-input w-full">
             <option value="">{{ 'common.select' | translate }}</option>
             @for (t of documentTypes(); track t.id) {
               <option [value]="t.code">{{ t.name }}</option>
@@ -247,14 +239,14 @@
           <div>
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'screening.expiryDate' | translate }} *</label>
             <input type="date" [ngModel]="documentExpiryDate()" (ngModelChange)="documentExpiryDate.set($event)"
-              class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+              class="cs-input w-full" />
           </div>
         }
 
         <div class="md:col-span-2">
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'screening.selectFile' | translate }} ({{ 'screening.allowedFormats' | translate }}, {{ 'screening.fileSizeMax' | translate }})</label>
           <input type="file" name="individualKycFile" accept=".pdf,.jpg,.jpeg,.png" (change)="onFileSelected($event)"
-            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" />
+            class="cs-input text-sm py-1.5 file:mr-2" />
           @if (selectedFile()) {
             <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{{ selectedFile()!.name }}</p>
           }
@@ -262,8 +254,7 @@
       </div>
 
       <div class="mt-4">
-        <button type="button" (click)="uploadDocument()" [disabled]="uploading() || !selectedCustomerId()"
-          class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50">
+        <button type="button" (click)="uploadDocument()" [disabled]="uploading() || !selectedCustomerId()" class="cs-btn cs-btn-add px-4 py-2">
           {{ uploading() ? ('common.loading' | translate) : ('screening.upload' | translate) }}
         </button>
       </div>
@@ -301,11 +292,11 @@
       <div class="p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-sm">{{ msg }}</div>
     }
 
-    <div class="flex items-center justify-end gap-2">
+    <div class="flex items-center justify-end gap-2 flex-wrap">
       <button
         type="button"
         (click)="resetToLastSaved()"
-        class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition"
+        class="cs-btn cs-btn-cancel-footer px-8 py-2.5 text-base"
         [disabled]="loading()"
       >
         {{ 'common.cancel' | translate }}
@@ -313,7 +304,7 @@
       <button
         type="button"
         (click)="submit()"
-        class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50"
+        class="cs-btn cs-btn-submit-footer px-8 py-2.5 text-base"
         [disabled]="loading() || !fullName().trim()"
       >
         {{ loading() ? ('common.loading' | translate) : ('common.submit' | translate) }}
@@ -327,7 +318,7 @@
       <button
         type="button"
         (click)="refreshResults()"
-        class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition text-sm"
+        class="cs-btn cs-btn-remove text-sm"
         [disabled]="!selectedCustomerId()"
       >
         {{ 'common.refresh' | translate }}
@@ -342,11 +333,7 @@
       } @else if (results().length === 0) {
         <div class="flex items-center justify-between gap-3 flex-wrap">
           <p class="text-slate-600 dark:text-slate-400 text-sm">{{ 'individualScreening.noMatchingResults' | translate }}</p>
-          <button
-            type="button"
-            (click)="proceedToKyc()"
-            class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition text-sm"
-          >
+          <button type="button" (click)="proceedToKyc()" class="cs-btn cs-btn-add text-sm py-1.5 px-3">
             {{ 'individualScreening.proceedToKyc' | translate }}
           </button>
         </div>

@@ -82,6 +82,12 @@ export interface SourceOfFundsDto {
   name: string;
 }
 
+/** Body for POST/PUT /api/MasterLookups/{segment} */
+export interface UpsertMasterLookupRequest {
+  code: string;
+  name: string;
+}
+
 export interface CustomerDocumentDto {
   id: string;
   customerId: string;
@@ -698,6 +704,26 @@ export interface SanctionListUploadResultDto {
   errors: string[];
 }
 
+export interface InstantSanctionScreeningSearchRequest {
+  fullName: string;
+  nationalityId?: string | null;
+  dateOfBirth?: string | null;
+}
+
+export interface InstantSanctionScreeningResultItem {
+  matchScore: number;
+  customerId?: string | null;
+  uid: string;
+  entryType?: string | null;
+  name?: string | null;
+  nationalityOrCountry?: string | null;
+  dateOfBirth?: string | null;
+  idNumber?: string | null;
+  source: string;
+  createdOn?: string | null;
+  remarks?: string | null;
+}
+
 export interface SanctionListEntryDto {
   id: string;
   listSource: string;
@@ -809,6 +835,49 @@ export interface IndividualBulkUploadLineDetailDto {
   customerName: string;
   nationality: string;
   dateOfBirth: string;
+  status: string;
+  source: string;
+  uid: string;
+  date: string;
+}
+
+/** Corporate bulk upload – report row */
+export interface CorporateBulkUploadReportRow {
+  customerId: string;
+  entityName: string;
+  incorporatedCountry: string;
+  dateOfIncorporation: string;
+  companyReferenceCode: string;
+  tradeLicense: string;
+  error?: string;
+}
+
+export type CorporateBulkUploadReportMode = 'validationFailed' | 'queued';
+
+export interface CorporateBulkUploadResultDto {
+  mode: string;
+  batchId: string;
+  rows: CorporateBulkUploadReportRow[];
+}
+
+export interface CorporateBulkUploadBatchListItemDto {
+  id: string;
+  fileName: string;
+  uploadedOn: string;
+  uploadedBy: string;
+  screeningFinished: boolean;
+}
+
+export type BulkUploadKind = 'ind' | 'cor';
+
+export interface CorporateBulkUploadLineDetailDto {
+  index: number;
+  customerId: string;
+  entityName: string;
+  incorporatedCountry: string;
+  dateOfIncorporation: string;
+  companyReferenceCode: string;
+  tradeLicense: string;
   status: string;
   source: string;
   uid: string;

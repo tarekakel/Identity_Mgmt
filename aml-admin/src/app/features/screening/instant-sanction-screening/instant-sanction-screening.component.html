@@ -1,0 +1,117 @@
+<div class="animate-fade-in w-full iss-page">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">
+      {{ 'pages.instantSanctionScreening.title' | translate }}
+    </h1>
+  </div>
+
+  <div class="iss-card">
+    <div class="iss-card-toolbar">
+      <button type="button" class="iss-btn iss-btn-pdf" (click)="exportPdf()" [disabled]="loading()">
+        <span class="iss-pdf-icon" aria-hidden="true">📄</span>
+        {{ 'instantSanctionScreening.pdfExport' | translate }}
+      </button>
+    </div>
+
+    <div class="iss-section">
+      <h2 class="iss-section-title">{{ 'instantSanctionScreening.filterSectionTitle' | translate }}</h2>
+      <div class="iss-section-rule"></div>
+
+      <div class="iss-filter-grid">
+        <div>
+          <label class="iss-label">{{ 'instantSanctionScreening.name' | translate }}</label>
+          <input
+            type="text"
+            class="cs-input"
+            [ngModel]="fullName()"
+            (ngModelChange)="fullName.set($event)"
+            [placeholder]="'instantSanctionScreening.namePlaceholder' | translate"
+          />
+        </div>
+        <div>
+          <label class="iss-label">{{ 'instantSanctionScreening.nationality' | translate }}</label>
+          <select
+            class="cs-input iss-select"
+            [ngModel]="nationalityId()"
+            (ngModelChange)="nationalityId.set($event)"
+          >
+            <option value="">{{ 'instantSanctionScreening.nationalityPlaceholder' | translate }}</option>
+            @for (n of nationalities(); track n.id) {
+              <option [value]="n.id">{{ n.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="iss-label">{{ 'instantSanctionScreening.dateOfBirth' | translate }}</label>
+          <input
+            type="date"
+            class="cs-input"
+            [ngModel]="dateOfBirth()"
+            (ngModelChange)="dateOfBirth.set($event)"
+          />
+        </div>
+      </div>
+
+      <div class="iss-actions">
+        <button type="button" class="iss-btn iss-btn-search" (click)="search()" [disabled]="loading()">
+          {{ 'instantSanctionScreening.search' | translate }}
+        </button>
+        <button type="button" class="iss-btn iss-btn-reset" (click)="reset()" [disabled]="loading()">
+          {{ 'instantSanctionScreening.reset' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <div class="iss-section iss-results">
+      <h2 class="iss-section-title">{{ 'instantSanctionScreening.resultsSectionTitle' | translate }}</h2>
+      <div class="iss-section-rule"></div>
+
+      <div class="iss-results-box">
+        @if (loading()) {
+          <p class="iss-empty">{{ 'common.loading' | translate }}</p>
+        } @else if (hasSearched() && results().length === 0) {
+          <p class="iss-empty iss-empty-strong">{{ 'instantSanctionScreening.noRecords' | translate }}</p>
+        } @else if (results().length > 0) {
+          <div class="iss-table-wrap">
+            <table class="iss-table">
+              <thead>
+                <tr>
+                  <th>{{ 'instantSanctionScreening.colScore' | translate }}</th>
+                  <th>{{ 'instantSanctionScreening.colCustomerId' | translate }}</th>
+                  <th>{{ 'instantSanctionScreening.colUid' | translate }}</th>
+                  <th>{{ 'instantSanctionScreening.colType' | translate }}</th>
+                  <th>{{ 'instantSanctionScreening.colName' | translate }}</th>
+                  <th>{{ 'instantSanctionScreening.colNationality' | translate }}</th>
+                  <th>{{ 'instantSanctionScreening.colDob' | translate }}</th>
+                  <th>{{ 'instantSanctionScreening.colIdNumber' | translate }}</th>
+                  <th>{{ 'instantSanctionScreening.colSource' | translate }}</th>
+                  <th>{{ 'instantSanctionScreening.colCreatedOn' | translate }}</th>
+                  <th>{{ 'instantSanctionScreening.colRemarks' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of results(); track $index) {
+                  <tr>
+                    <td>{{ r.matchScore }}</td>
+                    <td>{{ r.customerId || '—' }}</td>
+                    <td>{{ r.uid }}</td>
+                    <td>{{ r.entryType || '—' }}</td>
+                    <td>{{ r.name || '—' }}</td>
+                    <td>{{ r.nationalityOrCountry || '—' }}</td>
+                    <td>{{ formatCellDate(r.dateOfBirth) }}</td>
+                    <td>{{ r.idNumber || '—' }}</td>
+                    <td>{{ r.source }}</td>
+                    <td>{{ formatCellDate(r.createdOn) }}</td>
+                    <td>{{ r.remarks || '—' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="iss-empty text-slate-400 dark:text-slate-500">{{ 'instantSanctionScreening.resultsHint' | translate }}</p>
+        }
+      </div>
+    </div>
+  </div>
+</div>

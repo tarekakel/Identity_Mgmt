@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -38,7 +38,14 @@ import type {
   SanctionActionAuditLogDto,
   IndividualBulkUploadResultDto,
   IndividualBulkUploadBatchListItemDto,
-  IndividualBulkUploadLineDetailDto
+  IndividualBulkUploadLineDetailDto,
+  CorporateBulkUploadResultDto,
+  CorporateBulkUploadBatchListItemDto,
+  CorporateBulkUploadLineDetailDto,
+  UpsertMasterLookupRequest,
+  BulkUploadKind,
+  InstantSanctionScreeningSearchRequest,
+  InstantSanctionScreeningResultItem
 } from '../../shared/models/api.model';
 
 const BASE = environment.apiUrl;
@@ -208,10 +215,49 @@ export class ApiService {
   createSanctionEntry(body: CreateSanctionListEntryRequest): Observable<ApiResponse<SanctionListEntryDto>> {
     return this.http.post<ApiResponse<SanctionListEntryDto>>(`${BASE}/api/SanctionLists/entries`, body);
   }
-  downloadIndividualBulkSample(): Observable<Blob> {
-    return this.http.get(`${BASE}/api/individual-bulk-upload/sample`, { responseType: 'blob' });
+  downloadBulkSample(kind: BulkUploadKind): Observable<Blob> {
+    const path =
+      kind === 'cor' ? `${BASE}/api/corporate-bulk-upload/sample` : `${BASE}/api/individual-bulk-upload/sample`;
+    return this.http.get(path, { responseType: 'blob' });
   }
 
+  /** @deprecated Use downloadBulkSample('ind') */
+  downloadIndividualBulkSample(): Observable<Blob> {
+    return this.downloadBulkSample('ind');
+  }
+
+  uploadBulk(
+    kind: BulkUploadKind,
+    file: File,
+    options: {
+      matchThreshold: number;
+      checkPepUkOnly: boolean;
+      checkDisqualifiedDirectorUkOnly: boolean;
+      checkSanctions: boolean;
+      checkProfileOfInterest: boolean;
+      checkReputationalRiskExposure: boolean;
+      checkRegulatoryEnforcementList: boolean;
+      checkInsolvencyUkIreland: boolean;
+    }
+  ): Observable<ApiResponse<IndividualBulkUploadResultDto | CorporateBulkUploadResultDto>> {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('matchThreshold', String(options.matchThreshold));
+    form.append('checkPepUkOnly', String(options.checkPepUkOnly));
+    form.append('checkDisqualifiedDirectorUkOnly', String(options.checkDisqualifiedDirectorUkOnly));
+    form.append('checkSanctions', String(options.checkSanctions));
+    form.append('checkProfileOfInterest', String(options.checkProfileOfInterest));
+    form.append('checkReputationalRiskExposure', String(options.checkReputationalRiskExposure));
+    form.append('checkRegulatoryEnforcementList', String(options.checkRegulatoryEnforcementList));
+    form.append('checkInsolvencyUkIreland', String(options.checkInsolvencyUkIreland));
+    const url =
+      kind === 'cor'
+        ? `${BASE}/api/corporate-bulk-upload/upload`
+        : `${BASE}/api/individual-bulk-upload/upload`;
+    return this.http.post<ApiResponse<IndividualBulkUploadResultDto | CorporateBulkUploadResultDto>>(url, form);
+  }
+
+  /** @deprecated Use uploadBulk('ind', ...) */
   uploadIndividualBulk(
     file: File,
     options: {
@@ -225,33 +271,80 @@ export class ApiService {
       checkInsolvencyUkIreland: boolean;
     }
   ): Observable<ApiResponse<IndividualBulkUploadResultDto>> {
-    const form = new FormData();
-    form.append('file', file);
-    form.append('matchThreshold', String(options.matchThreshold));
-    form.append('checkPepUkOnly', String(options.checkPepUkOnly));
-    form.append('checkDisqualifiedDirectorUkOnly', String(options.checkDisqualifiedDirectorUkOnly));
-    form.append('checkSanctions', String(options.checkSanctions));
-    form.append('checkProfileOfInterest', String(options.checkProfileOfInterest));
-    form.append('checkReputationalRiskExposure', String(options.checkReputationalRiskExposure));
-    form.append('checkRegulatoryEnforcementList', String(options.checkRegulatoryEnforcementList));
-    form.append('checkInsolvencyUkIreland', String(options.checkInsolvencyUkIreland));
-    return this.http.post<ApiResponse<IndividualBulkUploadResultDto>>(`${BASE}/api/individual-bulk-upload/upload`, form);
+    return this.uploadBulk('ind', file, options) as Observable<ApiResponse<IndividualBulkUploadResultDto>>;
   }
 
-  getIndividualBulkBatches(params: { from?: string; to?: string; uploadedBy?: string }): Observable<ApiResponse<IndividualBulkUploadBatchListItemDto[]>> {
+  getBulkBatches(
+    kind: BulkUploadKind,
+    params: { from?: string; to?: string; uploadedBy?: string }
+  ): Observable<ApiResponse<IndividualBulkUploadBatchListItemDto[] | CorporateBulkUploadBatchListItemDto[]>> {
     let httpParams = new HttpParams();
     if (params.from) httpParams = httpParams.set('from', params.from);
     if (params.to) httpParams = httpParams.set('to', params.to);
     if (params.uploadedBy?.trim()) httpParams = httpParams.set('uploadedBy', params.uploadedBy.trim());
-    return this.http.get<ApiResponse<IndividualBulkUploadBatchListItemDto[]>>(`${BASE}/api/individual-bulk-upload/batches`, { params: httpParams });
+    const base =
+      kind === 'cor' ? `${BASE}/api/corporate-bulk-upload/batches` : `${BASE}/api/individual-bulk-upload/batches`;
+    return this.http.get<ApiResponse<IndividualBulkUploadBatchListItemDto[] | CorporateBulkUploadBatchListItemDto[]>>(
+      base,
+      { params: httpParams }
+    );
   }
 
-  getIndividualBulkBatchLines(batchId: string, caseStatus?: string): Observable<ApiResponse<IndividualBulkUploadLineDetailDto[]>> {
+  getBulkBatchLines(
+    kind: BulkUploadKind,
+    batchId: string,
+    caseStatus?: string
+  ): Observable<ApiResponse<IndividualBulkUploadLineDetailDto[] | CorporateBulkUploadLineDetailDto[]>> {
     let params = new HttpParams();
     if (caseStatus && caseStatus !== 'all') params = params.set('caseStatus', caseStatus);
-    return this.http.get<ApiResponse<IndividualBulkUploadLineDetailDto[]>>(
-      `${BASE}/api/individual-bulk-upload/batches/${batchId}/lines`,
+    const base =
+      kind === 'cor'
+        ? `${BASE}/api/corporate-bulk-upload/batches/${batchId}/lines`
+        : `${BASE}/api/individual-bulk-upload/batches/${batchId}/lines`;
+    return this.http.get<ApiResponse<IndividualBulkUploadLineDetailDto[] | CorporateBulkUploadLineDetailDto[]>>(
+      base,
       { params }
+    );
+  }
+
+  /** @deprecated Use getBulkBatches('ind', params) */
+  getIndividualBulkBatches(params: { from?: string; to?: string; uploadedBy?: string }): Observable<ApiResponse<IndividualBulkUploadBatchListItemDto[]>> {
+    return this.getBulkBatches('ind', params) as Observable<ApiResponse<IndividualBulkUploadBatchListItemDto[]>>;
+  }
+
+  /** @deprecated Use getBulkBatchLines('ind', ...) */
+  getIndividualBulkBatchLines(batchId: string, caseStatus?: string): Observable<ApiResponse<IndividualBulkUploadLineDetailDto[]>> {
+    return this.getBulkBatchLines('ind', batchId, caseStatus) as Observable<
+      ApiResponse<IndividualBulkUploadLineDetailDto[]>
+    >;
+  }
+
+  getMasterLookups(segment: string): Observable<ApiResponse<CountryDto[]>> {
+    return this.http.get<ApiResponse<CountryDto[]>>(`${BASE}/api/MasterLookups/${segment}`);
+  }
+
+  getMasterLookup(segment: string, id: string): Observable<ApiResponse<CountryDto>> {
+    return this.http.get<ApiResponse<CountryDto>>(`${BASE}/api/MasterLookups/${segment}/${id}`);
+  }
+
+  createMasterLookup(segment: string, body: UpsertMasterLookupRequest): Observable<ApiResponse<CountryDto>> {
+    return this.http.post<ApiResponse<CountryDto>>(`${BASE}/api/MasterLookups/${segment}`, body);
+  }
+
+  updateMasterLookup(segment: string, id: string, body: UpsertMasterLookupRequest): Observable<ApiResponse<CountryDto>> {
+    return this.http.put<ApiResponse<CountryDto>>(`${BASE}/api/MasterLookups/${segment}/${id}`, body);
+  }
+
+  deleteMasterLookup(segment: string, id: string): Observable<ApiResponse> {
+    return this.http.delete<ApiResponse>(`${BASE}/api/MasterLookups/${segment}/${id}`);
+  }
+
+  searchInstantSanctionScreening(
+    body: InstantSanctionScreeningSearchRequest
+  ): Observable<ApiResponse<InstantSanctionScreeningResultItem[]>> {
+    return this.http.post<ApiResponse<InstantSanctionScreeningResultItem[]>>(
+      `${BASE}/api/instant-sanction-screening/search`,
+      body
     );
   }
 }

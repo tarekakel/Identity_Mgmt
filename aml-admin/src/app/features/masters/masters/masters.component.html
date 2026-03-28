@@ -1,0 +1,20 @@
+<div class="animate-fade-in w-full masters-page">
+  <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+    {{ 'pages.masters.title' | translate }}
+  </h1>
+  <p class="text-slate-600 dark:text-slate-400 mb-6">
+    {{ 'masters.intro' | translate }}
+  </p>
+  <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    @for (seg of segments; track seg) {
+      <li>
+        <a
+          [routerLink]="['/masters', seg]"
+          class="masters-card block rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition shadow-sm"
+        >
+          <span class="font-medium">{{ labelKey(seg) | translate }}</span>
+        </a>
+      </li>
+    }
+  </ul>
+</div>

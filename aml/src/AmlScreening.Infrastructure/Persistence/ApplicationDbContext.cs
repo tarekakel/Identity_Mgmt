@@ -1,4 +1,4 @@
-﻿using AmlScreening.Application.Interfaces;
+using AmlScreening.Application.Interfaces;
 using AmlScreening.Domain.Entities;
 using AmlScreening.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +40,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<IndividualBulkUploadBatch> IndividualBulkUploadBatches => Set<IndividualBulkUploadBatch>();
     public DbSet<IndividualBulkUploadLine> IndividualBulkUploadLines => Set<IndividualBulkUploadLine>();
+    public DbSet<CorporateBulkUploadBatch> CorporateBulkUploadBatches => Set<CorporateBulkUploadBatch>();
+    public DbSet<CorporateBulkUploadLine> CorporateBulkUploadLines => Set<CorporateBulkUploadLine>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -57,6 +59,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<IndividualBulkUploadBatch>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<IndividualBulkUploadLine>().HasQueryFilter(e => !e.IsDeleted && !e.Batch!.IsDeleted);
+        modelBuilder.Entity<CorporateBulkUploadBatch>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<CorporateBulkUploadLine>().HasQueryFilter(e => !e.IsDeleted && !e.Batch!.IsDeleted);
 
         // Matching filters so dependents are only visible when principal is not soft-deleted (fixes EF 10622)
         modelBuilder.Entity<CustomerDocument>().HasQueryFilter(d => !d.Customer!.IsDeleted);

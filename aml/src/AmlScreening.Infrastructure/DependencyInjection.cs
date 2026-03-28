@@ -1,4 +1,4 @@
-﻿using AmlScreening.Application.Interfaces;
+using AmlScreening.Application.Interfaces;
 using AmlScreening.Infrastructure.Options;
 using AmlScreening.Infrastructure.Persistence;
 using AmlScreening.Infrastructure.Services;
@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<ISanctionsScreeningService, SanctionsScreeningService>();
         services.AddScoped<IRunSanctionsScreeningService, RunSanctionsScreeningService>();
+        services.AddScoped<IInstantSanctionScreeningService, InstantSanctionScreeningService>();
         services.AddScoped<IIndividualScreeningRunnerService, IndividualScreeningRunnerService>();
         services.AddScoped<IIndividualScreeningService, IndividualScreeningService>();
         services.AddScoped<ICorporateScreeningRunnerService, CorporateScreeningRunnerService>();
@@ -42,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<IAuditLogService, AuditLogService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ILookupService, LookupService>();
+        services.AddScoped<IMasterLookupCrudService, MasterLookupCrudService>();
         services.AddScoped<IFileStorageService, FileStorageService>();
         services.AddScoped<ICustomerDocumentService, CustomerDocumentService>();
         services.AddScoped<IIndividualKycService, IndividualKycService>();
@@ -50,6 +52,7 @@ public static class DependencyInjection
         services.AddScoped<IUaeSanctionListParser, UaeSanctionListParser>();
         services.AddScoped<ISanctionListUploadService, SanctionListUploadService>();
         services.AddScoped<IIndividualBulkUploadService, IndividualBulkUploadService>();
+        services.AddScoped<ICorporateBulkUploadService, CorporateBulkUploadService>();
 
         return services;
     }
