@@ -776,3 +776,41 @@ export interface AuditLogDto {
   isActive?: boolean;
   isDeleted?: boolean;
 }
+
+/** Individual bulk upload – report row (matches upload dialog columns). */
+export interface IndividualBulkUploadReportRow {
+  customerId: string;
+  fullName: string;
+  country: string;
+  dob: string;
+  placeOfBirth: string;
+  error?: string;
+}
+
+export type IndividualBulkUploadReportMode = 'validationFailed' | 'queued';
+
+export interface IndividualBulkUploadResultDto {
+  mode: string;
+  batchId: string;
+  rows: IndividualBulkUploadReportRow[];
+}
+
+export interface IndividualBulkUploadBatchListItemDto {
+  id: string;
+  fileName: string;
+  uploadedOn: string;
+  uploadedBy: string;
+  screeningFinished: boolean;
+}
+
+export interface IndividualBulkUploadLineDetailDto {
+  index: number;
+  customerId: string;
+  customerName: string;
+  nationality: string;
+  dateOfBirth: string;
+  status: string;
+  source: string;
+  uid: string;
+  date: string;
+}

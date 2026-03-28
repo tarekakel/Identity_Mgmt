@@ -1,0 +1,141 @@
+<div class="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="upload-report-title">
+  <div class="dialog-panel">
+    <div class="dialog-header">
+      <h2 id="upload-report-title" class="dialog-title">{{ 'individualBulkUpload.uploadReport.title' | translate }}</h2>
+      <button type="button" class="btn-close" (click)="ok()" aria-label="Close">×</button>
+    </div>
+
+    <div class="dialog-body">
+      <div class="toolbar">
+        <div class="flex items-center gap-2 flex-wrap">
+          <select
+            class="rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm px-2 py-1"
+            [ngModel]="pageSize()"
+            (ngModelChange)="onPageSizeChange($event)"
+          >
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+          </select>
+          <span class="text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">
+            {{ 'individualBulkUpload.uploadReport.entriesPerPage' | translate }}
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-semibold uppercase text-slate-600 dark:text-slate-400" for="upload-report-search">
+            {{ 'individualBulkUpload.uploadReport.search' | translate }}
+          </label>
+          <input
+            id="upload-report-search"
+            type="search"
+            class="rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm px-3 py-1 min-w-[180px]"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="onSearchChange($event)"
+          />
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th (click)="toggleSort('customerId')">
+                {{ 'individualBulkUpload.uploadReport.customerId' | translate }} {{ sortIndicator('customerId') }}
+              </th>
+              <th (click)="toggleSort('fullName')">
+                {{ 'individualBulkUpload.uploadReport.fullName' | translate }} {{ sortIndicator('fullName') }}
+              </th>
+              <th (click)="toggleSort('country')">
+                {{ 'individualBulkUpload.uploadReport.country' | translate }} {{ sortIndicator('country') }}
+              </th>
+              <th (click)="toggleSort('dob')">
+                {{ 'individualBulkUpload.uploadReport.dob' | translate }} {{ sortIndicator('dob') }}
+              </th>
+              <th (click)="toggleSort('placeOfBirth')">
+                {{ 'individualBulkUpload.uploadReport.placeOfBirth' | translate }} {{ sortIndicator('placeOfBirth') }}
+              </th>
+              <th (click)="toggleSort('error')">
+                {{ 'individualBulkUpload.uploadReport.error' | translate }} {{ sortIndicator('error') }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of pagedRows(); track $index) {
+              <tr>
+                <td>{{ row.customerId }}</td>
+                <td>{{ row.fullName }}</td>
+                <td>{{ row.country }}</td>
+                <td>{{ row.dob }}</td>
+                <td>{{ row.placeOfBirth }}</td>
+                <td>{{ row.error ?? '' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="text-center text-slate-500 py-6">{{ 'individualBulkUpload.uploadReport.noRows' | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
+        <p class="text-sm text-slate-600 dark:text-slate-400">
+          {{
+            'individualBulkUpload.uploadReport.showing'
+              | translate
+                : { from: showingFrom(), to: showingTo(), total: sortedRows().length }
+          }}
+        </p>
+        <div class="flex items-center gap-1">
+          <button type="button" class="px-2 py-1 border rounded text-sm" (click)="firstPage()" [disabled]="pageIndex() === 0">
+            «
+          </button>
+          <button type="button" class="px-2 py-1 border rounded text-sm" (click)="prevPage()" [disabled]="pageIndex() === 0">
+            ‹
+          </button>
+          <span class="px-3 py-1 border rounded text-sm font-medium">{{ pageIndex() + 1 }}</span>
+          <button
+            type="button"
+            class="px-2 py-1 border rounded text-sm"
+            (click)="nextPage()"
+            [disabled]="pageIndex() >= totalPages() - 1"
+          >
+            ›
+          </button>
+          <button
+            type="button"
+            class="px-2 py-1 border rounded text-sm"
+            (click)="lastPage()"
+            [disabled]="pageIndex() >= totalPages() - 1"
+          >
+            »
+          </button>
+        </div>
+      </div>
+
+      @if (mode() === 'validationFailed') {
+        <p class="mt-4 text-sm font-bold uppercase text-slate-800 dark:text-slate-100">
+          {{ 'individualBulkUpload.uploadReport.entriesFailed' | translate: { count: failedCount() } }}
+        </p>
+      }
+
+      @if (mode() === 'queued') {
+        <div class="mt-4 space-y-2">
+          <p class="text-sm font-bold uppercase text-slate-800 dark:text-slate-100">
+            {{ 'individualBulkUpload.uploadReport.entriesQueued' | translate: { count: queuedCount() } }}
+          </p>
+          <p class="text-sm text-slate-700 dark:text-slate-300">
+            <a [routerLink]="logsRoute" class="link-progress" (click)="ok()">{{
+              'individualBulkUpload.uploadReport.clickHere' | translate
+            }}</a>
+            {{ 'individualBulkUpload.uploadReport.progressHint' | translate }}
+          </p>
+        </div>
+      }
+    </div>
+
+    <div class="flex justify-end px-4 py-3 border-t border-slate-200 dark:border-slate-600 shrink-0">
+      <button type="button" class="btn-ok" (click)="ok()">{{ 'individualBulkUpload.uploadReport.ok' | translate }}</button>
+    </div>
+  </div>
+</div>

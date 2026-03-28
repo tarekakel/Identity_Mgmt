@@ -1,4 +1,4 @@
-{
+﻿{
   "sidebar": {
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar"
@@ -11,6 +11,7 @@
     "riskAssessment": "Risk Assessment",
     "ewra": "EWRA",
     "reports": "Reports",
+    "customerBulkUploadLogs": "Customer Bulk Upload Logs",
     "masters": "Masters",
     "support": "Support"
   },
@@ -34,6 +35,7 @@
     "riskAssessment": { "title": "Risk Assessment" },
     "ewra": { "title": "EWRA" },
     "reports": { "title": "Reports" },
+    "customerBulkUploadLogs": { "title": "Customer Bulk Upload Logs" },
     "masters": { "title": "Masters" },
     "support": { "title": "Support" }
   },
@@ -49,7 +51,7 @@
     "savedSuccess": "KYC saved successfully.",
     "onlyPdfPng": "Only PDF, JPG, and PNG are allowed.",
     "fileSizeMax": "File size must be less than 10MB.",
-    "selectPlaceholder": "Select…",
+    "selectPlaceholder": "Selectâ€¦",
     "yes": "Yes",
     "no": "No"
   },
@@ -67,7 +69,7 @@
     "sanctionActionHistory": "Sanction Action History"
   },
   "screening": {
-    "title": "Customer Onboarding – Screening Stepper",
+    "title": "Customer Onboarding â€“ Screening Stepper",
     "step1CustomerProfile": "Customer Profile",
     "step2Kyc": "KYC",
     "step3Sanctions": "Sanctions Screening",
@@ -124,7 +126,7 @@
     "statusClear": "Clear",
     "statusPossibleMatch": "Possible match",
     "statusConfirmedMatch": "Confirmed match",
-    "onboardingBlocked": "Onboarding blocked – confirmed sanctions match.",
+    "onboardingBlocked": "Onboarding blocked â€“ confirmed sanctions match.",
     "screeningComplete": "Sanctions screening completed.",
     "noResultsYet": "No results yet. Run screening below.",
     "reviewStatus": "Review status",
@@ -204,8 +206,8 @@
     "address": "Address",
     "gender": "Gender",
     "matchThreshold": "Matching threshold",
-    "birthYearRange": "Birth year ± range",
-    "birthYearRangeSameYear": "Same year (±0)",
+    "birthYearRange": "Birth year Â± range",
+    "birthYearRangeSameYear": "Same year (Â±0)",
     "savedAndRun": "Saved and screening started.",
     "results": "Results",
     "selectCustomerToViewResults": "Select a customer to view results.",
@@ -311,6 +313,68 @@
     "fullNameRequired": "Full name is required.",
     "manualEntrySuccess": "Sanction entry added successfully."
   },
+  "individualBulkUpload": {
+    "uploadExcel": "Upload Excel",
+    "uploadFromExcel": "Upload from Excel File",
+    "sampleDownload": "Sample Download",
+    "threshold": "Threshold",
+    "uploadYourFile": "Upload your file",
+    "dropOrBrowse": "Drop your file here or Click to browse",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "fileRequired": "Please select a file to upload.",
+    "sampleDownloadFailed": "Could not download the sample file. Check that the API is running.",
+    "uploadReport": {
+      "title": "UPLOAD REPORT",
+      "entriesPerPage": "Entries per page",
+      "search": "Search:",
+      "customerId": "Customer ID",
+      "fullName": "Full name of customer",
+      "country": "Country",
+      "dob": "DOB",
+      "placeOfBirth": "Place of birth",
+      "error": "Error",
+      "noRows": "No rows to display.",
+      "showing": "Showing {{from}} to {{to}} of {{total}} entries.",
+      "entriesFailed": "{{count}} ENTRIES FAILED",
+      "entriesQueued": "{{count}} ENTRIES QUEUED FOR SCREENING",
+      "clickHere": "Click here",
+      "progressHint": "to see the progress of records that have been queued for screening.",
+      "ok": "OK"
+    }
+  },
+  "customerBulkUploadLogs": {
+    "breadcrumb": {
+      "home": "Home"
+    },
+    "startDate": "Start date",
+    "endDate": "End date",
+    "uploadedBy": "Uploaded by",
+    "uploadedByCol": "Uploaded by",
+    "search": "Search",
+    "exportPdf": "Export to PDF",
+    "exportExcel": "Export to Excel",
+    "fileName": "File name",
+    "uploadedOn": "Uploaded on",
+    "screeningFinished": "Screening finished",
+    "nakFile": "NAK file",
+    "noNakFile": "No NAK file",
+    "yes": "Yes",
+    "no": "No",
+    "caseStatus": "Case status",
+    "caseStatusAll": "All",
+    "caseStatusPending": "Pending",
+    "caseStatusCleared": "Cleared",
+    "customerId": "Customer ID",
+    "customerName": "Customer name",
+    "nationality": "Nationality",
+    "dateOfBirth": "Date of birth",
+    "status": "Status",
+    "source": "Source",
+    "uid": "UID",
+    "date": "Date",
+    "noDetails": "No detail rows for the current selection."
+  },
   "settings": {
     "general": "General settings",
     "theme": "Theme",
@@ -318,7 +382,7 @@
     "dark": "Dark",
     "language": "Language",
     "fontSizePx": "Font size (px)",
-    "fontSizePxHint": "12–24 px",
+    "fontSizePxHint": "12â€“24 px",
     "fontColor": "Font color",
     "themeDefault": "Theme default",
     "presetSlate": "Slate",
@@ -333,3 +397,6 @@
     "loginFailed": "Login failed"
   }
 }
+
+
+

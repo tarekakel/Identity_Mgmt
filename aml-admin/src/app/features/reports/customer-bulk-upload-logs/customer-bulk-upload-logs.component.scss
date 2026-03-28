@@ -1,0 +1,43 @@
+:host {
+  display: block;
+}
+
+.logs-card {
+  @apply rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4 md:p-6 space-y-4;
+}
+
+.btn-search {
+  @apply px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-500 disabled:opacity-50;
+}
+
+.btn-export-pdf {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-500;
+}
+
+.btn-export-excel {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-500;
+}
+
+.btn-nak {
+  @apply px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-500;
+}
+
+.table-data {
+  @apply w-full text-sm text-left;
+}
+
+.table-data th {
+  @apply bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold uppercase text-xs px-3 py-2 whitespace-nowrap;
+}
+
+.table-data td {
+  @apply px-3 py-2 border-t border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100;
+}
+
+.table-data tbody tr {
+  @apply cursor-pointer;
+}
+
+.table-data tbody tr.selected {
+  @apply bg-blue-50 dark:bg-blue-950/40;
+}

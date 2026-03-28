@@ -1,0 +1,191 @@
+﻿<div class="animate-fade-in w-full max-w-5xl mx-auto space-y-6">
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6 md:p-8 space-y-8">
+    <div class="flex items-start justify-between gap-4">
+      <h1 class="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">
+        {{ 'individualBulkUpload.uploadExcel' | translate }}
+      </h1>
+      <span class="text-slate-400 text-xl select-none" aria-hidden="true">â–¦</span>
+    </div>
+
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">
+          {{ 'individualBulkUpload.uploadFromExcel' | translate }}
+        </h2>
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <button type="button" (click)="downloadSample()" [disabled]="sampleDownloading()" class="cs-btn cs-btn-sample">{{ sampleDownloading() ? ('common.loading' | translate) : ('individualBulkUpload.sampleDownload' | translate) }}</button>
+          <button type="button" (click)="selectAllCategories()" class="cs-btn cs-btn-select-all">
+            {{ 'common.selectAll' | translate }}
+          </button>
+          <button type="button" (click)="clearAllCategories()" class="cs-btn cs-btn-clear-all">
+            {{ 'common.clearAll' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="space-y-2">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              class="rounded border-slate-300 dark:border-slate-600"
+              [ngModel]="checkPepUkOnly()"
+              (ngModelChange)="checkPepUkOnly.set(!!$event)"
+            />
+            {{ 'individualScreening.categories.pepUkOnly' | translate }}
+          </label>
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              class="rounded border-slate-300 dark:border-slate-600"
+              [ngModel]="checkDisqualifiedDirectorUkOnly()"
+              (ngModelChange)="checkDisqualifiedDirectorUkOnly.set(!!$event)"
+            />
+            {{ 'individualScreening.categories.disqualifiedDirectorUkOnly' | translate }}
+          </label>
+        </div>
+        <div class="space-y-2">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              class="rounded border-slate-300 dark:border-slate-600"
+              [ngModel]="checkSanctions()"
+              (ngModelChange)="checkSanctions.set(!!$event)"
+            />
+            {{ 'individualScreening.categories.sanctions' | translate }}
+          </label>
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              class="rounded border-slate-300 dark:border-slate-600"
+              [ngModel]="checkProfileOfInterest()"
+              (ngModelChange)="checkProfileOfInterest.set(!!$event)"
+            />
+            {{ 'individualScreening.categories.profileOfInterest' | translate }}
+          </label>
+        </div>
+        <div class="space-y-2">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              class="rounded border-slate-300 dark:border-slate-600"
+              [ngModel]="checkReputationalRiskExposure()"
+              (ngModelChange)="checkReputationalRiskExposure.set(!!$event)"
+            />
+            {{ 'individualScreening.categories.reputationalRiskExposure' | translate }}
+          </label>
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              class="rounded border-slate-300 dark:border-slate-600"
+              [ngModel]="checkRegulatoryEnforcementList()"
+              (ngModelChange)="checkRegulatoryEnforcementList.set(!!$event)"
+            />
+            {{ 'individualScreening.categories.regulatoryEnforcementList' | translate }}
+          </label>
+        </div>
+        <div class="space-y-2">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              class="rounded border-slate-300 dark:border-slate-600"
+              [ngModel]="checkInsolvencyUkIreland()"
+              (ngModelChange)="checkInsolvencyUkIreland.set(!!$event)"
+            />
+            {{ 'individualScreening.categories.insolvencyUkIreland' | translate }}
+          </label>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center gap-4 pt-2">
+        <span class="text-sm font-medium text-slate-700 dark:text-slate-300 shrink-0">
+          {{ 'individualBulkUpload.threshold' | translate }}
+        </span>
+        <div class="flex flex-1 flex-wrap items-center gap-3 min-w-0">
+          <span class="text-xs text-slate-500 w-8">75</span>
+          <input
+            type="range"
+            min="75"
+            max="100"
+            step="1"
+            class="flex-1 min-w-[120px] max-w-md threshold-track h-2"
+            [ngModel]="matchThreshold()"
+            (ngModelChange)="setThreshold($event)"
+          />
+          <input
+            type="number"
+            min="75"
+            max="100"
+            class="w-16 px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm"
+            [ngModel]="matchThreshold()"
+            (ngModelChange)="setThreshold($event)"
+          />
+          <span class="text-xs text-slate-500">100</span>
+        </div>
+      </div>
+    </section>
+
+    <div
+      class="drop-zone p-8 flex flex-col items-center justify-center text-center cursor-pointer"
+      [class.drop-zone--active]="dragOver()"
+      (click)="fileInput.click()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
+      <input
+        #fileInput
+        type="file"
+        class="hidden"
+        accept=".xlsx,.xls,.csv"
+        (change)="onFileSelected($event)"
+      />
+      <div class="mb-4 text-slate-300 dark:text-slate-600" aria-hidden="true">
+        <svg class="w-24 h-24 mx-auto" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="35" width="80" height="55" rx="4" stroke="currentColor" stroke-width="2" />
+          <path d="M45 50 L60 35 L75 50" stroke="currentColor" stroke-width="2" fill="none" />
+          <rect x="40" y="58" width="40" height="4" rx="1" fill="currentColor" opacity="0.4" />
+          <rect x="40" y="68" width="28" height="4" rx="1" fill="currentColor" opacity="0.3" />
+        </svg>
+      </div>
+      <p class="text-sm font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+        {{ 'individualBulkUpload.uploadYourFile' | translate }}
+      </p>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+        {{ 'individualBulkUpload.dropOrBrowse' | translate }}
+      </p>
+      @if (selectedFile(); as f) {
+        <p class="mt-4 text-sm font-medium text-teal-700 dark:text-teal-300 break-all">{{ f.name }}</p>
+      }
+    </div>
+
+    @if (submitError()) {
+      <div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-sm">
+        {{ submitError() }}
+      </div>
+    }
+
+    <div class="flex flex-wrap justify-center gap-4 pt-2">
+      <button
+        type="button"
+        (click)="onSubmit()"
+        [disabled]="submitting()"
+        class="cs-btn cs-btn-submit-footer px-8 py-2.5 min-w-[120px]"
+      >
+        {{ submitting() ? ('common.loading' | translate) : ('individualBulkUpload.submit' | translate) }}
+      </button>
+      <button type="button" (click)="onCancel()" class="cs-btn cs-btn-cancel-footer px-8 py-2.5 min-w-[120px]">
+        {{ 'individualBulkUpload.cancel' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+
+@if (reportOpen()) {
+  <app-upload-report-dialog
+    [rows]="reportRows()"
+    [mode]="reportMode()"
+    (closed)="closeReport()"
+  />
+}
+

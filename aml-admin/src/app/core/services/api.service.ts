@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -35,7 +35,10 @@ import type {
   SanctionListEntryDto,
   CreateSanctionListEntryRequest,
   RecordSanctionScreeningActionRequest,
-  SanctionActionAuditLogDto
+  SanctionActionAuditLogDto,
+  IndividualBulkUploadResultDto,
+  IndividualBulkUploadBatchListItemDto,
+  IndividualBulkUploadLineDetailDto
 } from '../../shared/models/api.model';
 
 const BASE = environment.apiUrl;
@@ -205,4 +208,52 @@ export class ApiService {
   createSanctionEntry(body: CreateSanctionListEntryRequest): Observable<ApiResponse<SanctionListEntryDto>> {
     return this.http.post<ApiResponse<SanctionListEntryDto>>(`${BASE}/api/SanctionLists/entries`, body);
   }
+  downloadIndividualBulkSample(): Observable<Blob> {
+    return this.http.get(`${BASE}/api/individual-bulk-upload/sample`, { responseType: 'blob' });
+  }
+
+  uploadIndividualBulk(
+    file: File,
+    options: {
+      matchThreshold: number;
+      checkPepUkOnly: boolean;
+      checkDisqualifiedDirectorUkOnly: boolean;
+      checkSanctions: boolean;
+      checkProfileOfInterest: boolean;
+      checkReputationalRiskExposure: boolean;
+      checkRegulatoryEnforcementList: boolean;
+      checkInsolvencyUkIreland: boolean;
+    }
+  ): Observable<ApiResponse<IndividualBulkUploadResultDto>> {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('matchThreshold', String(options.matchThreshold));
+    form.append('checkPepUkOnly', String(options.checkPepUkOnly));
+    form.append('checkDisqualifiedDirectorUkOnly', String(options.checkDisqualifiedDirectorUkOnly));
+    form.append('checkSanctions', String(options.checkSanctions));
+    form.append('checkProfileOfInterest', String(options.checkProfileOfInterest));
+    form.append('checkReputationalRiskExposure', String(options.checkReputationalRiskExposure));
+    form.append('checkRegulatoryEnforcementList', String(options.checkRegulatoryEnforcementList));
+    form.append('checkInsolvencyUkIreland', String(options.checkInsolvencyUkIreland));
+    return this.http.post<ApiResponse<IndividualBulkUploadResultDto>>(`${BASE}/api/individual-bulk-upload/upload`, form);
+  }
+
+  getIndividualBulkBatches(params: { from?: string; to?: string; uploadedBy?: string }): Observable<ApiResponse<IndividualBulkUploadBatchListItemDto[]>> {
+    let httpParams = new HttpParams();
+    if (params.from) httpParams = httpParams.set('from', params.from);
+    if (params.to) httpParams = httpParams.set('to', params.to);
+    if (params.uploadedBy?.trim()) httpParams = httpParams.set('uploadedBy', params.uploadedBy.trim());
+    return this.http.get<ApiResponse<IndividualBulkUploadBatchListItemDto[]>>(`${BASE}/api/individual-bulk-upload/batches`, { params: httpParams });
+  }
+
+  getIndividualBulkBatchLines(batchId: string, caseStatus?: string): Observable<ApiResponse<IndividualBulkUploadLineDetailDto[]>> {
+    let params = new HttpParams();
+    if (caseStatus && caseStatus !== 'all') params = params.set('caseStatus', caseStatus);
+    return this.http.get<ApiResponse<IndividualBulkUploadLineDetailDto[]>>(
+      `${BASE}/api/individual-bulk-upload/batches/${batchId}/lines`,
+      { params }
+    );
+  }
 }
+
+

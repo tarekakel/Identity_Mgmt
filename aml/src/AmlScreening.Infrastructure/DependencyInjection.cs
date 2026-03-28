@@ -49,7 +49,9 @@ public static class DependencyInjection
         services.AddScoped<IUnConsolidatedListParser, UnConsolidatedListParser>();
         services.AddScoped<IUaeSanctionListParser, UaeSanctionListParser>();
         services.AddScoped<ISanctionListUploadService, SanctionListUploadService>();
+        services.AddScoped<IIndividualBulkUploadService, IndividualBulkUploadService>();
 
         return services;
     }
 }
+

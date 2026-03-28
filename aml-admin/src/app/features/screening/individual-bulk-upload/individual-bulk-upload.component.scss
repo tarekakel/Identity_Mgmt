@@ -1,0 +1,65 @@
+:host {
+  display: block;
+}
+
+.cs-btn {
+  @apply px-3 py-1.5 rounded-lg text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed;
+}
+
+.cs-btn-sample {
+  background-color: #26a69a;
+  color: #fff;
+}
+
+.cs-btn-sample:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.cs-btn-select-all {
+  background-color: #26a69a;
+  color: #fff;
+}
+
+.cs-btn-select-all:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.cs-btn-clear-all {
+  background-color: #1e3a5f;
+  color: #fff;
+}
+
+.cs-btn-clear-all:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.cs-btn-submit-footer {
+  background-color: #26a69a;
+  color: #fff;
+}
+
+.cs-btn-submit-footer:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.cs-btn-cancel-footer {
+  background-color: #e91e63;
+  color: #fff;
+}
+
+.cs-btn-cancel-footer:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.drop-zone {
+  @apply border-2 border-dashed rounded-xl transition;
+  border-color: rgb(203 213 225);
+}
+
+.drop-zone--active {
+  @apply border-teal-500 bg-teal-50/50 dark:bg-teal-950/20;
+}
+
+.threshold-track {
+  accent-color: #2563eb;
+}

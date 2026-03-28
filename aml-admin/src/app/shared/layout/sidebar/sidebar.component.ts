@@ -92,7 +92,10 @@ export class SidebarComponent implements OnInit {
       id: 'reports',
       labelKey: 'nav.reports',
       icon: '📈',
-      items: [{ labelKey: 'nav.reports', route: '/reports', icon: '📈', exact: true }]
+      items: [
+        { labelKey: 'nav.reports', route: '/reports', icon: '📈', exact: true },
+        { labelKey: 'nav.customerBulkUploadLogs', route: '/reports/customer-bulk-upload-logs', icon: '📋' }
+      ]
     },
     {
       id: 'masters',

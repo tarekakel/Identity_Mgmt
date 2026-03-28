@@ -86,6 +86,13 @@ export const routes: Routes = [
         loadComponent: () => import('./features/reports/reports/reports.component').then((m) => m.ReportsComponent)
       },
       {
+        path: 'reports/customer-bulk-upload-logs',
+        loadComponent: () =>
+          import('./features/reports/customer-bulk-upload-logs/customer-bulk-upload-logs.component').then(
+            (m) => m.CustomerBulkUploadLogsComponent
+          )
+      },
+      {
         path: 'masters',
         loadComponent: () => import('./features/masters/masters/masters.component').then((m) => m.MastersComponent)
       },
