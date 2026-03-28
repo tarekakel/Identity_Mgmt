@@ -26,5 +26,11 @@ public class SanctionsScreeningConfiguration : IEntityTypeConfiguration<Sanction
         builder.Property(e => e.IsDeleted).IsRequired().HasDefaultValue(false);
         builder.Property(e => e.IsActive).IsRequired().HasDefaultValue(true);
         builder.HasIndex(e => e.CustomerId);
+        builder.HasIndex(e => e.CorporateScreeningRequestId);
+
+        builder.HasOne(e => e.CorporateScreeningRequest)
+            .WithMany()
+            .HasForeignKey(e => e.CorporateScreeningRequestId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

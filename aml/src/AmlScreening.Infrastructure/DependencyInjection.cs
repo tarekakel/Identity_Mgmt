@@ -1,4 +1,4 @@
-using AmlScreening.Application.Interfaces;
+﻿using AmlScreening.Application.Interfaces;
 using AmlScreening.Infrastructure.Options;
 using AmlScreening.Infrastructure.Persistence;
 using AmlScreening.Infrastructure.Services;
@@ -34,6 +34,8 @@ public static class DependencyInjection
         services.AddScoped<IRunSanctionsScreeningService, RunSanctionsScreeningService>();
         services.AddScoped<IIndividualScreeningRunnerService, IndividualScreeningRunnerService>();
         services.AddScoped<IIndividualScreeningService, IndividualScreeningService>();
+        services.AddScoped<ICorporateScreeningRunnerService, CorporateScreeningRunnerService>();
+        services.AddScoped<ICorporateScreeningService, CorporateScreeningService>();
         services.AddScoped<ISanctionActionAuditLogService, SanctionActionAuditLogService>();
         services.AddScoped<IRiskAssignmentService, RiskAssignmentService>();
         services.AddScoped<ICaseService, CaseService>();

@@ -1,0 +1,55 @@
+:host {
+  display: block;
+}
+
+.cs-input {
+  @apply w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100;
+}
+
+.cs-btn {
+  @apply px-3 py-1.5 rounded-lg text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed;
+}
+
+.cs-btn-select-all {
+  background-color: #26a69a;
+  color: #fff;
+}
+
+.cs-btn-select-all:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.cs-btn-clear-all {
+  background-color: #1e3a5f;
+  color: #fff;
+}
+
+.cs-btn-clear-all:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.cs-btn-add {
+  @apply bg-blue-600 text-white hover:bg-blue-500;
+}
+
+.cs-btn-remove {
+  @apply px-3 py-1.5 rounded-lg text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-slate-500 disabled:opacity-40 disabled:cursor-not-allowed;
+}
+
+.cs-btn-submit-footer {
+  background-color: #26a69a;
+  color: #fff;
+}
+
+.cs-btn-submit-footer:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.cs-btn-cancel-footer {
+  background-color: #e91e63;
+  color: #fff;
+}
+
+.cs-btn-cancel-footer:hover:not(:disabled) {
+  filter: brightness(1.06);
+}

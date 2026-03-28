@@ -117,6 +117,7 @@ public class SanctionActionAuditLogService : ISanctionActionAuditLogService
         {
             Id = screening.Id,
             CustomerId = screening.CustomerId,
+            CorporateScreeningRequestId = screening.CorporateScreeningRequestId,
             MatchedName = screening.MatchedName,
             SanctionList = screening.ScreeningList,
             MatchScore = screening.Score,

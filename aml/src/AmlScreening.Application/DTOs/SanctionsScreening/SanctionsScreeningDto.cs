@@ -47,6 +47,7 @@ public class SanctionsScreeningResultItemDto
 {
     public Guid Id { get; set; }
     public Guid CustomerId { get; set; }
+    public Guid? CorporateScreeningRequestId { get; set; }
     public string? MatchedName { get; set; }
     public string? SanctionList { get; set; }
     public decimal? MatchScore { get; set; }

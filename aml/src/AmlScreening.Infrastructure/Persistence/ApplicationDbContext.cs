@@ -1,4 +1,4 @@
-using AmlScreening.Application.Interfaces;
+﻿using AmlScreening.Application.Interfaces;
 using AmlScreening.Domain.Entities;
 using AmlScreening.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +31,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<SanctionActionAuditLog> SanctionActionAuditLogs => Set<SanctionActionAuditLog>();
     public DbSet<SanctionListEntry> SanctionListEntries => Set<SanctionListEntry>();
     public DbSet<IndividualScreeningRequest> IndividualScreeningRequests => Set<IndividualScreeningRequest>();
+    public DbSet<CorporateScreeningRequest> CorporateScreeningRequests => Set<CorporateScreeningRequest>();
+    public DbSet<CorporateScreeningCompanyDocument> CorporateScreeningCompanyDocuments => Set<CorporateScreeningCompanyDocument>();
+    public DbSet<CorporateScreeningShareholder> CorporateScreeningShareholders => Set<CorporateScreeningShareholder>();
+    public DbSet<CorporateScreeningShareholderDocument> CorporateScreeningShareholderDocuments => Set<CorporateScreeningShareholderDocument>();
     public DbSet<IndividualKyc> IndividualKyc => Set<IndividualKyc>();
     public DbSet<IndividualKycDocument> IndividualKycDocuments => Set<IndividualKycDocument>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
@@ -45,6 +49,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<RiskAssignment>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<SanctionsScreening>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<IndividualScreeningRequest>().HasQueryFilter(e => !e.IsDeleted && !e.Customer!.IsDeleted);
+        modelBuilder.Entity<CorporateScreeningRequest>().HasQueryFilter(e => !e.IsDeleted && !e.Customer!.IsDeleted);
         modelBuilder.Entity<IndividualKyc>().HasQueryFilter(e => !e.IsDeleted && !e.Customer!.IsDeleted);
         modelBuilder.Entity<IndividualKycDocument>().HasQueryFilter(d => !d.IsDeleted && d.IndividualKyc != null && !d.IndividualKyc!.IsDeleted && !d.IndividualKyc.Customer!.IsDeleted);
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => !e.IsDeleted);

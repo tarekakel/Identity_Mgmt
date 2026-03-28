@@ -489,6 +489,7 @@ export interface SanctionsScreeningDto {
 export interface SanctionsScreeningResultItemDto {
   id: string;
   customerId: string;
+  corporateScreeningRequestId?: string | null;
   matchedName?: string;
   sanctionList?: string;
   matchScore?: number;
@@ -570,6 +571,102 @@ export interface UpsertIndividualScreeningRequest {
   checkRegulatoryEnforcementList: boolean;
   checkInsolvencyUkIreland: boolean;
 }
+export interface CorporateScreeningCompanyDocumentDto {
+  id: string;
+  documentNo?: string | null;
+  issuedDate?: string | null;
+  expiryDate?: string | null;
+  details?: string | null;
+  remarks?: string | null;
+}
+
+export interface CorporateScreeningShareholderDocumentDto {
+  id: string;
+  documentNo?: string | null;
+  issuedDate?: string | null;
+  expiryDate?: string | null;
+  details?: string | null;
+  remarks?: string | null;
+}
+
+export interface CorporateScreeningShareholderDto {
+  id: string;
+  fullName: string;
+  nationalityId?: string | null;
+  dateOfBirth?: string | null;
+  sharePercent: number;
+  documents: CorporateScreeningShareholderDocumentDto[];
+}
+
+export interface CorporateScreeningRequestDto {
+  id: string;
+  tenantId: string;
+  customerId: string;
+  companyCode?: string | null;
+  fullName: string;
+  countryId?: string | null;
+  dateOfRegistration?: string | null;
+  tradeLicenceNo?: string | null;
+  address?: string | null;
+  matchThreshold: number;
+  checkPepUkOnly: boolean;
+  checkSanctions: boolean;
+  checkProfileOfInterest: boolean;
+  checkDisqualifiedDirectorUkOnly: boolean;
+  checkReputationalRiskExposure: boolean;
+  checkRegulatoryEnforcementList: boolean;
+  checkInsolvencyUkIreland: boolean;
+  companyDocuments: CorporateScreeningCompanyDocumentDto[];
+  shareholders: CorporateScreeningShareholderDto[];
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface UpsertCorporateScreeningCompanyDocumentDto {
+  documentNo?: string | null;
+  issuedDate?: string | null;
+  expiryDate?: string | null;
+  details?: string | null;
+  remarks?: string | null;
+}
+
+export interface UpsertCorporateScreeningShareholderDocumentDto {
+  documentNo?: string | null;
+  issuedDate?: string | null;
+  expiryDate?: string | null;
+  details?: string | null;
+  remarks?: string | null;
+}
+
+export interface UpsertCorporateScreeningShareholderDto {
+  fullName: string;
+  nationalityId?: string | null;
+  dateOfBirth?: string | null;
+  sharePercent: number;
+  documents: UpsertCorporateScreeningShareholderDocumentDto[];
+}
+
+export interface UpsertCorporateScreeningRequest {
+  id?: string | null;
+  tenantId: string;
+  companyCode?: string | null;
+  fullName: string;
+  countryId?: string | null;
+  dateOfRegistration?: string | null;
+  tradeLicenceNo?: string | null;
+  address?: string | null;
+  matchThreshold: number;
+  checkPepUkOnly: boolean;
+  checkSanctions: boolean;
+  checkProfileOfInterest: boolean;
+  checkDisqualifiedDirectorUkOnly: boolean;
+  checkReputationalRiskExposure: boolean;
+  checkRegulatoryEnforcementList: boolean;
+  checkInsolvencyUkIreland: boolean;
+  companyDocuments: UpsertCorporateScreeningCompanyDocumentDto[];
+  shareholders: UpsertCorporateScreeningShareholderDto[];
+}
+
 
 export interface CreateSanctionsScreeningRequest {
   customerId: string;

@@ -234,6 +234,34 @@
       "review": "Review status"
     }
   },
+  "corporateScreening": {
+    "subtitle": "Enter company and shareholder details for sanctions and list screening. You can add multiple corporate entities per customer.",
+    "corporateEntity": "Corporate",
+    "removeCorporate": "Remove",
+    "resultsFilter": "Show results for",
+    "resultsAll": "All corporates",
+    "errors": {
+      "corporateTypeMissing": "Corporate customer type is not configured. Add a customer type with code \"Corporate\"."
+    },
+    "companySection": "Company information",
+    "companyCode": "Company code",
+    "dateOfRegistration": "Date of registration",
+    "tradeLicenceNo": "Trade licence no.",
+    "addDocuments": "Add documents",
+    "documentNo": "Document no.",
+    "issuedDate": "Issued date",
+    "documentDetails": "Document details",
+    "remarks": "Remarks",
+    "documentFile": "Document",
+    "shareholderSection": "Submit information for sole proprietor / partner / shareholder",
+    "addShareholder": "Add shareholder",
+    "shareholderNote": "Note: First name, last name and share percent are required.",
+    "sharePercent": "Share %",
+    "matchingThresholdPercent": "Matching threshold percentage",
+    "addCorporate": "Add corporate",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
   "customers": {
     "fullName": "Full name",
     "riskRating": "Risk rating",

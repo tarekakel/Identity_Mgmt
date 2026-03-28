@@ -234,6 +234,33 @@
       "review": "حالة المراجعة"
     }
   },
+  "corporateScreening": {
+    "subtitle": "أدخل بيانات الشركة والمساهمين للفحص ضد القوائم. يمكنك إضافة عدة كيانات شركات لكل عميل.",
+    "corporateEntity": "شركة",
+    "removeCorporate": "إزالة",
+    "resultsFilter": "عرض النتائج لـ",
+    "resultsAll": "كل الشركات",
+    "errors": {
+      "corporateTypeMissing": "نوع عميل \"شركة\" غير مُعرّف. أضف نوع عميل بالرمز Corporate."
+    },
+    "companySection": "معلومات الشركة",
+    "companyCode": "رمز الشركة",
+    "dateOfRegistration": "تاريخ التسجيل",
+    "tradeLicenceNo": "رقم الرخصة التجارية",
+    "addDocuments": "إضافة مستندات",
+    "documentNo": "رقم المستند",
+    "issuedDate": "تاريخ الإصدار",
+    "documentDetails": "تفاصيل المستند",
+    "remarks": "ملاحظات",
+    "documentFile": "المستند",
+    "shareholderSection": "معلومات المالك الفرد / الشريك / المساهم",
+    "shareholderNote": "ملاحظة: الاسم الأول والأخير ونسبة الحصة مطلوبة.",
+    "sharePercent": "نسبة الحصة %",
+    "matchingThresholdPercent": "نسبة عتبة المطابقة",
+    "addCorporate": "إضافة شركة",
+    "submit": "إرسال",
+    "cancel": "إلغاء"
+  },
   "customers": {
     "fullName": "الاسم الكامل",
     "riskRating": "تصنيف المخاطر",

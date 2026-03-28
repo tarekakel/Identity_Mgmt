@@ -1,0 +1,618 @@
+<div class="animate-fade-in w-full space-y-6">
+  <div class="flex items-start justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">
+        {{ 'pages.corporateScreening.title' | translate }}
+      </h1>
+      <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+        {{ 'corporateScreening.subtitle' | translate }}
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button type="button" (click)="selectAllCategories()" class="cs-btn cs-btn-select-all">
+        {{ 'common.selectAll' | translate }}
+      </button>
+      <button type="button" (click)="clearAllCategories()" class="cs-btn cs-btn-clear-all">
+        {{ 'common.clearAll' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 space-y-6">
+    <div>
+      <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+        {{ 'individualScreening.customer' | translate }} *
+      </label>
+      <div class="relative max-w-xl">
+        <input
+          type="text"
+          [ngModel]="customerSearchTerm()"
+          (ngModelChange)="onCustomerSearchChange($event)"
+          class="cs-input w-full"
+          [placeholder]="'individualScreening.customerSearchPlaceholder' | translate"
+        />
+        @if (customerLoading()) {
+          <div class="absolute right-3 top-2.5 text-xs text-slate-500">{{ 'common.loading' | translate }}</div>
+        }
+        @if (customerDropdownOpen() && customerOptions().length > 0) {
+          <div
+            class="absolute z-10 mt-1 w-full max-h-64 overflow-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow"
+          >
+            @for (c of customerOptions(); track c.id) {
+              <button
+                type="button"
+                (click)="selectCustomer(c)"
+                class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+              >
+                <div class="text-sm text-slate-900 dark:text-slate-100 truncate">{{ c.fullName ?? ('—') }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ c.customerNumber ?? c.id }}</div>
+              </button>
+            }
+          </div>
+        }
+      </div>
+      @if (selectedCustomer(); as sc) {
+        <div class="mt-2 text-xs text-slate-600 dark:text-slate-400">
+          {{ 'individualScreening.selectedCustomer' | translate }}:
+          <span class="font-medium text-slate-800 dark:text-slate-200">{{ sc.fullName ?? '—' }}</span>
+        </div>
+      }
+    </div>
+
+    @for (block of corporates(); track block.clientId; let bi = $index) {
+      <div
+        class="rounded-xl border-2 border-slate-200 dark:border-slate-600 p-4 space-y-4 bg-slate-50/50 dark:bg-slate-900/20"
+      >
+        <div class="flex items-start justify-between gap-3 flex-wrap border-b border-slate-200 dark:border-slate-600 pb-3">
+          <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">
+            {{ blockLabel(block, bi) }}
+          </h2>
+          <button
+            type="button"
+            (click)="removeCorporate(bi)"
+            [disabled]="corporates().length <= 1 || loading()"
+            class="cs-btn cs-btn-remove text-sm"
+          >
+            {{ 'corporateScreening.removeCorporate' | translate }}
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="space-y-2">
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 dark:border-slate-600"
+                [ngModel]="block.checkPepUkOnly"
+                (ngModelChange)="updateBlock(bi, { checkPepUkOnly: !!$event })"
+              />
+              {{ 'individualScreening.categories.pepUkOnly' | translate }}
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 dark:border-slate-600"
+                [ngModel]="block.checkDisqualifiedDirectorUkOnly"
+                (ngModelChange)="updateBlock(bi, { checkDisqualifiedDirectorUkOnly: !!$event })"
+              />
+              {{ 'individualScreening.categories.disqualifiedDirectorUkOnly' | translate }}
+            </label>
+          </div>
+          <div class="space-y-2">
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 dark:border-slate-600"
+                [ngModel]="block.checkSanctions"
+                (ngModelChange)="updateBlock(bi, { checkSanctions: !!$event })"
+              />
+              {{ 'individualScreening.categories.sanctions' | translate }}
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 dark:border-slate-600"
+                [ngModel]="block.checkProfileOfInterest"
+                (ngModelChange)="updateBlock(bi, { checkProfileOfInterest: !!$event })"
+              />
+              {{ 'individualScreening.categories.profileOfInterest' | translate }}
+            </label>
+          </div>
+          <div class="space-y-2">
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 dark:border-slate-600"
+                [ngModel]="block.checkReputationalRiskExposure"
+                (ngModelChange)="updateBlock(bi, { checkReputationalRiskExposure: !!$event })"
+              />
+              {{ 'individualScreening.categories.reputationalRiskExposure' | translate }}
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 dark:border-slate-600"
+                [ngModel]="block.checkRegulatoryEnforcementList"
+                (ngModelChange)="updateBlock(bi, { checkRegulatoryEnforcementList: !!$event })"
+              />
+              {{ 'individualScreening.categories.regulatoryEnforcementList' | translate }}
+            </label>
+          </div>
+          <div class="space-y-2">
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 dark:border-slate-600"
+                [ngModel]="block.checkInsolvencyUkIreland"
+                (ngModelChange)="updateBlock(bi, { checkInsolvencyUkIreland: !!$event })"
+              />
+              {{ 'individualScreening.categories.insolvencyUkIreland' | translate }}
+            </label>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h3 class="text-base font-semibold text-slate-800 dark:text-slate-100">
+            {{ 'corporateScreening.companySection' | translate }}
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {{ 'corporateScreening.companyCode' | translate }}
+              </label>
+              <input
+                type="text"
+                class="cs-input"
+                [ngModel]="block.companyCode"
+                (ngModelChange)="updateBlock(bi, { companyCode: $event })"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {{ 'individualScreening.fullName' | translate }}
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                class="cs-input"
+                [ngModel]="block.fullName"
+                (ngModelChange)="updateBlock(bi, { fullName: $event })"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {{ 'screening.country' | translate }}
+              </label>
+              <select
+                class="cs-input"
+                [ngModel]="block.countryId"
+                (ngModelChange)="updateBlock(bi, { countryId: $event })"
+              >
+                <option value="">{{ 'common.select' | translate }}</option>
+                @for (c of countries(); track c.id) {
+                  <option [value]="c.id">{{ c.name }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {{ 'corporateScreening.dateOfRegistration' | translate }}
+              </label>
+              <input
+                type="date"
+                class="cs-input"
+                [ngModel]="block.dateOfRegistration"
+                (ngModelChange)="updateBlock(bi, { dateOfRegistration: $event })"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {{ 'corporateScreening.tradeLicenceNo' | translate }}
+              </label>
+              <input
+                type="text"
+                class="cs-input"
+                [ngModel]="block.tradeLicenceNo"
+                (ngModelChange)="updateBlock(bi, { tradeLicenceNo: $event })"
+              />
+            </div>
+            <div class="md:col-span-2 lg:col-span-3">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {{ 'individualScreening.address' | translate }}
+              </label>
+              <textarea
+                rows="3"
+                class="cs-input resize-y min-h-[4.5rem]"
+                [ngModel]="block.address"
+                (ngModelChange)="updateBlock(bi, { address: $event })"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 dark:border-slate-600 pt-4 space-y-3">
+          <button type="button" (click)="addDocument(bi)" class="cs-btn cs-btn-add">
+            {{ 'corporateScreening.addDocuments' | translate }}
+          </button>
+
+          @for (doc of block.documents; track doc.id; let i = $index) {
+            <div
+              class="rounded-lg border border-slate-200 dark:border-slate-600 p-4 space-y-3 bg-slate-50/80 dark:bg-slate-900/40"
+            >
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 items-start">
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    {{ 'corporateScreening.documentNo' | translate }}
+                  </label>
+                  <input
+                    type="text"
+                    class="cs-input"
+                    [ngModel]="doc.documentNo"
+                    (ngModelChange)="updateCompanyDoc(bi, i, { documentNo: $event })"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    {{ 'corporateScreening.issuedDate' | translate }}
+                  </label>
+                  <input
+                    type="date"
+                    class="cs-input"
+                    [ngModel]="doc.issuedDate"
+                    (ngModelChange)="updateCompanyDoc(bi, i, { issuedDate: $event })"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    {{ 'screening.expiryDate' | translate }}
+                  </label>
+                  <input
+                    type="date"
+                    class="cs-input"
+                    [ngModel]="doc.expiryDate"
+                    (ngModelChange)="updateCompanyDoc(bi, i, { expiryDate: $event })"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    {{ 'corporateScreening.documentDetails' | translate }}
+                  </label>
+                  <textarea
+                    rows="2"
+                    class="cs-input resize-y min-h-[2.75rem]"
+                    [ngModel]="doc.details"
+                    (ngModelChange)="updateCompanyDoc(bi, i, { details: $event })"
+                  ></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    {{ 'corporateScreening.remarks' | translate }}
+                  </label>
+                  <textarea
+                    rows="2"
+                    class="cs-input resize-y min-h-[2.75rem]"
+                    [ngModel]="doc.remarks"
+                    (ngModelChange)="updateCompanyDoc(bi, i, { remarks: $event })"
+                  ></textarea>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    {{ 'corporateScreening.documentFile' | translate }}
+                  </label>
+                  <input type="file" class="cs-input text-sm py-1.5 file:mr-2" />
+                  <button
+                    type="button"
+                    (click)="removeDocument(bi, i)"
+                    [disabled]="block.documents.length <= 1"
+                    class="cs-btn-remove"
+                  >
+                    {{ 'individualKyc.remove' | translate }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="border-t border-slate-200 dark:border-slate-600 pt-4 space-y-3">
+          <div>
+            <h3 class="text-base font-semibold text-slate-800 dark:text-slate-100">
+              {{ 'corporateScreening.shareholderSection' | translate }}
+            </h3>
+            <p class="text-sm text-red-600 dark:text-red-400 mt-1">
+              {{ 'corporateScreening.shareholderNote' | translate }}
+            </p>
+          </div>
+          <button type="button" (click)="addShareholder(bi)" class="cs-btn cs-btn-add">
+            {{ 'corporateScreening.addShareholder' | translate }}
+          </button>
+
+          @for (sh of block.shareholders; track sh.id; let si = $index) {
+            <div
+              class="rounded-lg border border-slate-200 dark:border-slate-600 p-4 space-y-4 bg-white dark:bg-slate-800/80"
+            >
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                <div class="lg:col-span-2">
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    {{ 'individualScreening.fullName' | translate }}
+                  </label>
+                  <input
+                    type="text"
+                    class="cs-input"
+                    [ngModel]="sh.fullName"
+                    (ngModelChange)="updateShareholder(bi, si, { fullName: $event })"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    {{ 'individualScreening.nationality' | translate }}
+                  </label>
+                  <select
+                    class="cs-input"
+                    [ngModel]="sh.nationalityId"
+                    (ngModelChange)="updateShareholder(bi, si, { nationalityId: $event })"
+                  >
+                    <option value="">{{ 'common.select' | translate }}</option>
+                    @for (n of nationalities(); track n.id) {
+                      <option [value]="n.id">{{ n.name }}</option>
+                    }
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    {{ 'individualScreening.dateOfBirth' | translate }}
+                  </label>
+                  <input
+                    type="date"
+                    class="cs-input"
+                    [ngModel]="sh.dateOfBirth"
+                    (ngModelChange)="updateShareholder(bi, si, { dateOfBirth: $event })"
+                  />
+                </div>
+                <div class="flex gap-2 flex-wrap items-end">
+                  <div class="flex-1 min-w-[6rem]">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      {{ 'corporateScreening.sharePercent' | translate }}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      class="cs-input"
+                      [ngModel]="sh.share"
+                      (ngModelChange)="updateShareholder(bi, si, { share: toNumber($event) })"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    (click)="removeShareholder(bi, si)"
+                    [disabled]="block.shareholders.length <= 1"
+                    class="cs-btn-remove mb-0.5"
+                  >
+                    {{ 'individualKyc.remove' | translate }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="pl-0 sm:pl-2 border-l-0 sm:border-l-2 border-slate-200 dark:border-slate-600 space-y-2">
+                <button
+                  type="button"
+                  (click)="addShareholderDocument(bi, si)"
+                  class="cs-btn cs-btn-add text-sm py-1.5 px-3"
+                >
+                  {{ 'corporateScreening.addDocuments' | translate }}
+                </button>
+                @for (sd of sh.documents; track sd.id; let di = $index) {
+                  <div
+                    class="rounded-lg border border-dashed border-slate-300 dark:border-slate-600 p-3 space-y-3 bg-slate-50/50 dark:bg-slate-900/30"
+                  >
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 items-start">
+                      <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                          {{ 'corporateScreening.documentNo' | translate }}
+                        </label>
+                        <input
+                          type="text"
+                          class="cs-input"
+                          [ngModel]="sd.documentNo"
+                          (ngModelChange)="updateShareholderDoc(bi, si, di, { documentNo: $event })"
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                          {{ 'corporateScreening.issuedDate' | translate }}
+                        </label>
+                        <input
+                          type="date"
+                          class="cs-input"
+                          [ngModel]="sd.issuedDate"
+                          (ngModelChange)="updateShareholderDoc(bi, si, di, { issuedDate: $event })"
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                          {{ 'screening.expiryDate' | translate }}
+                        </label>
+                        <input
+                          type="date"
+                          class="cs-input"
+                          [ngModel]="sd.expiryDate"
+                          (ngModelChange)="updateShareholderDoc(bi, si, di, { expiryDate: $event })"
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                          {{ 'corporateScreening.documentDetails' | translate }}
+                        </label>
+                        <textarea
+                          rows="2"
+                          class="cs-input resize-y min-h-[2.75rem]"
+                          [ngModel]="sd.details"
+                          (ngModelChange)="updateShareholderDoc(bi, si, di, { details: $event })"
+                        ></textarea>
+                      </div>
+                      <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                          {{ 'corporateScreening.remarks' | translate }}
+                        </label>
+                        <textarea
+                          rows="2"
+                          class="cs-input resize-y min-h-[2.75rem]"
+                          [ngModel]="sd.remarks"
+                          (ngModelChange)="updateShareholderDoc(bi, si, di, { remarks: $event })"
+                        ></textarea>
+                      </div>
+                      <div class="flex flex-col gap-2">
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                          {{ 'corporateScreening.documentFile' | translate }}
+                        </label>
+                        <input type="file" class="cs-input text-sm py-1.5 file:mr-2" />
+                        <button
+                          type="button"
+                          (click)="removeShareholderDocument(bi, si, di)"
+                          [disabled]="sh.documents.length <= 1"
+                          class="cs-btn-remove"
+                        >
+                          {{ 'individualKyc.remove' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="border-t border-slate-200 dark:border-slate-600 pt-4">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            {{ 'corporateScreening.matchingThresholdPercent' | translate }}
+            <span class="font-semibold tabular-nums">{{ block.matchThreshold }}</span>
+          </label>
+          <div class="flex items-center gap-3 max-w-xl">
+            <span class="text-xs text-slate-500 w-6">0</span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              class="flex-1 accent-[#26A69A]"
+              [ngModel]="block.matchThreshold"
+              (ngModelChange)="updateBlock(bi, { matchThreshold: toNumber($event) })"
+            />
+            <span class="text-xs text-slate-500 w-8 text-right">100</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (error(); as errMsg) {
+      <div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-sm">{{ errMsg }}</div>
+    }
+    @if (success(); as okMsg) {
+      <div class="p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-sm">{{ okMsg }}</div>
+    }
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+      <button type="button" (click)="addCorporate()" class="cs-btn cs-btn-add self-start" [disabled]="loading()">
+        {{ 'corporateScreening.addCorporate' | translate }}
+      </button>
+      <div class="flex flex-wrap items-center justify-center gap-3 flex-1">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="cs-btn cs-btn-cancel-footer px-8 py-2.5 text-base"
+          [disabled]="loading()"
+        >
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button
+          type="button"
+          (click)="onSubmit()"
+          class="cs-btn cs-btn-submit-footer px-8 py-2.5 text-base"
+          [disabled]="loading() || !hasAtLeastOneFullName()"
+        >
+          {{ loading() ? ('common.loading' | translate) : ('corporateScreening.submit' | translate) }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
+    <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">
+        {{ 'individualScreening.results' | translate }}
+      </h2>
+      <div class="flex flex-wrap items-center gap-2">
+        @if (selectedCustomerId()) {
+          <label class="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
+            {{ 'corporateScreening.resultsFilter' | translate }}
+          </label>
+          <select
+            class="cs-input text-sm min-w-[12rem]"
+            [ngModel]="resultsFilterRequestId()"
+            (ngModelChange)="onResultsFilterChange($event)"
+          >
+            <option value="">{{ 'corporateScreening.resultsAll' | translate }}</option>
+            @for (bl of corporates(); track bl.clientId; let ri = $index) {
+              @if (bl.serverRequestId) {
+                <option [value]="bl.serverRequestId">{{ blockLabel(bl, ri) }}</option>
+              }
+            }
+          </select>
+        }
+        <button
+          type="button"
+          (click)="refreshResults()"
+          class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition text-sm"
+          [disabled]="!selectedCustomerId()"
+        >
+          {{ 'common.refresh' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <div class="p-4">
+      @if (!selectedCustomerId()) {
+        <p class="text-slate-600 dark:text-slate-400 text-sm">
+          {{ 'individualScreening.selectCustomerToViewResults' | translate }}
+        </p>
+      } @else if (resultsLoading()) {
+        <p class="text-slate-600 dark:text-slate-400 text-sm">{{ 'common.loading' | translate }}</p>
+      } @else if (results().length === 0) {
+        <p class="text-slate-600 dark:text-slate-400 text-sm">{{ 'individualScreening.noMatchingResults' | translate }}</p>
+      } @else {
+        <div class="overflow-auto max-w-full">
+          <table class="min-w-[900px] w-full text-sm text-left">
+            <thead class="text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50">
+              <tr>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.matchedName' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.list' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.score' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.matchType' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.date' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.status' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.review' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+              @for (r of results(); track r.id) {
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                  <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ r.matchedName ?? '—' }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ r.sanctionList ?? '—' }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ r.matchScore ?? '—' }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ r.matchType ?? '—' }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ r.screeningDate | date: 'short' }}</td>
+                  <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ getStatusLabel(r.status) }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ getReviewStatusLabel(r.reviewStatus) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>

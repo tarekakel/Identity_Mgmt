@@ -109,6 +109,7 @@ public class IndividualScreeningService : IIndividualScreeningService
         {
             Id = s.Id,
             CustomerId = s.CustomerId,
+            CorporateScreeningRequestId = s.CorporateScreeningRequestId,
             MatchedName = s.MatchedName,
             SanctionList = s.ScreeningList,
             MatchScore = s.Score,
