@@ -6,11 +6,13 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader, provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { provideToastr } from 'ngx-toastr';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideCharts(withDefaultRegisterables()),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
     provideToastr({ positionClass: 'toast-top-right', timeOut: 4000 }),

@@ -79,7 +79,10 @@ export class SidebarComponent implements OnInit {
       id: 'kyc',
       labelKey: 'nav.kyc',
       icon: '🪪',
-      items: [{ labelKey: 'nav.kyc', route: '/kyc', icon: '🪪', exact: true }]
+      items: [
+        { labelKey: 'nav.kycIndividual', route: '/kyc/individual', icon: '👤', exact: false },
+        { labelKey: 'nav.kycCorporate', route: '/kyc/corporate', icon: '🏢', exact: false }
+      ]
     },
     {
       id: 'caseManagement',

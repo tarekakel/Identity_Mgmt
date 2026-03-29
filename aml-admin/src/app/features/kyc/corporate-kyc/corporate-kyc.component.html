@@ -1,0 +1,822 @@
+<div class="animate-fade-in w-full space-y-6 pb-8">
+  <div class="flex items-center justify-between gap-4 flex-wrap">
+    <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">
+      {{ 'pages.corporateKyc.title' | translate }}
+    </h1>
+  </div>
+
+
+  @if (submitError()) {
+    <div class="rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 px-4 py-3 text-sm">{{ submitError() }}</div>
+  }
+  @if (submitSuccess()) {
+    <div class="rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 px-4 py-3 text-sm">{{ submitSuccess() }}</div>
+  }
+
+  <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 space-y-4">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div>
+        <div class="text-sm text-slate-600 dark:text-slate-400 mb-1">
+          Customer ID: <span class="font-medium">{{ routeCustomerId() }}</span>
+        </div>
+        <div class="text-slate-700 dark:text-slate-200 text-sm">
+          {{ selectedCustomer()?.fullName ?? '—' }}
+        </div>
+      </div>
+      <div class="min-w-[280px]">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          {{ 'individualKyc.customerSearch' | translate }}
+        </label>
+        <div class="relative">
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            [ngModel]="customerSearchTerm()"
+            (ngModelChange)="customerSearchTerm.set($event)"
+            [ngModelOptions]="{ standalone: true }"
+            (focus)="customerDropdownOpen.set(true)"
+            placeholder="Customer name or number"
+          />
+          @if (customerDropdownOpen() && customerOptions().length > 0) {
+            <div class="absolute z-20 mt-1 w-full max-h-64 overflow-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow">
+              @for (c of customerOptions(); track c.id) {
+                <button
+                  type="button"
+                  class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                  (click)="selectCustomer(c)"
+                >
+                  <div class="text-sm text-slate-900 dark:text-slate-100 truncate">{{ c.fullName ?? '—' }}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ c.customerNumber ?? c.id }}</div>
+                </button>
+              }
+            </div>
+          }
+        </div>
+        <div class="mt-2 flex items-center gap-2">
+          <button
+            type="button"
+            (click)="searchCustomers()"
+            class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition text-sm disabled:opacity-50"
+            [disabled]="customerSearchTerm().trim().length < 2 || customerLoading()"
+          >
+            {{ customerLoading() ? 'Searching...' : ('corporateKyc.search' | translate) }}
+          </button>
+          @if (customerSearchTerm().trim().length < 2) {
+            <span class="text-xs text-slate-500">Type at least 2 characters</span>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Search -->
+  <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+      <div class="md:col-span-3">
+        <label class="ckyc-label">{{ 'corporateKyc.id' | translate }}</label>
+        <select
+          class="ckyc-field"
+          [ngModel]="searchId()"
+          (ngModelChange)="searchId.set($event)"
+        >
+          <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+        </select>
+      </div>
+      <div class="md:col-span-3">
+        <label class="ckyc-label">{{ 'corporateKyc.customerName' | translate }}</label>
+        <input
+          type="text"
+          class="ckyc-field"
+          [placeholder]="'corporateKyc.enterCustomerName' | translate"
+          [ngModel]="searchCustomerName()"
+          (ngModelChange)="searchCustomerName.set($event)"
+        />
+      </div>
+      <div class="md:col-span-3">
+        <label class="ckyc-label">{{ 'corporateKyc.licenseNumber' | translate }}</label>
+        <input
+          type="text"
+          class="ckyc-field"
+          [placeholder]="'corporateKyc.enterLicenseNumber' | translate"
+          [ngModel]="searchLicenseNumber()"
+          (ngModelChange)="searchLicenseNumber.set($event)"
+        />
+      </div>
+      <div class="md:col-span-3 flex justify-end">
+        <button type="button" class="ckyc-btn-primary" (click)="search()">
+          {{ 'corporateKyc.search' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk checklist -->
+  <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 p-4 space-y-4">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <h2 class="text-sm font-semibold text-slate-800 dark:text-slate-100 uppercase tracking-wide">
+        {{ 'corporateKyc.riskFormTitle' | translate }}
+      </h2>
+      <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+        <input
+          type="checkbox"
+          class="rounded border-slate-300 dark:border-slate-600"
+          [checked]="isAllRiskSelected()"
+          (change)="onToggleSelectAll($event)"
+        />
+        {{ 'corporateKyc.selectAll' | translate }}
+      </label>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+        <input type="checkbox" class="rounded border-slate-300" [checked]="checkPep()" (change)="checkPep.set($any($event.target).checked)" />
+        {{ 'corporateKyc.pep' | translate }}
+      </label>
+      <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+        <input type="checkbox" class="rounded border-slate-300" [checked]="checkSanction()" (change)="checkSanction.set($any($event.target).checked)" />
+        {{ 'corporateKyc.sanction' | translate }}
+      </label>
+      <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+        <input type="checkbox" class="rounded border-slate-300" [checked]="checkReputational()" (change)="checkReputational.set($any($event.target).checked)" />
+        {{ 'corporateKyc.reputationalRiskExposure' | translate }}
+      </label>
+      <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+        <input type="checkbox" class="rounded border-slate-300" [checked]="checkDisqualifiedDirector()" (change)="checkDisqualifiedDirector.set($any($event.target).checked)" />
+        {{ 'corporateKyc.disqualifiedDirectorUk' | translate }}
+      </label>
+      <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+        <input type="checkbox" class="rounded border-slate-300" [checked]="checkProfileOfInterest()" (change)="checkProfileOfInterest.set($any($event.target).checked)" />
+        {{ 'corporateKyc.profileOfInterest' | translate }}
+      </label>
+      <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+        <input type="checkbox" class="rounded border-slate-300" [checked]="checkRegulatory()" (change)="checkRegulatory.set($any($event.target).checked)" />
+        {{ 'corporateKyc.regulatoryEnforcementList' | translate }}
+      </label>
+    </div>
+    <div class="flex flex-wrap items-center gap-4">
+      <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+        <input type="checkbox" class="rounded border-slate-300" [checked]="checkInsolvency()" (change)="checkInsolvency.set($any($event.target).checked)" />
+        {{ 'corporateKyc.insolvencyUkIreland' | translate }}
+      </label>
+      <div class="flex items-center gap-2 flex-1 min-w-[200px] max-w-md">
+        <span class="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">{{ 'corporateKyc.threshold' | translate }}: 75</span>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          class="flex-1 accent-teal-600"
+          [ngModel]="insolvencyThreshold()"
+          (ngModelChange)="insolvencyThreshold.set(+$event)"
+        />
+        <span class="text-sm font-semibold w-8 text-right">{{ insolvencyThreshold() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <form class="space-y-4" (ngSubmit)="submit()">
+    <!-- Section 1 -->
+    <div class="rounded-lg overflow-hidden shadow-sm">
+      <button type="button" class="ckyc-section-header" (click)="toggleSection(1)">
+        <span>{{ 'corporateKyc.section1' | translate }}</span>
+        <span aria-hidden="true">{{ isExpanded(1) ? '▴' : '▾' }}</span>
+      </button>
+      @if (isExpanded(1)) {
+        <div class="ckyc-section-body space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="lg:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.companyName' | translate }}*</label>
+              <input type="text" class="ckyc-field" [ngModel]="companyName()" (ngModelChange)="companyName.set($event)" name="companyName" />
+              @if (showCompanyNameError() && !companyName().trim()) {
+                <p class="text-sm text-red-600 mt-1">{{ 'corporateKyc.companyNameRequired' | translate }}</p>
+              }
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.formerNames' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="formerNames()" (ngModelChange)="formerNames.set($event)" name="formerNames" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.typeOfEntity' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="typeOfEntity()" (ngModelChange)="typeOfEntity.set($event)" name="typeOfEntity">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.taxVatRegistration' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="taxVat()" (ngModelChange)="taxVat.set($event)" name="taxVat" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.customerRelationship' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="customerRelationship()" (ngModelChange)="customerRelationship.set($event)" name="customerRelationship">
+                <option value="New">{{ 'corporateKyc.new' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.typeOfRelationship' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="typeOfRelationship()" (ngModelChange)="typeOfRelationship.set($event)" name="typeOfRelationship">
+                <option value="Customer">{{ 'corporateKyc.customer' | translate }}</option>
+              </select>
+            </div>
+            <div class="lg:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.purposeOfRelation' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="purposeOfRelation()" (ngModelChange)="purposeOfRelation.set($event)" name="purposeOfRelation" />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Section 2 -->
+    <div class="rounded-lg overflow-hidden shadow-sm">
+      <button type="button" class="ckyc-section-header" (click)="toggleSection(2)">
+        <span>{{ 'corporateKyc.section2' | translate }}</span>
+        <span aria-hidden="true">{{ isExpanded(2) ? '▴' : '▾' }}</span>
+      </button>
+      @if (isExpanded(2)) {
+        <div class="ckyc-section-body">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.licenseNumber' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="licenseNumber()" (ngModelChange)="licenseNumber.set($event)" name="licenseNumber" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.licenseIssueDate' | translate }}</label>
+              <input type="date" class="ckyc-field" [ngModel]="licenseIssueDate()" (ngModelChange)="licenseIssueDate.set($event)" name="licenseIssueDate" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.licenseExpiryDate' | translate }}</label>
+              <input type="date" class="ckyc-field" [ngModel]="licenseExpiryDate()" (ngModelChange)="licenseExpiryDate.set($event)" name="licenseExpiryDate" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.placeOfIssue' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="placeOfIssue()" (ngModelChange)="placeOfIssue.set($event)" name="placeOfIssue">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.incorporatedIn' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="incorporatedIn()" (ngModelChange)="incorporatedIn.set($event)" name="incorporatedIn">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.licenseType' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="licenseType()" (ngModelChange)="licenseType.set($event)" name="licenseType">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.licenseIssuingAuthority' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="licenseIssuingAuthority()" (ngModelChange)="licenseIssuingAuthority.set($event)" name="licenseIssuingAuthority">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.dateOfIncorporation' | translate }}</label>
+              <input type="date" class="ckyc-field" [ngModel]="dateOfIncorporation()" (ngModelChange)="dateOfIncorporation.set($event)" name="dateOfIncorporation" />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Section 3 -->
+    <div class="rounded-lg overflow-hidden shadow-sm">
+      <button type="button" class="ckyc-section-header" (click)="toggleSection(3)">
+        <span>{{ 'corporateKyc.section3' | translate }}</span>
+        <span aria-hidden="true">{{ isExpanded(3) ? '▴' : '▾' }}</span>
+      </button>
+      @if (isExpanded(3)) {
+        <div class="ckyc-section-body space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="lg:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.registeredOfficeAddress' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="registeredOffice()" (ngModelChange)="registeredOffice.set($event)" name="registeredOffice" />
+            </div>
+            <div class="lg:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.businessAddress' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="businessAddress()" (ngModelChange)="businessAddress.set($event)" name="businessAddress" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.poBox' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="poBox()" (ngModelChange)="poBox.set($event)" name="poBox" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.telNo' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="telNo()" (ngModelChange)="telNo.set($event)" name="telNo" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.emailId' | translate }}</label>
+              <input type="email" class="ckyc-field" [ngModel]="emailId()" (ngModelChange)="emailId.set($event)" name="emailId" />
+            </div>
+            <div class="lg:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.corporateWebsite' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="corporateWebsite()" (ngModelChange)="corporateWebsite.set($event)" name="corporateWebsite" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.city' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="city()" (ngModelChange)="city.set($event)" name="city" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.emirateState' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="emirateState()" (ngModelChange)="emirateState.set($event)" name="emirateState" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.country' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="country()" (ngModelChange)="country.set($event)" name="country">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div class="lg:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.countriesCompanyOperates' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="countriesOperate()" (ngModelChange)="countriesOperate.set($event)" name="countriesOperate" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.primaryContactPerson' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="primaryContact()" (ngModelChange)="primaryContact.set($event)" name="primaryContact" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.contactPersonJobTitle' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="contactJobTitle()" (ngModelChange)="contactJobTitle.set($event)" name="contactJobTitle" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.contactPersonEmail' | translate }}</label>
+              <input type="email" class="ckyc-field" [ngModel]="contactEmail()" (ngModelChange)="contactEmail.set($event)" name="contactEmail" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.contactPersonFax' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="contactFax()" (ngModelChange)="contactFax.set($event)" name="contactFax" />
+            </div>
+            <div class="lg:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.contactPersonAddress' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="contactAddress()" (ngModelChange)="contactAddress.set($event)" name="contactAddress" />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Section 4 -->
+    <div class="rounded-lg overflow-hidden shadow-sm">
+      <button type="button" class="ckyc-section-header" (click)="toggleSection(4)">
+        <span>{{ 'corporateKyc.section4' | translate }}</span>
+        <span aria-hidden="true">{{ isExpanded(4) ? '▴' : '▾' }}</span>
+      </button>
+      @if (isExpanded(4)) {
+        <div class="ckyc-section-body space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.natureOfBusiness' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="natureOfBusiness()" (ngModelChange)="natureOfBusiness.set($event)" name="natureOfBusiness">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.productType' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="productType()" (ngModelChange)="productType.set($event)" name="productType">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.modeOfPayment' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="modeOfPayment()" (ngModelChange)="modeOfPayment.set($event)" name="modeOfPayment">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.deliveryChannel' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="deliveryChannel()" (ngModelChange)="deliveryChannel.set($event)" name="deliveryChannel">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div class="lg:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.otherDetails' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="otherDetails()" (ngModelChange)="otherDetails.set($event)" name="otherDetails" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.industryType' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="industryType()" (ngModelChange)="industryType.set($event)" name="industryType">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-2">
+                <input type="checkbox" [ngModel]="proofSourceFund()" (ngModelChange)="proofSourceFund.set($event)" name="proofSourceFund" />
+                {{ 'corporateKyc.proofSourceFundObtained' | translate }}
+              </label>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.sourceOfFunds' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="sourceOfFunds()" (ngModelChange)="sourceOfFunds.set($event)" name="sourceOfFunds">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div class="lg:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.sourceOfFundsComments' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="sourceOfFundsComments()" (ngModelChange)="sourceOfFundsComments.set($event)" name="sourceOfFundsComments" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.sourceOfWealth' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="sourceOfWealth()" (ngModelChange)="sourceOfWealth.set($event)" name="sourceOfWealth">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-2">
+                <input type="checkbox" [ngModel]="proofSourceWealth()" (ngModelChange)="proofSourceWealth.set($event)" name="proofSourceWealth" />
+                {{ 'corporateKyc.proofSourceWealthObtained' | translate }}
+              </label>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.taxResidency' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="taxResidency()" (ngModelChange)="taxResidency.set($event)" name="taxResidency">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-2">
+                <input type="checkbox" [ngModel]="companyRegulated()" (ngModelChange)="companyRegulated.set($event)" name="companyRegulated" />
+                {{ 'corporateKyc.isCompanyRegulated' | translate }}
+              </label>
+            </div>
+            <div class="lg:col-span-3">
+              <label class="ckyc-label">{{ 'corporateKyc.sourceOfWealthComments' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="sourceOfWealthComments()" (ngModelChange)="sourceOfWealthComments.set($event)" name="sourceOfWealthComments" />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Section 5 -->
+    <div class="rounded-lg overflow-hidden shadow-sm">
+      <button type="button" class="ckyc-section-header" (click)="toggleSection(5)">
+        <span>{{ 'corporateKyc.section5' | translate }}</span>
+        <span aria-hidden="true">{{ isExpanded(5) ? '▴' : '▾' }}</span>
+      </button>
+      @if (isExpanded(5)) {
+        <div class="ckyc-section-body">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.bankCountry' | translate }}</label>
+              <select class="ckyc-field" [ngModel]="bankCountry()" (ngModelChange)="bankCountry.set($event)" name="bankCountry">
+                <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.bankName' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="bankName()" (ngModelChange)="bankName.set($event)" name="bankName" />
+            </div>
+            <div class="lg:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.bankAddress' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="bankAddress()" (ngModelChange)="bankAddress.set($event)" name="bankAddress" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.ibanAccount' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="ibanAccount()" (ngModelChange)="ibanAccount.set($event)" name="ibanAccount" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.accountName' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="accountName()" (ngModelChange)="accountName.set($event)" name="accountName" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.currency' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="currency()" (ngModelChange)="currency.set($event)" name="currency" />
+            </div>
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.swiftCode' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="swiftCode()" (ngModelChange)="swiftCode.set($event)" name="swiftCode" />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Section 6 -->
+    <div class="rounded-lg overflow-hidden shadow-sm">
+      <div class="ckyc-section-header !cursor-default">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span>{{ 'corporateKyc.section6' | translate }}</span>
+          <button type="button" class="ckyc-btn-teal" (click)="addGroupEntity(); $event.stopPropagation()">{{ 'corporateKyc.add' | translate }}</button>
+        </div>
+        <button type="button" class="bg-white/20 rounded px-2 py-0.5" (click)="toggleSection(6)">{{ isExpanded(6) ? '▴' : '▾' }}</button>
+      </div>
+      @if (isExpanded(6)) {
+        <div class="ckyc-section-body space-y-4">
+          @for (row of groupEntities(); track $index; let i = $index) {
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+              <div class="md:col-span-4">
+                <label class="ckyc-label">{{ 'corporateKyc.entityName' | translate }}</label>
+                <input type="text" class="ckyc-field" [ngModel]="row.entityName" (ngModelChange)="patchGroupEntity(i, 'entityName', $event)" [name]="'geName' + i" />
+              </div>
+              <div class="md:col-span-4">
+                <label class="ckyc-label">{{ 'corporateKyc.countryOfIncorporation' | translate }}</label>
+                <select class="ckyc-field" [ngModel]="row.country" (ngModelChange)="patchGroupEntity(i, 'country', $event)" [name]="'geCountry' + i">
+                  <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+                </select>
+              </div>
+              <div class="md:col-span-4 flex justify-end">
+                <button type="button" class="ckyc-btn-primary" (click)="removeGroupEntity(i)">{{ 'corporateKyc.remove' | translate }}</button>
+              </div>
+            </div>
+          }
+          <button type="button" class="ckyc-link" (click)="addGroupEntity()">{{ 'corporateKyc.addDocument' | translate }}</button>
+        </div>
+      }
+    </div>
+
+    <!-- Section 7 -->
+    <div class="rounded-lg overflow-hidden shadow-sm">
+      <div class="ckyc-section-header !cursor-default">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span>{{ 'corporateKyc.section7' | translate }}</span>
+          <button type="button" class="ckyc-btn-teal" (click)="addOwnership()">{{ 'corporateKyc.add' | translate }}</button>
+        </div>
+        <button type="button" class="bg-white/20 rounded px-2 py-0.5" (click)="toggleSection(7)">{{ isExpanded(7) ? '▴' : '▾' }}</button>
+      </div>
+      @if (isExpanded(7)) {
+        <div class="ckyc-section-body space-y-6">
+          @for (row of ownershipRows(); track $index; let i = $index) {
+            <div class="space-y-3 border-b border-slate-200 dark:border-slate-600 pb-4 last:border-0">
+              <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-end">
+                <div>
+                  <select class="ckyc-field text-sm" [ngModel]="row.typeSelect" (ngModelChange)="patchOwnership(i, 'typeSelect', $event)" [name]="'ownT' + i">
+                    <option value="">{{ 'corporateKyc.selectType' | translate }}</option>
+                  </select>
+                </div>
+                <div class="lg:col-span-2">
+                  <input type="text" class="ckyc-field text-sm" [ngModel]="row.line2" (ngModelChange)="patchOwnership(i, 'line2', $event)" [name]="'ownL2' + i" />
+                </div>
+                <div class="lg:col-span-2">
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.partnerShareholderName' | translate }}</label>
+                  <input type="text" class="ckyc-field text-sm" [ngModel]="row.partnerName" (ngModelChange)="patchOwnership(i, 'partnerName', $event)" [name]="'ownP' + i" />
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.sharePercent' | translate }}</label>
+                  <input type="text" class="ckyc-field text-sm" [ngModel]="row.sharePct" (ngModelChange)="patchOwnership(i, 'sharePct', $event)" [name]="'ownS' + i" />
+                </div>
+                <div>
+                  <select class="ckyc-field text-sm" [ngModel]="row.mainNationality" (ngModelChange)="patchOwnership(i, 'mainNationality', $event)" [name]="'ownMN' + i">
+                    <option value="">{{ 'corporateKyc.mainNationalityPlaceholder' | translate }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.dobOrDoinc' | translate }}</label>
+                  <input type="date" class="ckyc-field text-sm" [ngModel]="row.dobDoinc" (ngModelChange)="patchOwnership(i, 'dobDoinc', $event)" [name]="'ownDob' + i" />
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.eidTradeLicExp' | translate }}</label>
+                  <input type="text" class="ckyc-field text-sm" [ngModel]="row.eidTrade" (ngModelChange)="patchOwnership(i, 'eidTrade', $event)" [name]="'ownEid' + i" />
+                </div>
+                <div>
+                  <input type="date" class="ckyc-field text-sm" [ngModel]="row.eidExp" (ngModelChange)="patchOwnership(i, 'eidExp', $event)" [name]="'ownEidExp' + i" />
+                </div>
+                <label class="inline-flex items-center gap-1 text-xs text-slate-700 dark:text-slate-300">
+                  <input type="checkbox" [ngModel]="row.isPep" (ngModelChange)="patchOwnership(i, 'isPep', $event)" [name]="'ownPep' + i" />
+                  {{ 'corporateKyc.isPep' | translate }}
+                </label>
+              </div>
+              <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 items-end">
+                <div>
+                  <select class="ckyc-field text-sm" [ngModel]="row.row2Type" (ngModelChange)="patchOwnership(i, 'row2Type', $event)" [name]="'ownT2' + i">
+                    <option value="Main Corporate">{{ 'corporateKyc.mainCorporate' | translate }}</option>
+                  </select>
+                </div>
+                <div class="lg:col-span-2">
+                  <input type="text" class="ckyc-field text-sm" [ngModel]="row.row2Fields" (ngModelChange)="patchOwnership(i, 'row2Fields', $event)" [name]="'ownR2' + i" />
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.dualNationality' | translate }}</label>
+                  <select class="ckyc-field text-sm" [ngModel]="row.dualNationality" (ngModelChange)="patchOwnership(i, 'dualNationality', $event)" [name]="'ownDN' + i">
+                    <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+                  </select>
+                </div>
+                <div class="lg:col-span-2">
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.passportNoExp' | translate }}</label>
+                  <div class="flex gap-1">
+                    <input type="text" class="ckyc-field text-sm flex-1" [ngModel]="row.passportNo" (ngModelChange)="patchOwnership(i, 'passportNo', $event)" [name]="'ownPass' + i" />
+                    <input type="date" class="ckyc-field text-sm w-36" [ngModel]="row.passportExp" (ngModelChange)="patchOwnership(i, 'passportExp', $event)" [name]="'ownPassExp' + i" />
+                  </div>
+                </div>
+                <div class="flex justify-end">
+                  <button type="button" class="ckyc-btn-primary text-sm" (click)="removeOwnership(i)">{{ 'corporateKyc.remove' | translate }}</button>
+                </div>
+              </div>
+            </div>
+          }
+          <button type="button" class="ckyc-link" (click)="addOwnership()">{{ 'corporateKyc.addDocument' | translate }}</button>
+        </div>
+      }
+    </div>
+
+    <!-- Sections 8–10: person grids -->
+    @for (block of personSectionBlocks; track block.id) {
+      <div class="rounded-lg overflow-hidden shadow-sm">
+        <div class="ckyc-section-header !cursor-default">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span>{{ ('corporateKyc.' + block.titleKey) | translate }}</span>
+            <button
+              type="button"
+              class="ckyc-btn-teal"
+              (click)="block.key === 'ubo' ? addUbo() : block.key === 'senior' ? addSenior() : addSignatory()"
+            >
+              {{ 'corporateKyc.add' | translate }}
+            </button>
+          </div>
+          <button type="button" class="bg-white/20 rounded px-2 py-0.5" (click)="toggleSection(block.id)">{{ isExpanded(block.id) ? '▴' : '▾' }}</button>
+        </div>
+        @if (isExpanded(block.id)) {
+          <div class="ckyc-section-body space-y-4">
+            @for (prow of block.key === 'ubo' ? uboRows() : block.key === 'senior' ? seniorRows() : signatoryRows(); track $index; let pi = $index) {
+              <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-10 gap-2 items-end">
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.name' | translate }}</label>
+                  <input type="text" class="ckyc-field text-sm" [ngModel]="prow.name" (ngModelChange)="patchPerson(block.key, pi, 'name', $event)" [name]="block.key + 'n' + pi" />
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.designation' | translate }}</label>
+                  <input type="text" class="ckyc-field text-sm" [ngModel]="prow.designation" (ngModelChange)="patchPerson(block.key, pi, 'designation', $event)" [name]="block.key + 'd' + pi" />
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.nationality' | translate }}</label>
+                  <select class="ckyc-field text-sm" [ngModel]="prow.nationality" (ngModelChange)="patchPerson(block.key, pi, 'nationality', $event)" [name]="block.key + 'nat' + pi">
+                    <option value="">{{ 'corporateKyc.selectCountry' | translate }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.dualNationality' | translate }}</label>
+                  <select class="ckyc-field text-sm" [ngModel]="prow.dualNationality" (ngModelChange)="patchPerson(block.key, pi, 'dualNationality', $event)" [name]="block.key + 'dn' + pi">
+                    <option value="">{{ 'corporateKyc.selectCountry' | translate }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.dob' | translate }}</label>
+                  <input type="date" class="ckyc-field text-sm" [ngModel]="prow.dob" (ngModelChange)="patchPerson(block.key, pi, 'dob', $event)" [name]="block.key + 'dob' + pi" />
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.eidNo' | translate }}</label>
+                  <input type="text" class="ckyc-field text-sm" [ngModel]="prow.eidNo" (ngModelChange)="patchPerson(block.key, pi, 'eidNo', $event)" [name]="block.key + 'eid' + pi" />
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.expiryDate' | translate }}</label>
+                  <input type="date" class="ckyc-field text-sm" [ngModel]="prow.eidExpiry" (ngModelChange)="patchPerson(block.key, pi, 'eidExpiry', $event)" [name]="block.key + 'eidExp' + pi" />
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.passportNumber' | translate }}</label>
+                  <input type="text" class="ckyc-field text-sm" [ngModel]="prow.passportNo" (ngModelChange)="patchPerson(block.key, pi, 'passportNo', $event)" [name]="block.key + 'pp' + pi" />
+                </div>
+                <div>
+                  <label class="ckyc-label text-xs">{{ 'corporateKyc.expiryDate' | translate }}</label>
+                  <input type="date" class="ckyc-field text-sm" [ngModel]="prow.passportExpiry" (ngModelChange)="patchPerson(block.key, pi, 'passportExpiry', $event)" [name]="block.key + 'ppExp' + pi" />
+                </div>
+                <div class="flex justify-end">
+                  <button
+                    type="button"
+                    class="ckyc-btn-primary text-sm"
+                    (click)="block.key === 'ubo' ? removeUbo(pi) : block.key === 'senior' ? removeSenior(pi) : removeSignatory(pi)"
+                  >
+                    {{ 'corporateKyc.remove' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+            <button
+              type="button"
+              class="ckyc-link"
+              (click)="block.key === 'ubo' ? addUbo() : block.key === 'senior' ? addSenior() : addSignatory()"
+            >
+              {{ 'corporateKyc.addDocument' | translate }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Section 11 -->
+    <div class="rounded-lg overflow-hidden shadow-sm">
+      <button type="button" class="ckyc-section-header" (click)="toggleSection(11)">
+        <span>{{ 'corporateKyc.section11' | translate }}</span>
+        <span aria-hidden="true">{{ isExpanded(11) ? '▴' : '▾' }}</span>
+      </button>
+      @if (isExpanded(11)) {
+        <div class="ckyc-section-body space-y-4">
+          <div>
+            <label class="ckyc-label">{{ 'corporateKyc.fatfQ1' | translate }}</label>
+            <select class="ckyc-field max-w-xs mt-1" [ngModel]="fatfQ1()" (ngModelChange)="fatfQ1.set($event)" name="fatfQ1">
+              <option value="No">{{ 'individualKyc.no' | translate }}</option>
+              <option value="Yes">{{ 'individualKyc.yes' | translate }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="ckyc-label">{{ 'corporateKyc.fatfQ2' | translate }}</label>
+            <select class="ckyc-field max-w-xs mt-1" [ngModel]="fatfQ2()" (ngModelChange)="fatfQ2.set($event)" name="fatfQ2">
+              <option value="">{{ 'corporateKyc.selectPlaceholder' | translate }}</option>
+              <option value="No">{{ 'individualKyc.no' | translate }}</option>
+              <option value="Yes">{{ 'individualKyc.yes' | translate }}</option>
+            </select>
+          </div>
+          <p class="text-sm text-slate-600 dark:text-slate-400">{{ 'corporateKyc.pepBlockIntro' | translate }}</p>
+          <div>
+            <p class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-2">{{ 'corporateKyc.pepAfterScreening' | translate }}</p>
+            <div class="flex gap-6">
+              <label class="inline-flex items-center gap-2 text-sm">
+                <input type="radio" name="pepAfter" value="Yes" [ngModel]="pepAfterScreening()" (ngModelChange)="pepAfterScreening.set($event)" />
+                {{ 'individualKyc.yes' | translate }}
+              </label>
+              <label class="inline-flex items-center gap-2 text-sm">
+                <input type="radio" name="pepAfter" value="No" [ngModel]="pepAfterScreening()" (ngModelChange)="pepAfterScreening.set($event)" />
+                {{ 'individualKyc.no' | translate }}
+              </label>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Section 12 -->
+    <div class="rounded-lg overflow-hidden shadow-sm">
+      <button type="button" class="ckyc-section-header" (click)="toggleSection(12)">
+        <span>{{ 'corporateKyc.section12' | translate }}</span>
+        <span aria-hidden="true">{{ isExpanded(12) ? '▴' : '▾' }}</span>
+      </button>
+      @if (isExpanded(12)) {
+        <div class="ckyc-section-body">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="ckyc-label">{{ 'corporateKyc.followUpDate' | translate }}</label>
+              <input type="date" class="ckyc-field" [ngModel]="followUpDate()" (ngModelChange)="followUpDate.set($event)" name="followUpDate" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="ckyc-label">{{ 'corporateKyc.followUpRemarks' | translate }}</label>
+              <input type="text" class="ckyc-field" [ngModel]="followUpRemarks()" (ngModelChange)="followUpRemarks.set($event)" name="followUpRemarks" />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Section 13 -->
+    <div class="rounded-lg overflow-hidden shadow-sm">
+      <div class="ckyc-section-header !cursor-default">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span>{{ 'corporateKyc.section13' | translate }}</span>
+          <button type="button" class="ckyc-btn-teal" (click)="addDocument()">{{ 'corporateKyc.add' | translate }}</button>
+        </div>
+        <button type="button" class="bg-white/20 rounded px-2 py-0.5" (click)="toggleSection(13)">{{ isExpanded(13) ? '▴' : '▾' }}</button>
+      </div>
+      @if (isExpanded(13)) {
+        <div class="ckyc-section-body space-y-4">
+          @for (drow of documentRows(); track $index; let di = $index) {
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+              <div class="md:col-span-2">
+                <label class="ckyc-label">{{ 'corporateKyc.documentNo' | translate }}</label>
+                <input type="text" class="ckyc-field text-sm" [ngModel]="drow.documentNo" (ngModelChange)="patchDocument(di, 'documentNo', $event)" [name]="'docNo' + di" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="ckyc-label">{{ 'corporateKyc.issuedDate' | translate }}</label>
+                <input type="date" class="ckyc-field text-sm" [ngModel]="drow.issuedDate" (ngModelChange)="patchDocument(di, 'issuedDate', $event)" [name]="'docIss' + di" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="ckyc-label">{{ 'corporateKyc.expiryDate' | translate }}</label>
+                <input type="date" class="ckyc-field text-sm" [ngModel]="drow.expiryDate" (ngModelChange)="patchDocument(di, 'expiryDate', $event)" [name]="'docExp' + di" />
+              </div>
+              <div class="md:col-span-4">
+                <label class="ckyc-label">{{ 'corporateKyc.document' | translate }}</label>
+                <input type="file" class="ckyc-field text-sm py-1" (change)="onDocFile($event, di)" [name]="'docFile' + di" />
+                <span class="text-xs text-slate-500">{{ drow.selectedFile?.name ?? drow.existingFileName ?? ('corporateKyc.noFileChosen' | translate) }}</span>
+              </div>
+              <div class="md:col-span-2 flex justify-end">
+                <button type="button" class="ckyc-btn-muted" (click)="removeDocument(di)">{{ 'corporateKyc.remove' | translate }}</button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="ckyc-label">{{ 'corporateKyc.folderPathSavedDocs' | translate }}</label>
+          <input type="text" class="ckyc-field" [ngModel]="folderPath()" (ngModelChange)="folderPath.set($event)" name="folderPath" />
+        </div>
+        <div>
+          <label class="ckyc-label">{{ 'corporateKyc.approvedBy' | translate }}</label>
+          <input type="text" class="ckyc-field" [ngModel]="approvedBy()" (ngModelChange)="approvedBy.set($event)" name="approvedBy" />
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+          <input type="checkbox" [ngModel]="validateSharePct()" (ngModelChange)="validateSharePct.set($event)" name="validateSharePct" />
+          {{ 'corporateKyc.validateSharePercentage' | translate }}
+        </label>
+        <button type="submit" class="ckyc-btn-primary px-8 py-3 text-base rounded-xl" [disabled]="submitting()">{{ 'corporateKyc.submit' | translate }}</button>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 p-4">
+      <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">{{ 'corporateKyc.ownershipStructure' | translate }}</h3>
+      <div class="ckyc-ownership-bar">{{ ownershipTotal() }}</div>
+    </div>
+  </form>
+</div>

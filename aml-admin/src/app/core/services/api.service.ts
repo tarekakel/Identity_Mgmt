@@ -45,7 +45,8 @@ import type {
   UpsertMasterLookupRequest,
   BulkUploadKind,
   InstantSanctionScreeningSearchRequest,
-  InstantSanctionScreeningResultItem
+  InstantSanctionScreeningResultItem,
+  CustomerDashboardKpisDto
 } from '../../shared/models/api.model';
 
 const BASE = environment.apiUrl;
@@ -87,6 +88,10 @@ export class ApiService {
   }
   getSourceOfFunds(): Observable<ApiResponse<SourceOfFundsDto[]>> {
     return this.http.get<ApiResponse<SourceOfFundsDto[]>>(`${BASE}/api/Lookups/source-of-funds`);
+  }
+
+  getCustomerDashboardKpis(): Observable<ApiResponse<CustomerDashboardKpisDto>> {
+    return this.http.get<ApiResponse<CustomerDashboardKpisDto>>(`${BASE}/api/dashboard/customer-kpis`);
   }
 
   getCustomers(req: PagedRequest): Observable<ApiResponse<PagedResult<CustomerDto>>> {

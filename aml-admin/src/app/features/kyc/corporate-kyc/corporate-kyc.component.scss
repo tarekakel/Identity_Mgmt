@@ -1,0 +1,134 @@
+:host {
+  display: block;
+}
+
+.ckyc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
+  text-align: left;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(90deg, #0056b3 0%, #00a8b5 100%);
+}
+
+.ckyc-section-header:hover {
+  filter: brightness(1.05);
+}
+
+.ckyc-section-body {
+  border: 1px solid rgb(226 232 240);
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  padding: 1rem;
+  background: rgb(240 249 255 / 0.45);
+}
+
+:host-context(.dark) .ckyc-section-body {
+  border-color: rgb(51 65 85);
+  background: rgb(15 23 42 / 0.4);
+}
+
+.ckyc-field {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(203 213 225);
+  background: white;
+  color: rgb(15 23 42);
+}
+
+:host-context(.dark) .ckyc-field {
+  border-color: rgb(71 85 105);
+  background: rgb(30 41 59);
+  color: rgb(241 245 249);
+}
+
+.ckyc-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: rgb(51 65 85);
+}
+
+:host-context(.dark) .ckyc-label {
+  color: rgb(203 213 225);
+}
+
+.ckyc-btn-primary {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: #00a8b5;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.ckyc-btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.ckyc-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ckyc-btn-teal {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  background: #00a8b5;
+  color: white;
+  font-size: 0.75rem;
+  border: none;
+  cursor: pointer;
+}
+
+.ckyc-btn-muted {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  background: rgb(148 163 184);
+  color: white;
+  font-size: 0.75rem;
+  border: none;
+  cursor: pointer;
+}
+
+.ckyc-link {
+  font-size: 0.875rem;
+  color: #0056b3;
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+:host-context(.dark) .ckyc-link {
+  color: #38bdf8;
+}
+
+.ckyc-ownership-bar {
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  background: rgb(226 232 240);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: rgb(51 65 85);
+}
+
+:host-context(.dark) .ckyc-ownership-bar {
+  background: rgb(51 65 85);
+  color: rgb(226 232 240);
+}

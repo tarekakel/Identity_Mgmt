@@ -30,6 +30,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<ISanctionsScreeningService, SanctionsScreeningService>();
         services.AddScoped<IRunSanctionsScreeningService, RunSanctionsScreeningService>();
         services.AddScoped<IInstantSanctionScreeningService, InstantSanctionScreeningService>();
@@ -48,6 +49,8 @@ public static class DependencyInjection
         services.AddScoped<ICustomerDocumentService, CustomerDocumentService>();
         services.AddScoped<IIndividualKycService, IndividualKycService>();
         services.AddScoped<IIndividualKycDocumentService, IndividualKycDocumentService>();
+        services.AddScoped<ICorporateKycService, CorporateKycService>();
+        services.AddScoped<ICorporateKycDocumentService, CorporateKycDocumentService>();
         services.AddScoped<IUnConsolidatedListParser, UnConsolidatedListParser>();
         services.AddScoped<IUaeSanctionListParser, UaeSanctionListParser>();
         services.AddScoped<ISanctionListUploadService, SanctionListUploadService>();
@@ -57,4 +60,3 @@ public static class DependencyInjection
         return services;
     }
 }
-

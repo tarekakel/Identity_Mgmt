@@ -59,11 +59,24 @@ export const routes: Routes = [
       },
       {
         path: 'kyc',
-        loadComponent: () => import('./features/kyc/kyc/kyc.component').then((m) => m.KycComponent)
+        pathMatch: 'full',
+        redirectTo: '/kyc/individual'
+      },
+      {
+        path: 'kyc/individual',
+        loadComponent: () => import('./features/kyc/individual-kyc/individual-kyc.component').then((m) => m.IndividualKycComponent)
       },
       {
         path: 'kyc/individual/:customerId',
         loadComponent: () => import('./features/kyc/individual-kyc/individual-kyc.component').then((m) => m.IndividualKycComponent)
+      },
+      {
+        path: 'kyc/corporate',
+        loadComponent: () => import('./features/kyc/corporate-kyc/corporate-kyc.component').then((m) => m.CorporateKycComponent)
+      },
+      {
+        path: 'kyc/corporate/:customerId',
+        loadComponent: () => import('./features/kyc/corporate-kyc/corporate-kyc.component').then((m) => m.CorporateKycComponent)
       },
       {
         path: 'case-management',

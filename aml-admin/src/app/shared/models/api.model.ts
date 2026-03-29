@@ -21,6 +21,16 @@ export interface PagedRequest {
   searchTerm?: string;
 }
 
+export interface CustomerDashboardKpisDto {
+  totalCustomers: number;
+  autoApproved: number;
+  approved: number;
+  rejected: number;
+  pendingMaker: number;
+  pendingChecker: number;
+  pendingScheduler: number;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -297,6 +307,42 @@ export interface UploadIndividualKycDocumentRequest {
   folderPath?: string | null;
 }
 
+
+export interface CorporateKycDto {
+  id: string;
+  tenantId: string;
+  customerId: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  formPayload: Record<string, unknown> | null;
+}
+
+export interface UpsertCorporateKycRequest {
+  tenantId: string;
+  formPayload: Record<string, unknown>;
+}
+
+export interface CorporateKycDocumentDto {
+  id: string;
+  corporateKycId: string;
+  customerId: string;
+  documentNo?: string | null;
+  issuedDate?: string | null;
+  expiryDate?: string | null;
+  approvedBy?: string | null;
+  folderPath?: string | null;
+  fileName: string;
+  uploadedDate: string;
+  uploadedBy?: string | null;
+}
+
+export interface UploadCorporateKycDocumentRequest {
+  documentNo?: string | null;
+  issuedDate?: string | null;
+  expiryDate?: string | null;
+  approvedBy?: string | null;
+  folderPath?: string | null;
+}
 export interface CustomerDto {
   id: string;
   tenantId: string;
@@ -803,7 +849,7 @@ export interface AuditLogDto {
   isDeleted?: boolean;
 }
 
-/** Individual bulk upload – report row (matches upload dialog columns). */
+/** Individual bulk upload â€“ report row (matches upload dialog columns). */
 export interface IndividualBulkUploadReportRow {
   customerId: string;
   fullName: string;
@@ -841,7 +887,7 @@ export interface IndividualBulkUploadLineDetailDto {
   date: string;
 }
 
-/** Corporate bulk upload – report row */
+/** Corporate bulk upload â€“ report row */
 export interface CorporateBulkUploadReportRow {
   customerId: string;
   entityName: string;

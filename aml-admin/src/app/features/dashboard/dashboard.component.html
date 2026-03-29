@@ -1,5 +1,84 @@
 <div class="space-y-6 animate-fade-in">
   <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ 'app.dashboard' | translate }}</h1>
+
+  @if (loading()) {
+    <p class="text-slate-600 dark:text-slate-400">{{ 'app.dashboardKpis.loading' | translate }}</p>
+  } @else if (errorKey()) {
+    <p class="text-red-600 dark:text-red-400">{{ errorKey()! | translate }}</p>
+  } @else {
+    @if (kpis(); as k) {
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div
+        class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
+      >
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {{ 'app.dashboardKpis.totalCustomers' | translate }}
+        </p>
+        <p class="mt-1 text-2xl font-bold text-slate-800 dark:text-slate-100 tabular-nums">{{ k.totalCustomers }}</p>
+      </div>
+      <div
+        class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
+      >
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {{ 'app.dashboardKpis.autoApproved' | translate }}
+        </p>
+        <p class="mt-1 text-2xl font-bold text-indigo-600 dark:text-indigo-400 tabular-nums">{{ k.autoApproved }}</p>
+      </div>
+      <div
+        class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
+      >
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {{ 'app.dashboardKpis.approved' | translate }}
+        </p>
+        <p class="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{{ k.approved }}</p>
+      </div>
+      <div
+        class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
+      >
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {{ 'app.dashboardKpis.rejected' | translate }}
+        </p>
+        <p class="mt-1 text-2xl font-bold text-red-600 dark:text-red-400 tabular-nums">{{ k.rejected }}</p>
+      </div>
+      <div
+        class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
+      >
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {{ 'app.dashboardKpis.pendingMaker' | translate }}
+        </p>
+        <p class="mt-1 text-2xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{{ k.pendingMaker }}</p>
+      </div>
+      <div
+        class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
+      >
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {{ 'app.dashboardKpis.pendingChecker' | translate }}
+        </p>
+        <p class="mt-1 text-2xl font-bold text-violet-600 dark:text-violet-400 tabular-nums">{{ k.pendingChecker }}</p>
+      </div>
+      <div
+        class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
+      >
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {{ 'app.dashboardKpis.pendingScheduler' | translate }}
+        </p>
+        <p class="mt-1 text-2xl font-bold text-cyan-600 dark:text-cyan-400 tabular-nums">{{ k.pendingScheduler }}</p>
+      </div>
+    </div>
+
+    <div class="p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+      <h2 class="font-semibold text-slate-800 dark:text-slate-100 mb-4">{{ 'app.dashboardKpis.chartTitle' | translate }}</h2>
+      @if (k.totalCustomers === 0) {
+        <p class="text-slate-600 dark:text-slate-400">{{ 'app.dashboardKpis.noData' | translate }}</p>
+      } @else {
+        <div class="h-72 max-w-lg mx-auto">
+          <canvas baseChart [type]="chartType" [data]="chartData()" [options]="chartOptions()"></canvas>
+        </div>
+      }
+    </div>
+    }
+  }
+
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <a
       routerLink="/customers"

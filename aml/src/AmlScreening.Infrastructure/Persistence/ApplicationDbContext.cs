@@ -1,4 +1,4 @@
-using AmlScreening.Application.Interfaces;
+﻿using AmlScreening.Application.Interfaces;
 using AmlScreening.Domain.Entities;
 using AmlScreening.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +37,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<CorporateScreeningShareholderDocument> CorporateScreeningShareholderDocuments => Set<CorporateScreeningShareholderDocument>();
     public DbSet<IndividualKyc> IndividualKyc => Set<IndividualKyc>();
     public DbSet<IndividualKycDocument> IndividualKycDocuments => Set<IndividualKycDocument>();
+    public DbSet<CorporateKyc> CorporateKyc => Set<CorporateKyc>();
+    public DbSet<CorporateKycDocument> CorporateKycDocuments => Set<CorporateKycDocument>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<IndividualBulkUploadBatch> IndividualBulkUploadBatches => Set<IndividualBulkUploadBatch>();
     public DbSet<IndividualBulkUploadLine> IndividualBulkUploadLines => Set<IndividualBulkUploadLine>();
@@ -56,6 +58,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<CorporateScreeningRequest>().HasQueryFilter(e => !e.IsDeleted && !e.Customer!.IsDeleted);
         modelBuilder.Entity<IndividualKyc>().HasQueryFilter(e => !e.IsDeleted && !e.Customer!.IsDeleted);
         modelBuilder.Entity<IndividualKycDocument>().HasQueryFilter(d => !d.IsDeleted && d.IndividualKyc != null && !d.IndividualKyc!.IsDeleted && !d.IndividualKyc.Customer!.IsDeleted);
+        modelBuilder.Entity<CorporateKyc>().HasQueryFilter(e => !e.IsDeleted && !e.Customer!.IsDeleted);
+        modelBuilder.Entity<CorporateKycDocument>().HasQueryFilter(d => !d.IsDeleted && d.CorporateKyc != null && !d.CorporateKyc!.IsDeleted && !d.CorporateKyc.Customer!.IsDeleted);
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<IndividualBulkUploadBatch>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<IndividualBulkUploadLine>().HasQueryFilter(e => !e.IsDeleted && !e.Batch!.IsDeleted);
