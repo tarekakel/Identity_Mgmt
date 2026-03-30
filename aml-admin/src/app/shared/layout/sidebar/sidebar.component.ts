@@ -118,6 +118,8 @@ export class SidebarComponent implements OnInit {
       items: [
         { labelKey: 'nav.mastersOverview', route: '/masters', icon: '📋', exact: true },
         { labelKey: 'masters.segments.countries', route: '/masters/countries', icon: '🌍' },
+        { labelKey: 'masters.segments.emirates', route: '/masters/emirates', icon: '🏙' },
+        { labelKey: 'masters.segments.residenceStatuses', route: '/masters/residence-statuses', icon: '📍' },
         { labelKey: 'masters.segments.nationalities', route: '/masters/nationalities', icon: '🏳' },
         { labelKey: 'masters.segments.genders', route: '/masters/genders', icon: '⚥' },
         { labelKey: 'masters.segments.customerTypes', route: '/masters/customer-types', icon: '👥' },

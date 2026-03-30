@@ -43,6 +43,9 @@ import type {
   CorporateBulkUploadBatchListItemDto,
   CorporateBulkUploadLineDetailDto,
   UpsertMasterLookupRequest,
+  UpsertEmirateRequest,
+  EmirateDto,
+  ResidenceStatusDto,
   BulkUploadKind,
   InstantSanctionScreeningSearchRequest,
   InstantSanctionScreeningResultItem,
@@ -342,6 +345,32 @@ export class ApiService {
 
   deleteMasterLookup(segment: string, id: string): Observable<ApiResponse> {
     return this.http.delete<ApiResponse>(`${BASE}/api/MasterLookups/${segment}/${id}`);
+  }
+
+  getEmirates(countryId?: string): Observable<ApiResponse<EmirateDto[]>> {
+    let params = new HttpParams();
+    if (countryId?.trim()) params = params.set('countryId', countryId.trim());
+    return this.http.get<ApiResponse<EmirateDto[]>>(`${BASE}/api/MasterLookups/emirates`, { params });
+  }
+
+  getEmirate(id: string): Observable<ApiResponse<EmirateDto>> {
+    return this.http.get<ApiResponse<EmirateDto>>(`${BASE}/api/MasterLookups/emirates/${id}`);
+  }
+
+  createEmirate(body: UpsertEmirateRequest): Observable<ApiResponse<EmirateDto>> {
+    return this.http.post<ApiResponse<EmirateDto>>(`${BASE}/api/MasterLookups/emirates`, body);
+  }
+
+  updateEmirate(id: string, body: UpsertEmirateRequest): Observable<ApiResponse<EmirateDto>> {
+    return this.http.put<ApiResponse<EmirateDto>>(`${BASE}/api/MasterLookups/emirates/${id}`, body);
+  }
+
+  deleteEmirate(id: string): Observable<ApiResponse> {
+    return this.http.delete<ApiResponse>(`${BASE}/api/MasterLookups/emirates/${id}`);
+  }
+
+  getResidenceStatuses(): Observable<ApiResponse<ResidenceStatusDto[]>> {
+    return this.http.get<ApiResponse<ResidenceStatusDto[]>>(`${BASE}/api/MasterLookups/residence-statuses`);
   }
 
   searchInstantSanctionScreening(

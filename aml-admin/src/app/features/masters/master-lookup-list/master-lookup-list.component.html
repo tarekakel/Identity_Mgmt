@@ -23,11 +23,14 @@
   </div>
   @if (loading()) {
     <app-loader [message]="'common.loading' | translate" />
-  } @else {
+  } @else if (segment() === 'countries') {
     <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto overflow-y-hidden bg-white dark:bg-slate-800 w-full">
       <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
         <thead class="bg-slate-50 dark:bg-slate-700/50">
           <tr>
+            <th class="w-12 px-2 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase" scope="col">
+              <span class="sr-only">{{ 'masters.expandEmirates' | translate }}</span>
+            </th>
             <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'masters.code' | translate }}</th>
             <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'masters.name' | translate }}</th>
             <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'common.actions' | translate }}</th>
@@ -36,6 +39,103 @@
         <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
           @for (row of filteredList(); track row.id) {
             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+              <td class="px-2 py-3 align-top">
+                <button
+                  type="button"
+                  (click)="toggleCountryEmirates(row.id)"
+                  class="p-1 rounded text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600"
+                  [attr.aria-expanded]="expandedCountryId() === row.id"
+                  [attr.aria-label]="'masters.expandEmirates' | translate"
+                >
+                  {{ expandedCountryId() === row.id ? '▼' : '▶' }}
+                </button>
+              </td>
+              <td class="px-4 py-3 text-slate-800 dark:text-slate-100 text-sm font-mono">{{ row.code }}</td>
+              <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ row.name }}</td>
+              <td class="px-4 py-3 flex gap-2">
+                <a [routerLink]="['/masters', 'countries', row.id, 'edit']" class="text-slate-600 dark:text-slate-400 hover:underline">{{ 'common.edit' | translate }}</a>
+                <button type="button" (click)="deleteRow(row.id)" class="text-red-600 dark:text-red-400 hover:underline">{{ 'common.delete' | translate }}</button>
+              </td>
+            </tr>
+            @if (expandedCountryId() === row.id) {
+              <tr class="bg-slate-50/80 dark:bg-slate-900/40">
+                <td colspan="4" class="px-4 py-4 border-t border-slate-200 dark:border-slate-600">
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ 'masters.segments.emirates' | translate }}</span>
+                    <a
+                      [routerLink]="['/masters', 'emirates', 'new']"
+                      [queryParams]="{ countryId: row.id }"
+                      class="px-3 py-1.5 rounded-lg bg-slate-600 dark:bg-slate-500 text-white text-sm hover:bg-slate-500 dark:hover:bg-slate-400 transition"
+                    >
+                      {{ 'masters.addEmirateForCountry' | translate }}
+                    </a>
+                  </div>
+                  @if (emiratesLoadingCountryId() === row.id) {
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'common.loading' | translate }}</p>
+                  } @else if (emiratesForExpandedCountry().length === 0) {
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'common.noData' | translate }}</p>
+                  } @else {
+                    <div class="rounded-lg border border-slate-200 dark:border-slate-600 overflow-x-auto">
+                      <table class="min-w-full text-sm">
+                        <thead class="bg-slate-100 dark:bg-slate-800/80">
+                          <tr>
+                            <th class="px-3 py-2 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'masters.code' | translate }}</th>
+                            <th class="px-3 py-2 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'masters.name' | translate }}</th>
+                            <th class="px-3 py-2 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'common.actions' | translate }}</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                          @for (em of emiratesForExpandedCountry(); track em.id) {
+                            <tr>
+                              <td class="px-3 py-2 font-mono text-slate-800 dark:text-slate-100">{{ em.code }}</td>
+                              <td class="px-3 py-2 text-slate-800 dark:text-slate-100">{{ em.name }}</td>
+                              <td class="px-3 py-2 flex gap-2">
+                                <a [routerLink]="['/masters', 'emirates', em.id, 'edit']" class="text-slate-600 dark:text-slate-400 hover:underline">{{ 'common.edit' | translate }}</a>
+                                <button
+                                  type="button"
+                                  (click)="deleteEmirateUnderCountry(em.id, row.id)"
+                                  class="text-red-600 dark:text-red-400 hover:underline"
+                                >
+                                  {{ 'common.delete' | translate }}
+                                </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+      @if (filteredList().length === 0) {
+        <p class="p-6 text-center text-slate-500 dark:text-slate-400">{{ 'common.noData' | translate }}</p>
+      }
+    </div>
+  } @else {
+    <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto overflow-y-hidden bg-white dark:bg-slate-800 w-full">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+        <thead class="bg-slate-50 dark:bg-slate-700/50">
+          <tr>
+            @if (segment() === 'emirates') {
+              <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'masters.country' | translate }}</th>
+            }
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'masters.code' | translate }}</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'masters.name' | translate }}</th>
+            <th class="px-4 py-3 text-start text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">{{ 'common.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          @for (row of filteredList(); track row.id) {
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+              @if (segment() === 'emirates' && $any(row).countryName) {
+                <td class="px-4 py-3 text-slate-800 dark:text-slate-100 text-sm">{{ $any(row).countryName }}</td>
+              } @else if (segment() === 'emirates') {
+                <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-sm">—</td>
+              }
               <td class="px-4 py-3 text-slate-800 dark:text-slate-100 text-sm font-mono">{{ row.code }}</td>
               <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ row.name }}</td>
               <td class="px-4 py-3 flex gap-2">

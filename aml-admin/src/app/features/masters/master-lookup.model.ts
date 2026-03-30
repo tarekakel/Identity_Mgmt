@@ -7,7 +7,9 @@ export const MASTER_LOOKUP_SEGMENTS = [
   'customer-statuses',
   'document-types',
   'occupations',
-  'source-of-funds'
+  'source-of-funds',
+  'emirates',
+  'residence-statuses'
 ] as const;
 
 export type MasterLookupSegment = (typeof MASTER_LOOKUP_SEGMENTS)[number];

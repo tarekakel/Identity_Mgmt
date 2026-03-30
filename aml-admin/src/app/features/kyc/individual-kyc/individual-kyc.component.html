@@ -208,12 +208,16 @@
 
         <div>
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Place of Birth</label>
-          <input
-            type="text"
-            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-            [ngModel]="applicantCountryOfBirth()"
-            (ngModelChange)="applicantCountryOfBirth.set($event)"
-          />
+          <select
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 cursor-not-allowed"
+            [ngModel]="applicantPlaceOfBirthCountryId()"
+            disabled
+          >
+            <option value="">{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (c of countries(); track c.id) {
+              <option [value]="c.id">{{ c.name }}</option>
+            }
+          </select>
         </div>
 
         <div>
@@ -228,22 +232,30 @@
 
         <div>
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Residence Status</label>
-          <input
-            type="text"
+          <select
             class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-            [ngModel]="applicantResidenceStatus()"
-            (ngModelChange)="applicantResidenceStatus.set($event)"
-          />
+            [ngModel]="applicantResidenceStatusId()"
+            (ngModelChange)="applicantResidenceStatusId.set($event)"
+          >
+            <option value="" disabled>{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (r of residenceStatuses(); track r.id) {
+              <option [value]="r.id">{{ r.name }}</option>
+            }
+          </select>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Emirate</label>
-          <input
-            type="text"
+          <select
             class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-            [ngModel]="applicantEmirate()"
-            (ngModelChange)="applicantEmirate.set($event)"
-          />
+            [ngModel]="applicantEmirateId()"
+            (ngModelChange)="applicantEmirateId.set($event)"
+          >
+            <option value="">{{ 'individualKyc.selectPlaceholder' | translate }}</option>
+            @for (e of emirates(); track e.id) {
+              <option [value]="e.id">{{ e.name }}</option>
+            }
+          </select>
         </div>
 
         <div>

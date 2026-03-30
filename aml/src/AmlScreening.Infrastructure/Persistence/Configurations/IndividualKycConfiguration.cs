@@ -24,9 +24,6 @@ public class IndividualKycConfiguration : IEntityTypeConfiguration<IndividualKyc
         builder.Property(e => e.ApplicantName).HasMaxLength(256).IsRequired();
         builder.Property(e => e.ApplicantAliases).HasMaxLength(256);
         builder.Property(e => e.ApplicantMobileNo).HasMaxLength(64);
-        builder.Property(e => e.ApplicantResidenceStatus).HasMaxLength(128);
-        builder.Property(e => e.ApplicantEmirate).HasMaxLength(128);
-        builder.Property(e => e.ApplicantCountryOfBirth).HasMaxLength(128);
         builder.Property(e => e.ApplicantCity).HasMaxLength(128);
         builder.Property(e => e.ApplicantEmail).HasMaxLength(256);
         builder.Property(e => e.ApplicantResidentialAddress).HasMaxLength(1000);
@@ -80,6 +77,21 @@ public class IndividualKycConfiguration : IEntityTypeConfiguration<IndividualKyc
             .WithMany()
             .HasForeignKey(e => e.CustomerId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(e => e.ApplicantResidenceStatus)
+            .WithMany()
+            .HasForeignKey(e => e.ApplicantResidenceStatusId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.ApplicantEmirate)
+            .WithMany()
+            .HasForeignKey(e => e.ApplicantEmirateId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.ApplicantPlaceOfBirthCountry)
+            .WithMany()
+            .HasForeignKey(e => e.ApplicantPlaceOfBirthCountryId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

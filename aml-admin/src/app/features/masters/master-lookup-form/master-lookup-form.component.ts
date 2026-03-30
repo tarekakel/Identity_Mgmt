@@ -29,6 +29,8 @@ export class MasterLookupFormComponent implements OnInit {
   editId = signal<string | null>(null);
   code = signal('');
   name = signal('');
+  countryId = signal('');
+  countries = signal<CountryDto[]>([]);
   loading = signal(true);
   saving = signal(false);
   error = signal<string | null>(null);
@@ -52,7 +54,32 @@ export class MasterLookupFormComponent implements OnInit {
         this.editId.set(null);
         this.code.set('');
         this.name.set('');
+        this.countryId.set('');
+        if (s === 'emirates') {
+          this.loadCountriesThenIdle();
+        } else {
+          this.loading.set(false);
+        }
+      }
+    });
+  }
+
+  private loadCountriesThenIdle(): void {
+    this.loading.set(true);
+    this.api.getCountries().subscribe({
+      next: (res) => {
         this.loading.set(false);
+        if (res.success && res.data) {
+          this.countries.set(res.data);
+          const q = this.route.snapshot.queryParamMap.get('countryId')?.trim();
+          if (q && res.data.some((c) => c.id === q)) {
+            this.countryId.set(q);
+          }
+        } else this.notification.error(res.message ?? this.translate.instant('common.errorGeneric'));
+      },
+      error: () => {
+        this.loading.set(false);
+        this.notification.error(this.translate.instant('common.errorGeneric'));
       }
     });
   }
@@ -68,7 +95,9 @@ export class MasterLookupFormComponent implements OnInit {
       'customer-statuses': 'masters.segments.customerStatuses',
       'document-types': 'masters.segments.documentTypes',
       occupations: 'masters.segments.occupations',
-      'source-of-funds': 'masters.segments.sourceOfFunds'
+      'source-of-funds': 'masters.segments.sourceOfFunds',
+      emirates: 'masters.segments.emirates',
+      'residence-statuses': 'masters.segments.residenceStatuses'
     };
     return keys[seg];
   }
@@ -77,6 +106,34 @@ export class MasterLookupFormComponent implements OnInit {
     const seg = this.segment();
     if (!seg) return;
     this.loading.set(true);
+    if (seg === 'emirates') {
+      this.api.getCountries().subscribe({
+        next: (cres) => {
+          if (cres.success && cres.data) this.countries.set(cres.data);
+          this.api.getEmirate(id).subscribe({
+            next: (res) => {
+              this.loading.set(false);
+              if (res.success && res.data) {
+                this.code.set(res.data.code);
+                this.name.set(res.data.name);
+                this.countryId.set(res.data.countryId);
+              } else {
+                this.error.set(res.message ?? this.translate.instant('common.errorGeneric'));
+              }
+            },
+            error: () => {
+              this.loading.set(false);
+              this.error.set(this.translate.instant('common.errorGeneric'));
+            }
+          });
+        },
+        error: () => {
+          this.loading.set(false);
+          this.error.set(this.translate.instant('common.errorGeneric'));
+        }
+      });
+      return;
+    }
     this.api.getMasterLookup(seg, id).subscribe({
       next: (res: ApiResponse<CountryDto>) => {
         this.loading.set(false);
@@ -99,6 +156,34 @@ export class MasterLookupFormComponent implements OnInit {
     if (!seg) return;
     const c = this.code().trim();
     const n = this.name().trim();
+    if (seg === 'emirates') {
+      const cid = this.countryId().trim();
+      if (!cid || !c || !n) {
+        this.notification.error(this.translate.instant('masters.emirateCountryCodeNameRequired'));
+        return;
+      }
+      this.saving.set(true);
+      this.error.set(null);
+      const payload = { countryId: cid, code: c, name: n };
+      const id = this.editId();
+      const req$ = id ? this.api.updateEmirate(id, payload) : this.api.createEmirate(payload);
+      req$.subscribe({
+        next: (res) => {
+          this.saving.set(false);
+          if (res.success) {
+            this.notification.success(this.translate.instant('common.saveSuccess'));
+            void this.router.navigate(['/masters', seg]);
+          } else {
+            this.notification.error(res.message ?? this.translate.instant('common.errorGeneric'));
+          }
+        },
+        error: (err) => {
+          this.saving.set(false);
+          this.notification.error(err?.error?.message ?? this.translate.instant('common.errorGeneric'));
+        }
+      });
+      return;
+    }
     if (!c || !n) {
       this.notification.error(this.translate.instant('masters.codeNameRequired'));
       return;

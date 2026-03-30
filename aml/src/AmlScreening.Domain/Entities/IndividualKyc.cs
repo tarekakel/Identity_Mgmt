@@ -25,9 +25,9 @@ public class IndividualKyc : IEntity, IAuditable, ISoftDelete, ITenantEntity
     public bool? ApplicantDualNationality { get; set; }
     public Guid? ApplicantGenderId { get; set; }
     public DateTime? ApplicantDateOfBirth { get; set; }
-    public string? ApplicantResidenceStatus { get; set; }
-    public string? ApplicantEmirate { get; set; }
-    public string? ApplicantCountryOfBirth { get; set; }
+    public Guid? ApplicantResidenceStatusId { get; set; }
+    public Guid? ApplicantEmirateId { get; set; }
+    public Guid? ApplicantPlaceOfBirthCountryId { get; set; }
     public string? ApplicantCity { get; set; }
     public string? ApplicantEmail { get; set; }
     public string? ApplicantResidentialAddress { get; set; }
@@ -96,6 +96,10 @@ public class IndividualKyc : IEntity, IAuditable, ISoftDelete, ITenantEntity
     // 7) Follow-up document details
     public DateTime? FollowUpDate { get; set; }
     public string? FollowUpRemarks { get; set; }
+
+    public ResidenceStatus? ApplicantResidenceStatus { get; set; }
+    public Emirate? ApplicantEmirate { get; set; }
+    public Country? ApplicantPlaceOfBirthCountry { get; set; }
 
     public Customer Customer { get; set; } = null!;
 }

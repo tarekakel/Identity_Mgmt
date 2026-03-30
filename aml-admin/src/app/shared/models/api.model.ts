@@ -92,6 +92,27 @@ export interface SourceOfFundsDto {
   name: string;
 }
 
+export interface ResidenceStatusDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface EmirateDto {
+  id: string;
+  countryId: string;
+  countryName?: string | null;
+  code: string;
+  name: string;
+}
+
+/** Body for POST/PUT /api/MasterLookups/emirates */
+export interface UpsertEmirateRequest {
+  countryId: string;
+  code: string;
+  name: string;
+}
+
 /** Body for POST/PUT /api/MasterLookups/{segment} */
 export interface UpsertMasterLookupRequest {
   code: string;
@@ -126,9 +147,9 @@ export interface IndividualKycDto {
   applicantDualNationality?: boolean | null;
   applicantGenderId?: string | null;
   applicantDateOfBirth?: string | null;
-  applicantResidenceStatus?: string | null;
-  applicantEmirate?: string | null;
-  applicantCountryOfBirth?: string | null;
+  applicantResidenceStatusId?: string | null;
+  applicantEmirateId?: string | null;
+  applicantPlaceOfBirthCountryId?: string | null;
   applicantCity?: string | null;
   applicantEmail?: string | null;
   applicantResidentialAddress?: string | null;
@@ -210,9 +231,9 @@ export interface UpsertIndividualKycRequest {
   applicantDualNationality?: boolean | null;
   applicantGenderId?: string | null;
   applicantDateOfBirth?: string | null;
-  applicantResidenceStatus?: string | null;
-  applicantEmirate?: string | null;
-  applicantCountryOfBirth?: string | null;
+  applicantResidenceStatusId?: string | null;
+  applicantEmirateId?: string | null;
+  applicantPlaceOfBirthCountryId?: string | null;
   applicantCity?: string | null;
   applicantEmail?: string | null;
   applicantResidentialAddress?: string | null;

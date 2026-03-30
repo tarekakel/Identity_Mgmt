@@ -139,6 +139,496 @@ namespace AmlScreening.Infrastructure.Migrations
                     b.ToTable("Cases", (string)null);
                 });
 
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateBulkUploadBatch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("CheckDisqualifiedDirectorUkOnly")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckInsolvencyUkIreland")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckPepUkOnly")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckProfileOfInterest")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckRegulatoryEnforcementList")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckReputationalRiskExposure")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckSanctions")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("FailedRowCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("MatchThreshold")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<int>("QueuedRowCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("ScreeningFinished")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TotalRowCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("CorporateBulkUploadBatches", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateBulkUploadLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyReferenceCode")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("DateOfIncorporationParsed")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DateOfIncorporationRaw")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("IncorporatedCountry")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("IncorporatedCountryResolvedCode")
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("LineIndex")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("QueuedForScreening")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TradeLicense")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId");
+
+                    b.ToTable("CorporateBulkUploadLines", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateKyc", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FormPayload")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("CustomerId", "IsActive");
+
+                    b.ToTable("CorporateKyc", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateKycDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid>("CorporateKycId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DocumentNo")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("FolderPath")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("IssuedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UploadedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("UploadedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorporateKycId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("CorporateKycDocuments", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateScreeningCompanyDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CorporateScreeningRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("DocumentNo")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("IssuedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorporateScreeningRequestId");
+
+                    b.ToTable("CorporateScreeningCompanyDocuments", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateScreeningRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<bool>("CheckDisqualifiedDirectorUkOnly")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckInsolvencyUkIreland")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckPepUkOnly")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckProfileOfInterest")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckRegulatoryEnforcementList")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckReputationalRiskExposure")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckSanctions")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CompanyCode")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DateOfRegistration")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("MatchThreshold")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TradeLicenceNo")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("CorporateScreeningRequests", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateScreeningShareholder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CorporateScreeningRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<Guid?>("NationalityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("SharePercent")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorporateScreeningRequestId");
+
+                    b.HasIndex("NationalityId");
+
+                    b.ToTable("CorporateScreeningShareholders", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateScreeningShareholderDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CorporateScreeningShareholderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("DocumentNo")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("IssuedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorporateScreeningShareholderId");
+
+                    b.ToTable("CorporateScreeningShareholderDocuments", (string)null);
+                });
+
             modelBuilder.Entity("AmlScreening.Domain.Entities.Country", b =>
                 {
                     b.Property<Guid>("Id")
@@ -161,6 +651,57 @@ namespace AmlScreening.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Countries", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.Emirate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("CountryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("Emirates", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.ResidenceStatus", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("ResidenceStatuses", (string)null);
                 });
 
             modelBuilder.Entity("AmlScreening.Domain.Entities.Customer", b =>
@@ -485,6 +1026,557 @@ namespace AmlScreening.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Genders", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.IndividualBulkUploadBatch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("CheckDisqualifiedDirectorUkOnly")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckInsolvencyUkIreland")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckPepUkOnly")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckProfileOfInterest")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckRegulatoryEnforcementList")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckReputationalRiskExposure")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CheckSanctions")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("FailedRowCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("MatchThreshold")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<int>("QueuedRowCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("ScreeningFinished")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TotalRowCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("IndividualBulkUploadBatches", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.IndividualBulkUploadLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyReferenceCode")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("DateOfBirthParsed")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DateOfBirthRaw")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("IdNumber")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("IdType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("LineIndex")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nationality")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("NationalityResolvedCode")
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<string>("PlaceOfBirth")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("QueuedForScreening")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId");
+
+                    b.ToTable("IndividualBulkUploadLines", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.IndividualKyc", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccountName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ApplicantAliases")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ApplicantCity")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ApplicantCustomerRelationship")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime?>("ApplicantDateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("ApplicantDualNationality")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ApplicantEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid?>("ApplicantEmirateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ApplicantGenderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApplicantIndustryType")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool?>("ApplicantIsProofOfSourceFundsObtained")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("ApplicantIsProofOfSourceWealthObtained")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ApplicantMobileNo")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("ApplicantName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid?>("ApplicantNationalityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ApplicantOccupationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ApplicantPlaceOfBirthCountryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApplicantOfficeNoBuildingNameStreetArea")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ApplicantPOBox")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("ApplicantPreferredChannel")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ApplicantProductType")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid?>("ApplicantResidenceStatusId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApplicantResidentialAddress")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ApplicantSourceOfFundsComments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("ApplicantSourceOfFundsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApplicantSourceOfFundsProofComments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ApplicantSourceOfWealth")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ApplicantSourceOfWealthComments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ApplicantSourceOfWealthProofComments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("BankAddress")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("BankCountryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BankCurrency")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("BankIbanAccountNo")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("BankName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("BankSwiftCode")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid?>("ClientCountryIssuanceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClientEmiratesIdNumber")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("ClientIdExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ClientIdNumber")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ClientIdTypeCode")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime?>("ClientPassportDateOfIssue")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ClientPassportNumber")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EmployerAddress")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("EmployerCompanyName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("EmployerCompanyWebsite")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("EmployerEmailAddress")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("EmployerIndustryAndBusinessDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("EmployerTelNo")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime?>("FollowUpDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FollowUpRemarks")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("PepAnyPEPsAfterScreeningAnswer")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("PepFATFIncreasedMonitoringAnswer")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("PepProminentPublicFunctionsAnswer")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("PepSanctionListOrInverseMediaAnswer")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("PepSpecificPEPsAfterScreeningDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("SponsorAliases")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime?>("SponsorDateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("SponsorDualNationality")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("SponsorGenderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SponsorIdNumber")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("SponsorIdTypeCode")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("SponsorName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid?>("SponsorNationalityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SponsorOtherDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("ApplicantEmirateId");
+
+                    b.HasIndex("ApplicantPlaceOfBirthCountryId");
+
+                    b.HasIndex("ApplicantResidenceStatusId");
+
+                    b.HasIndex("CustomerId", "IsActive");
+
+                    b.ToTable("IndividualKyc", (string)null);
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.IndividualKycDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DocumentNo")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("FolderPath")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<Guid>("IndividualKycId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("IssuedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("UploadedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("UploadedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("IndividualKycId");
+
+                    b.ToTable("IndividualKycDocuments", (string)null);
                 });
 
             modelBuilder.Entity("AmlScreening.Domain.Entities.IndividualScreeningRequest", b =>
@@ -895,6 +1987,9 @@ namespace AmlScreening.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CorporateScreeningRequestId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -903,9 +1998,6 @@ namespace AmlScreening.Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CorporateScreeningRequestId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
@@ -1004,6 +2096,97 @@ namespace AmlScreening.Infrastructure.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateBulkUploadLine", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.CorporateBulkUploadBatch", "Batch")
+                        .WithMany("Lines")
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Batch");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateKyc", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateKycDocument", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.CorporateKyc", "CorporateKyc")
+                        .WithMany()
+                        .HasForeignKey("CorporateKycId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CorporateKyc");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateScreeningCompanyDocument", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.CorporateScreeningRequest", "CorporateScreeningRequest")
+                        .WithMany("CompanyDocuments")
+                        .HasForeignKey("CorporateScreeningRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CorporateScreeningRequest");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateScreeningRequest", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AmlScreening.Domain.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Country");
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateScreeningShareholder", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.CorporateScreeningRequest", "CorporateScreeningRequest")
+                        .WithMany("Shareholders")
+                        .HasForeignKey("CorporateScreeningRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AmlScreening.Domain.Entities.Nationality", "Nationality")
+                        .WithMany()
+                        .HasForeignKey("NationalityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CorporateScreeningRequest");
+
+                    b.Navigation("Nationality");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateScreeningShareholderDocument", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.CorporateScreeningShareholder", "Shareholder")
+                        .WithMany("Documents")
+                        .HasForeignKey("CorporateScreeningShareholderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shareholder");
+                });
+
             modelBuilder.Entity("AmlScreening.Domain.Entities.Customer", b =>
                 {
                     b.HasOne("AmlScreening.Domain.Entities.Country", "CountryOfResidence")
@@ -1075,6 +2258,71 @@ namespace AmlScreening.Infrastructure.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("DocumentType");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.IndividualBulkUploadLine", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.IndividualBulkUploadBatch", "Batch")
+                        .WithMany("Lines")
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Batch");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.Emirate", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Country");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.IndividualKyc", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.Emirate", "ApplicantEmirate")
+                        .WithMany()
+                        .HasForeignKey("ApplicantEmirateId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AmlScreening.Domain.Entities.Country", "ApplicantPlaceOfBirthCountry")
+                        .WithMany()
+                        .HasForeignKey("ApplicantPlaceOfBirthCountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AmlScreening.Domain.Entities.ResidenceStatus", "ApplicantResidenceStatus")
+                        .WithMany()
+                        .HasForeignKey("ApplicantResidenceStatusId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AmlScreening.Domain.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicantEmirate");
+
+                    b.Navigation("ApplicantPlaceOfBirthCountry");
+
+                    b.Navigation("ApplicantResidenceStatus");
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.IndividualKycDocument", b =>
+                {
+                    b.HasOne("AmlScreening.Domain.Entities.IndividualKyc", "IndividualKyc")
+                        .WithMany()
+                        .HasForeignKey("IndividualKycId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("IndividualKyc");
                 });
 
             modelBuilder.Entity("AmlScreening.Domain.Entities.IndividualScreeningRequest", b =>
@@ -1149,6 +2397,23 @@ namespace AmlScreening.Infrastructure.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateBulkUploadBatch", b =>
+                {
+                    b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateScreeningRequest", b =>
+                {
+                    b.Navigation("CompanyDocuments");
+
+                    b.Navigation("Shareholders");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.CorporateScreeningShareholder", b =>
+                {
+                    b.Navigation("Documents");
+                });
+
             modelBuilder.Entity("AmlScreening.Domain.Entities.Customer", b =>
                 {
                     b.Navigation("Cases");
@@ -1158,6 +2423,11 @@ namespace AmlScreening.Infrastructure.Migrations
                     b.Navigation("RiskAssignments");
 
                     b.Navigation("SanctionsScreenings");
+                });
+
+            modelBuilder.Entity("AmlScreening.Domain.Entities.IndividualBulkUploadBatch", b =>
+                {
+                    b.Navigation("Lines");
                 });
 #pragma warning restore 612, 618
         }

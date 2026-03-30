@@ -9,7 +9,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { ConfirmService } from '../../../shared/services/confirm.service';
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import type { ApiResponse } from '../../../shared/models/api.model';
-import type { CountryDto } from '../../../shared/models/api.model';
+import type { CountryDto, EmirateDto } from '../../../shared/models/api.model';
 import { isMasterLookupSegment, type MasterLookupSegment } from '../master-lookup.model';
 
 @Component({
@@ -29,9 +29,14 @@ export class MasterLookupListComponent implements OnInit {
   private readonly translate = inject(TranslateService);
 
   segment = signal<MasterLookupSegment | null>(null);
-  list = signal<CountryDto[]>([]);
+  list = signal<(CountryDto | EmirateDto)[]>([]);
   loading = signal(true);
   searchTerm = signal('');
+
+  /** Countries segment: expandable emirates per country */
+  expandedCountryId = signal<string | null>(null);
+  emiratesByCountry = signal<Record<string, EmirateDto[]>>({});
+  emiratesLoadingCountryId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
@@ -57,26 +62,53 @@ export class MasterLookupListComponent implements OnInit {
       'customer-statuses': 'masters.segments.customerStatuses',
       'document-types': 'masters.segments.documentTypes',
       occupations: 'masters.segments.occupations',
-      'source-of-funds': 'masters.segments.sourceOfFunds'
+      'source-of-funds': 'masters.segments.sourceOfFunds',
+      emirates: 'masters.segments.emirates',
+      'residence-statuses': 'masters.segments.residenceStatuses'
     };
     return keys[seg];
   }
 
-  filteredList(): CountryDto[] {
+  filteredList(): (CountryDto | EmirateDto)[] {
     const q = this.searchTerm().trim().toLowerCase();
     if (!q) return this.list();
-    return this.list().filter(
-      (row) =>
+    return this.list().filter((row) => {
+      const countryMatch =
+        'countryName' in row && row.countryName
+          ? row.countryName.toLowerCase().includes(q)
+          : false;
+      return (
         row.code.toLowerCase().includes(q) ||
         row.name.toLowerCase().includes(q) ||
-        row.id.toLowerCase().includes(q)
-    );
+        row.id.toLowerCase().includes(q) ||
+        countryMatch
+      );
+    });
   }
 
   load(): void {
     const seg = this.segment();
     if (!seg) return;
+    if (seg === 'countries') {
+      this.expandedCountryId.set(null);
+      this.emiratesByCountry.set({});
+      this.emiratesLoadingCountryId.set(null);
+    }
     this.loading.set(true);
+    if (seg === 'emirates') {
+      this.api.getEmirates().subscribe({
+        next: (res: ApiResponse<EmirateDto[]>) => {
+          this.loading.set(false);
+          if (res.success && res.data) this.list.set(res.data);
+          else this.notification.error(res.message ?? this.translate.instant('common.errorGeneric'));
+        },
+        error: () => {
+          this.loading.set(false);
+          this.notification.error(this.translate.instant('common.errorGeneric'));
+        }
+      });
+      return;
+    }
     this.api.getMasterLookups(seg).subscribe({
       next: (res: ApiResponse<CountryDto[]>) => {
         this.loading.set(false);
@@ -90,6 +122,69 @@ export class MasterLookupListComponent implements OnInit {
     });
   }
 
+  toggleCountryEmirates(countryId: string): void {
+    if (this.expandedCountryId() === countryId) {
+      this.expandedCountryId.set(null);
+      return;
+    }
+    this.expandedCountryId.set(countryId);
+    this.emiratesLoadingCountryId.set(countryId);
+    this.api.getEmirates(countryId).subscribe({
+      next: (res: ApiResponse<EmirateDto[]>) => {
+        this.emiratesLoadingCountryId.set(null);
+        if (res.success && res.data) {
+          this.emiratesByCountry.update((m) => ({ ...m, [countryId]: res.data! }));
+        } else {
+          this.notification.error(res.message ?? this.translate.instant('common.errorGeneric'));
+        }
+      },
+      error: () => {
+        this.emiratesLoadingCountryId.set(null);
+        this.notification.error(this.translate.instant('common.errorGeneric'));
+      }
+    });
+  }
+
+  emiratesForExpandedCountry(): EmirateDto[] {
+    const cid = this.expandedCountryId();
+    if (!cid) return [];
+    return this.emiratesByCountry()[cid] ?? [];
+  }
+
+  deleteEmirateUnderCountry(emirateId: string, countryId: string): void {
+    const title = this.translate.instant('common.confirmTitle');
+    const message = this.translate.instant('masters.confirmDelete');
+    this.confirmService.confirm(title, message).subscribe((ok) => {
+      if (!ok) return;
+      this.api.deleteEmirate(emirateId).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.notification.success(this.translate.instant('common.deleteSuccess'));
+            this.refreshEmiratesForCountry(countryId);
+          } else {
+            this.notification.error(res.message ?? this.translate.instant('common.deleteFailed'));
+          }
+        },
+        error: (err) => {
+          this.notification.error(err?.error?.message ?? this.translate.instant('common.deleteFailed'));
+        }
+      });
+    });
+  }
+
+  private refreshEmiratesForCountry(countryId: string): void {
+    this.api.getEmirates(countryId).subscribe({
+      next: (res: ApiResponse<EmirateDto[]>) => {
+        if (res.success && res.data) {
+          this.emiratesByCountry.update((m) => ({ ...m, [countryId]: res.data! }));
+        }
+      },
+      error: () => {
+        /* ignore */
+      }
+    });
+  }
+
   deleteRow(id: string): void {
     const seg = this.segment();
     if (!seg) return;
@@ -97,7 +192,9 @@ export class MasterLookupListComponent implements OnInit {
     const message = this.translate.instant('masters.confirmDelete');
     this.confirmService.confirm(title, message).subscribe((ok) => {
       if (!ok) return;
-      this.api.deleteMasterLookup(seg, id).subscribe({
+      const del$ =
+        seg === 'emirates' ? this.api.deleteEmirate(id) : this.api.deleteMasterLookup(seg, id);
+      del$.subscribe({
         next: (res) => {
           if (res.success) {
             this.notification.success(this.translate.instant('common.deleteSuccess'));

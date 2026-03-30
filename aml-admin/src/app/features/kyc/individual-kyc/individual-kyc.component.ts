@@ -13,10 +13,12 @@ import type {
   CountryDto,
   CustomerDto,
   DocumentTypeDto,
+  EmirateDto,
   GenderDto,
   IndividualKycDto,
   IndividualScreeningRequestDto,
   NationalityDto,
+  ResidenceStatusDto,
   SourceOfFundsDto,
   UpsertIndividualKycRequest,
   UploadIndividualKycDocumentRequest,
@@ -68,6 +70,8 @@ export class IndividualKycComponent implements OnInit {
   countries = signal<CountryDto[]>([]);
   documentTypes = signal<DocumentTypeDto[]>([]);
   sourceOfFunds = signal<SourceOfFundsDto[]>([]);
+  residenceStatuses = signal<ResidenceStatusDto[]>([]);
+  emirates = signal<EmirateDto[]>([]);
 
   // Screening-driven categories + reputation threshold
   matchThreshold = signal(85);
@@ -88,9 +92,9 @@ export class IndividualKycComponent implements OnInit {
   applicantDualNationality = signal(false);
   applicantGenderId = signal('');
   applicantDateOfBirth = signal('');
-  applicantResidenceStatus = signal('');
-  applicantEmirate = signal('');
-  applicantCountryOfBirth = signal('');
+  applicantResidenceStatusId = signal('');
+  applicantEmirateId = signal('');
+  applicantPlaceOfBirthCountryId = signal('');
   applicantCity = signal('');
   applicantEmail = signal('');
   applicantResidentialAddress = signal('');
@@ -199,6 +203,29 @@ export class IndividualKycComponent implements OnInit {
         if (res.success && res.data) this.sourceOfFunds.set(res.data);
       }
     });
+    this.api.getResidenceStatuses().subscribe({
+      next: (res: ApiResponse<ResidenceStatusDto[]>) => {
+        if (res.success && res.data) this.residenceStatuses.set(res.data);
+      }
+    });
+  }
+
+  private reloadEmiratesForPlaceOfBirth(): void {
+    const pob = this.applicantPlaceOfBirthCountryId().trim();
+    if (!pob) {
+      this.emirates.set([]);
+      return;
+    }
+    this.api.getEmirates(pob).subscribe({
+      next: (res: ApiResponse<EmirateDto[]>) => {
+        if (!res.success || !res.data) return;
+        this.emirates.set(res.data);
+        const cur = this.applicantEmirateId().trim();
+        if (cur && !res.data.some((e) => e.id === cur)) {
+          this.applicantEmirateId.set('');
+        }
+      }
+    });
   }
 
   private async loadSelectedCustomer(cid: string): Promise<void> {
@@ -294,9 +321,10 @@ export class IndividualKycComponent implements OnInit {
     this.applicantDualNationality.set(false);
     this.applicantGenderId.set('');
     this.applicantDateOfBirth.set('');
-    this.applicantResidenceStatus.set('');
-    this.applicantEmirate.set('');
-    this.applicantCountryOfBirth.set('');
+    this.applicantResidenceStatusId.set('');
+    this.applicantEmirateId.set('');
+    this.applicantPlaceOfBirthCountryId.set('');
+    this.emirates.set([]);
     this.applicantCity.set('');
     this.applicantEmail.set('');
     this.applicantResidentialAddress.set('');
@@ -368,9 +396,10 @@ export class IndividualKycComponent implements OnInit {
     this.applicantDualNationality.set(!!kyc.applicantDualNationality);
     this.applicantGenderId.set(kyc.applicantGenderId ?? '');
     this.applicantDateOfBirth.set(this.toDateInputValue(kyc.applicantDateOfBirth ?? ''));
-    this.applicantResidenceStatus.set(kyc.applicantResidenceStatus ?? '');
-    this.applicantEmirate.set(kyc.applicantEmirate ?? '');
-    this.applicantCountryOfBirth.set(kyc.applicantCountryOfBirth ?? '');
+    this.applicantResidenceStatusId.set(kyc.applicantResidenceStatusId ?? '');
+    this.applicantEmirateId.set(kyc.applicantEmirateId ?? '');
+    this.applicantPlaceOfBirthCountryId.set(kyc.applicantPlaceOfBirthCountryId ?? '');
+    this.reloadEmiratesForPlaceOfBirth();
     this.applicantCity.set(kyc.applicantCity ?? '');
     this.applicantEmail.set(kyc.applicantEmail ?? '');
     this.applicantResidentialAddress.set(kyc.applicantResidentialAddress ?? '');
@@ -450,7 +479,8 @@ export class IndividualKycComponent implements OnInit {
     this.applicantName.set(req.fullName ?? '');
     this.applicantDateOfBirth.set(req.dateOfBirth ? this.toDateInputValue(req.dateOfBirth) : '');
     this.applicantNationalityId.set(req.nationalityId ?? '');
-    this.applicantCountryOfBirth.set(req.placeOfBirthCountryId ?? '');
+    this.applicantPlaceOfBirthCountryId.set(req.placeOfBirthCountryId ?? '');
+    this.reloadEmiratesForPlaceOfBirth();
     this.clientIdTypeCode.set(req.idType ?? '');
     this.clientIdNumber.set(req.idNumber ?? '');
     this.applicantResidentialAddress.set(req.address ?? '');
@@ -609,9 +639,9 @@ export class IndividualKycComponent implements OnInit {
         applicantDualNationality: this.applicantDualNationality(),
         applicantGenderId: this.applicantGenderId() || undefined,
         applicantDateOfBirth: this.dateInputToIso(this.applicantDateOfBirth()) ?? undefined,
-        applicantResidenceStatus: this.applicantResidenceStatus().trim() || undefined,
-        applicantEmirate: this.applicantEmirate().trim() || undefined,
-        applicantCountryOfBirth: this.applicantCountryOfBirth().trim() || undefined,
+        applicantResidenceStatusId: this.applicantResidenceStatusId() || undefined,
+        applicantEmirateId: this.applicantEmirateId() || undefined,
+        applicantPlaceOfBirthCountryId: this.applicantPlaceOfBirthCountryId() || undefined,
         applicantCity: this.applicantCity().trim() || undefined,
         applicantEmail: this.applicantEmail().trim() || undefined,
         applicantResidentialAddress: this.applicantResidentialAddress().trim() || undefined,
@@ -686,7 +716,7 @@ export class IndividualKycComponent implements OnInit {
         fullName: this.applicantName().trim(),
         dateOfBirth: this.dateInputToIso(this.applicantDateOfBirth()) ?? undefined,
         nationalityId: this.applicantNationalityId() || undefined,
-        placeOfBirthCountryId: this.applicantCountryOfBirth() || undefined,
+        placeOfBirthCountryId: this.applicantPlaceOfBirthCountryId() || undefined,
         idType: this.clientIdTypeCode().trim() || undefined,
         idNumber: this.clientIdNumber().trim() || undefined,
         address: this.applicantResidentialAddress().trim() || undefined,

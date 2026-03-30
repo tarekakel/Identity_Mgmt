@@ -49,8 +49,12 @@
     "backToList": "Back to list",
     "code": "Code",
     "name": "Name",
+    "country": "Country",
     "confirmDelete": "Are you sure you want to delete this record?",
     "codeNameRequired": "Code and name are required.",
+    "emirateCountryCodeNameRequired": "Country, code, and name are required.",
+    "expandEmirates": "Show or hide emirates for this country",
+    "addEmirateForCountry": "Add emirate",
     "segments": {
       "countries": "Countries",
       "nationalities": "Nationalities",
@@ -59,7 +63,9 @@
       "customerStatuses": "Customer statuses",
       "documentTypes": "Document types",
       "occupations": "Occupations",
-      "sourceOfFunds": "Source of funds"
+      "sourceOfFunds": "Source of funds",
+      "emirates": "Emirates",
+      "residenceStatuses": "Residence statuses"
     }
   },
   "individualKyc": {

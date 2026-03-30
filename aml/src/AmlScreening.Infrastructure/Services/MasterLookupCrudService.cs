@@ -79,7 +79,10 @@ public class MasterLookupCrudService : IMasterLookupCrudService
             return ApiResponse.Fail("Cannot delete: country is referenced by corporate screening.");
         if (await _db.IndividualScreeningRequests.AnyAsync(c => c.PlaceOfBirthCountryId == id, cancellationToken))
             return ApiResponse.Fail("Cannot delete: country is referenced by individual screening.");
-        if (await _db.IndividualKyc.AnyAsync(k => k.ClientCountryIssuanceId == id || k.BankCountryId == id, cancellationToken))
+        if (await _db.Emirates.AnyAsync(e => e.CountryId == id, cancellationToken))
+            return ApiResponse.Fail("Cannot delete: country is referenced by one or more emirates.");
+        if (await _db.IndividualKyc.AnyAsync(k =>
+                k.ClientCountryIssuanceId == id || k.BankCountryId == id || k.ApplicantPlaceOfBirthCountryId == id, cancellationToken))
             return ApiResponse.Fail("Cannot delete: country is referenced by KYC records.");
         var e = await _db.Countries.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         if (e == null) return ApiResponse.Fail("Country not found.");
@@ -497,6 +500,161 @@ public class MasterLookupCrudService : IMasterLookupCrudService
         var e = await _db.SourceOfFunds.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         if (e == null) return ApiResponse.Fail("Source of funds not found.");
         _db.SourceOfFunds.Remove(e);
+        await _db.SaveChangesAsync(cancellationToken);
+        return ApiResponse.Ok();
+    }
+
+    #endregion
+
+    #region Emirate
+
+    public async Task<ApiResponse<IReadOnlyList<EmirateDto>>> ListEmiratesAsync(Guid? countryId, CancellationToken cancellationToken = default)
+    {
+        var query =
+            from e in _db.Emirates.AsNoTracking()
+            join c in _db.Countries.AsNoTracking() on e.CountryId equals c.Id
+            where !countryId.HasValue || e.CountryId == countryId.Value
+            orderby e.CountryId, e.Code
+            select new EmirateDto
+            {
+                Id = e.Id,
+                CountryId = e.CountryId,
+                CountryName = c.Name,
+                Code = e.Code,
+                Name = e.Name
+            };
+        var list = await query.ToListAsync(cancellationToken);
+        return ApiResponse<IReadOnlyList<EmirateDto>>.Ok(list);
+    }
+
+    public async Task<ApiResponse<EmirateDto>> GetEmirateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var row = await _db.Emirates.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        if (row == null) return ApiResponse<EmirateDto>.Fail("Emirate not found.");
+        var countryName = await _db.Countries.AsNoTracking()
+            .Where(c => c.Id == row.CountryId)
+            .Select(c => c.Name)
+            .FirstOrDefaultAsync(cancellationToken);
+        return ApiResponse<EmirateDto>.Ok(new EmirateDto
+        {
+            Id = row.Id,
+            CountryId = row.CountryId,
+            CountryName = countryName,
+            Code = row.Code,
+            Name = row.Name
+        });
+    }
+
+    private static string? ValidateEmirateUpsert(UpsertEmirateRequest request)
+    {
+        if (request.CountryId == Guid.Empty) return "Country is required.";
+        var err = ValidateUpsert(new UpsertMasterLookupRequest { Code = request.Code, Name = request.Name });
+        return err;
+    }
+
+    public async Task<ApiResponse<EmirateDto>> CreateEmirateAsync(UpsertEmirateRequest request, CancellationToken cancellationToken = default)
+    {
+        var err = ValidateEmirateUpsert(request);
+        if (err != null) return ApiResponse<EmirateDto>.Fail(err);
+        if (!await _db.Countries.AnyAsync(c => c.Id == request.CountryId, cancellationToken))
+            return ApiResponse<EmirateDto>.Fail("Country not found.");
+        var code = request.Code.Trim();
+        if (await _db.Emirates.AnyAsync(e => e.CountryId == request.CountryId && e.Code == code, cancellationToken))
+            return ApiResponse<EmirateDto>.Fail("An emirate with this code already exists for this country.");
+        var e = new Emirate
+        {
+            Id = Guid.NewGuid(),
+            CountryId = request.CountryId,
+            Code = code,
+            Name = request.Name.Trim()
+        };
+        _db.Emirates.Add(e);
+        await _db.SaveChangesAsync(cancellationToken);
+        return await GetEmirateAsync(e.Id, cancellationToken);
+    }
+
+    public async Task<ApiResponse<EmirateDto>> UpdateEmirateAsync(Guid id, UpsertEmirateRequest request, CancellationToken cancellationToken = default)
+    {
+        var err = ValidateEmirateUpsert(request);
+        if (err != null) return ApiResponse<EmirateDto>.Fail(err);
+        if (!await _db.Countries.AnyAsync(c => c.Id == request.CountryId, cancellationToken))
+            return ApiResponse<EmirateDto>.Fail("Country not found.");
+        var e = await _db.Emirates.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        if (e == null) return ApiResponse<EmirateDto>.Fail("Emirate not found.");
+        var code = request.Code.Trim();
+        if (await _db.Emirates.AnyAsync(x => x.CountryId == request.CountryId && x.Code == code && x.Id != id, cancellationToken))
+            return ApiResponse<EmirateDto>.Fail("An emirate with this code already exists for this country.");
+        e.CountryId = request.CountryId;
+        e.Code = code;
+        e.Name = request.Name.Trim();
+        await _db.SaveChangesAsync(cancellationToken);
+        return await GetEmirateAsync(e.Id, cancellationToken);
+    }
+
+    public async Task<ApiResponse> DeleteEmirateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        if (await _db.IndividualKyc.AnyAsync(k => k.ApplicantEmirateId == id, cancellationToken))
+            return ApiResponse.Fail("Cannot delete: emirate is referenced by KYC records.");
+        var e = await _db.Emirates.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        if (e == null) return ApiResponse.Fail("Emirate not found.");
+        _db.Emirates.Remove(e);
+        await _db.SaveChangesAsync(cancellationToken);
+        return ApiResponse.Ok();
+    }
+
+    #endregion
+
+    #region ResidenceStatus
+
+    public async Task<ApiResponse<IReadOnlyList<ResidenceStatusDto>>> ListResidenceStatusesAsync(CancellationToken cancellationToken = default)
+    {
+        var list = await _db.ResidenceStatuses.AsNoTracking().OrderBy(r => r.Code)
+            .Select(r => new ResidenceStatusDto { Id = r.Id, Code = r.Code, Name = r.Name }).ToListAsync(cancellationToken);
+        return ApiResponse<IReadOnlyList<ResidenceStatusDto>>.Ok(list);
+    }
+
+    public async Task<ApiResponse<ResidenceStatusDto>> GetResidenceStatusAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var row = await _db.ResidenceStatuses.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+        if (row == null) return ApiResponse<ResidenceStatusDto>.Fail("Residence status not found.");
+        return ApiResponse<ResidenceStatusDto>.Ok(new ResidenceStatusDto { Id = row.Id, Code = row.Code, Name = row.Name });
+    }
+
+    public async Task<ApiResponse<ResidenceStatusDto>> CreateResidenceStatusAsync(UpsertMasterLookupRequest request, CancellationToken cancellationToken = default)
+    {
+        var err = ValidateUpsert(request);
+        if (err != null) return ApiResponse<ResidenceStatusDto>.Fail(err);
+        var code = request.Code.Trim();
+        if (await _db.ResidenceStatuses.AnyAsync(r => r.Code == code, cancellationToken))
+            return ApiResponse<ResidenceStatusDto>.Fail("A residence status with this code already exists.");
+        var e = new ResidenceStatus { Id = Guid.NewGuid(), Code = code, Name = request.Name.Trim() };
+        _db.ResidenceStatuses.Add(e);
+        await _db.SaveChangesAsync(cancellationToken);
+        return ApiResponse<ResidenceStatusDto>.Ok(new ResidenceStatusDto { Id = e.Id, Code = e.Code, Name = e.Name });
+    }
+
+    public async Task<ApiResponse<ResidenceStatusDto>> UpdateResidenceStatusAsync(Guid id, UpsertMasterLookupRequest request, CancellationToken cancellationToken = default)
+    {
+        var err = ValidateUpsert(request);
+        if (err != null) return ApiResponse<ResidenceStatusDto>.Fail(err);
+        var e = await _db.ResidenceStatuses.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+        if (e == null) return ApiResponse<ResidenceStatusDto>.Fail("Residence status not found.");
+        var code = request.Code.Trim();
+        if (await _db.ResidenceStatuses.AnyAsync(r => r.Code == code && r.Id != id, cancellationToken))
+            return ApiResponse<ResidenceStatusDto>.Fail("A residence status with this code already exists.");
+        e.Code = code;
+        e.Name = request.Name.Trim();
+        await _db.SaveChangesAsync(cancellationToken);
+        return ApiResponse<ResidenceStatusDto>.Ok(new ResidenceStatusDto { Id = e.Id, Code = e.Code, Name = e.Name });
+    }
+
+    public async Task<ApiResponse> DeleteResidenceStatusAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        if (await _db.IndividualKyc.AnyAsync(k => k.ApplicantResidenceStatusId == id, cancellationToken))
+            return ApiResponse.Fail("Cannot delete: residence status is referenced by KYC records.");
+        var e = await _db.ResidenceStatuses.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+        if (e == null) return ApiResponse.Fail("Residence status not found.");
+        _db.ResidenceStatuses.Remove(e);
         await _db.SaveChangesAsync(cancellationToken);
         return ApiResponse.Ok();
     }

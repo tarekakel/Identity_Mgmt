@@ -154,6 +154,44 @@ public class MasterLookupsController : ControllerBase
     [HttpDelete("source-of-funds/{id:guid}")]
     public Task<IActionResult> DeleteSourceOfFunds(Guid id, CancellationToken cancellationToken) => ToAction(_service.DeleteSourceOfFundsAsync(id, cancellationToken));
 
+    [HttpGet("emirates")]
+    public Task<IActionResult> ListEmirates([FromQuery] Guid? countryId, CancellationToken cancellationToken) =>
+        ToAction(_service.ListEmiratesAsync(countryId, cancellationToken));
+
+    [HttpGet("emirates/{id:guid}")]
+    public Task<IActionResult> GetEmirate(Guid id, CancellationToken cancellationToken) => ToAction(_service.GetEmirateAsync(id, cancellationToken));
+
+    [HttpPost("emirates")]
+    public Task<IActionResult> CreateEmirate([FromBody] UpsertEmirateRequest request, CancellationToken cancellationToken) =>
+        ToAction(_service.CreateEmirateAsync(request, cancellationToken));
+
+    [HttpPut("emirates/{id:guid}")]
+    public Task<IActionResult> UpdateEmirate(Guid id, [FromBody] UpsertEmirateRequest request, CancellationToken cancellationToken) =>
+        ToAction(_service.UpdateEmirateAsync(id, request, cancellationToken));
+
+    [HttpDelete("emirates/{id:guid}")]
+    public Task<IActionResult> DeleteEmirate(Guid id, CancellationToken cancellationToken) => ToAction(_service.DeleteEmirateAsync(id, cancellationToken));
+
+    [HttpGet("residence-statuses")]
+    public Task<IActionResult> ListResidenceStatuses(CancellationToken cancellationToken) =>
+        ToAction(_service.ListResidenceStatusesAsync(cancellationToken));
+
+    [HttpGet("residence-statuses/{id:guid}")]
+    public Task<IActionResult> GetResidenceStatus(Guid id, CancellationToken cancellationToken) =>
+        ToAction(_service.GetResidenceStatusAsync(id, cancellationToken));
+
+    [HttpPost("residence-statuses")]
+    public Task<IActionResult> CreateResidenceStatus([FromBody] UpsertMasterLookupRequest request, CancellationToken cancellationToken) =>
+        ToAction(_service.CreateResidenceStatusAsync(request, cancellationToken));
+
+    [HttpPut("residence-statuses/{id:guid}")]
+    public Task<IActionResult> UpdateResidenceStatus(Guid id, [FromBody] UpsertMasterLookupRequest request, CancellationToken cancellationToken) =>
+        ToAction(_service.UpdateResidenceStatusAsync(id, request, cancellationToken));
+
+    [HttpDelete("residence-statuses/{id:guid}")]
+    public Task<IActionResult> DeleteResidenceStatus(Guid id, CancellationToken cancellationToken) =>
+        ToAction(_service.DeleteResidenceStatusAsync(id, cancellationToken));
+
     private static async Task<IActionResult> ToAction<T>(Task<ApiResponse<T>> task)
     {
         var result = await task;

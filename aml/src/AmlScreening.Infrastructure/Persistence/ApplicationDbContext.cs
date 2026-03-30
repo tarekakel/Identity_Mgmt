@@ -1,4 +1,4 @@
-﻿using AmlScreening.Application.Interfaces;
+using AmlScreening.Application.Interfaces;
 using AmlScreening.Domain.Entities;
 using AmlScreening.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +21,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Gender> Genders => Set<Gender>();
     public DbSet<Nationality> Nationalities => Set<Nationality>();
     public DbSet<Country> Countries => Set<Country>();
+    public DbSet<Emirate> Emirates => Set<Emirate>();
+    public DbSet<ResidenceStatus> ResidenceStatuses => Set<ResidenceStatus>();
     public DbSet<Occupation> Occupations => Set<Occupation>();
     public DbSet<SourceOfFunds> SourceOfFunds => Set<SourceOfFunds>();
     public DbSet<DocumentType> DocumentTypes => Set<DocumentType>();

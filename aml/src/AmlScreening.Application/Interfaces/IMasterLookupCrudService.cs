@@ -52,4 +52,16 @@ public interface IMasterLookupCrudService
     Task<ApiResponse<SourceOfFundsDto>> CreateSourceOfFundsAsync(UpsertMasterLookupRequest request, CancellationToken cancellationToken = default);
     Task<ApiResponse<SourceOfFundsDto>> UpdateSourceOfFundsAsync(Guid id, UpsertMasterLookupRequest request, CancellationToken cancellationToken = default);
     Task<ApiResponse> DeleteSourceOfFundsAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<ApiResponse<IReadOnlyList<EmirateDto>>> ListEmiratesAsync(Guid? countryId, CancellationToken cancellationToken = default);
+    Task<ApiResponse<EmirateDto>> GetEmirateAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<ApiResponse<EmirateDto>> CreateEmirateAsync(UpsertEmirateRequest request, CancellationToken cancellationToken = default);
+    Task<ApiResponse<EmirateDto>> UpdateEmirateAsync(Guid id, UpsertEmirateRequest request, CancellationToken cancellationToken = default);
+    Task<ApiResponse> DeleteEmirateAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<ApiResponse<IReadOnlyList<ResidenceStatusDto>>> ListResidenceStatusesAsync(CancellationToken cancellationToken = default);
+    Task<ApiResponse<ResidenceStatusDto>> GetResidenceStatusAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<ApiResponse<ResidenceStatusDto>> CreateResidenceStatusAsync(UpsertMasterLookupRequest request, CancellationToken cancellationToken = default);
+    Task<ApiResponse<ResidenceStatusDto>> UpdateResidenceStatusAsync(Guid id, UpsertMasterLookupRequest request, CancellationToken cancellationToken = default);
+    Task<ApiResponse> DeleteResidenceStatusAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -17,9 +17,9 @@ public class IndividualKycDto
     public bool? ApplicantDualNationality { get; set; }
     public Guid? ApplicantGenderId { get; set; }
     public DateTime? ApplicantDateOfBirth { get; set; }
-    public string? ApplicantResidenceStatus { get; set; }
-    public string? ApplicantEmirate { get; set; }
-    public string? ApplicantCountryOfBirth { get; set; }
+    public Guid? ApplicantResidenceStatusId { get; set; }
+    public Guid? ApplicantEmirateId { get; set; }
+    public Guid? ApplicantPlaceOfBirthCountryId { get; set; }
     public string? ApplicantCity { get; set; }
     public string? ApplicantEmail { get; set; }
     public string? ApplicantResidentialAddress { get; set; }
