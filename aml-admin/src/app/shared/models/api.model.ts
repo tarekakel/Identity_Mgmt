@@ -599,6 +599,20 @@ export interface RunSanctionsScreeningResultDto {
   hasConfirmedMatch: boolean;
 }
 
+export interface OnboardingSubmissionRequest {
+  notes?: string;
+}
+
+export interface OnboardingSubmissionResultDto {
+  caseId: string;
+  caseStatus: string;
+  screeningResultsCount: number;
+  worstScreeningStatus?: string | null;
+  hasConfirmedMatch: boolean;
+  requiresCheckerApproval: boolean;
+  case?: CaseDto | null;
+}
+
 export interface IndividualScreeningRequestDto {
   id: string;
   tenantId: string;
@@ -825,6 +839,52 @@ export interface SanctionListEntryDto {
   endDate?: string | null;
   otherInformation?: string | null;
   typeDetail?: string | null;
+
+  aliasItems?: SanctionAliasDto[];
+  datesOfBirth?: SanctionDobDto[];
+  addresses?: SanctionAddressDto[];
+  placesOfBirth?: SanctionPlaceOfBirthDto[];
+  documents?: SanctionDocumentDto[];
+  nationalities?: string[];
+  designations?: string[];
+  lastDayUpdates?: string[];
+}
+
+export interface SanctionAliasDto {
+  name: string;
+  quality?: string | null;
+}
+
+export interface SanctionDobDto {
+  date?: string | null;
+  year?: number | null;
+  fromYear?: number | null;
+  toYear?: number | null;
+  typeOfDate?: string | null;
+  note?: string | null;
+}
+
+export interface SanctionAddressDto {
+  street?: string | null;
+  city?: string | null;
+  stateProvince?: string | null;
+  country?: string | null;
+  note?: string | null;
+}
+
+export interface SanctionPlaceOfBirthDto {
+  city?: string | null;
+  stateProvince?: string | null;
+  country?: string | null;
+}
+
+export interface SanctionDocumentDto {
+  type?: string | null;
+  type2?: string | null;
+  number?: string | null;
+  issuingCountry?: string | null;
+  dateOfIssue?: string | null;
+  note?: string | null;
 }
 
 export interface CreateSanctionListEntryRequest {

@@ -3,9 +3,13 @@ using AmlScreening.Infrastructure.Options;
 using AmlScreening.Infrastructure.Persistence;
 using AmlScreening.Infrastructure.Services;
 using AmlScreening.Infrastructure.Services.SanctionListParsers;
+using AmlScreening.Infrastructure.Services.Search;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace AmlScreening.Infrastructure;
@@ -21,6 +25,26 @@ public static class DependencyInjection
 
         services.Configure<IdentityApiOptions>(configuration.GetSection(IdentityApiOptions.SectionName));
         services.Configure<FileStorageOptions>(configuration.GetSection(FileStorageOptions.SectionName));
+        services.Configure<ElasticsearchOptions>(configuration.GetSection(ElasticsearchOptions.SectionName));
+
+        services.AddSingleton<ElasticsearchClient>(sp =>
+        {
+            var opts = sp.GetRequiredService<IOptions<ElasticsearchOptions>>().Value;
+            var settings = new ElasticsearchClientSettings(new Uri(opts.Url))
+                .DefaultIndex(opts.IndexName)
+                .RequestTimeout(TimeSpan.FromSeconds(30));
+
+            if (!string.IsNullOrWhiteSpace(opts.ApiKey))
+                settings = settings.Authentication(new ApiKey(opts.ApiKey));
+            else if (!string.IsNullOrWhiteSpace(opts.Username))
+                settings = settings.Authentication(new BasicAuthentication(opts.Username, opts.Password ?? string.Empty));
+
+            return new ElasticsearchClient(settings);
+        });
+
+        services.AddSingleton<ISanctionEntryIndexer, SanctionEntryIndexer>();
+        services.AddScoped<IScreeningEngine, ElasticScreeningEngine>();
+        services.AddHostedService<ReindexHostedService>();
         services.AddHttpClient("IdentityApi", (sp, client) =>
         {
             var options = sp.GetRequiredService<IOptions<IdentityApiOptions>>().Value;
@@ -56,6 +80,7 @@ public static class DependencyInjection
         services.AddScoped<ISanctionListUploadService, SanctionListUploadService>();
         services.AddScoped<IIndividualBulkUploadService, IndividualBulkUploadService>();
         services.AddScoped<ICorporateBulkUploadService, CorporateBulkUploadService>();
+        services.AddScoped<IOnboardingSubmissionService, OnboardingSubmissionService>();
 
         return services;
     }

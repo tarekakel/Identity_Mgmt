@@ -546,6 +546,54 @@ export class IndividualScreeningComponent implements OnInit {
     return '—';
   }
 
+  // ---- Checker review actions (Approve / Reject) ----
+  actionScreeningId = signal<string | null>(null);
+  pendingAction = signal<'Approve' | 'Reject' | null>(null);
+  actionNote = signal('');
+
+  canShowCheckerActions(r: SanctionsScreeningResultItemDto): boolean {
+    return (r.status === 'PossibleMatch' || r.status === 'ConfirmedMatch')
+      && r.reviewStatus === 'PendingReview';
+  }
+
+  openAction(screeningId: string, action: 'Approve' | 'Reject'): void {
+    this.actionScreeningId.set(screeningId);
+    this.pendingAction.set(action);
+    this.actionNote.set('');
+  }
+
+  cancelAction(): void {
+    this.actionScreeningId.set(null);
+    this.pendingAction.set(null);
+    this.actionNote.set('');
+  }
+
+  submitCheckerAction(): void {
+    const cid = this.selectedCustomerId();
+    const sid = this.actionScreeningId();
+    const action = this.pendingAction();
+    if (!cid || !sid || !action) return;
+    this.api.recordSanctionScreeningAction(cid, sid, {
+      action,
+      notes: this.actionNote()?.trim() || undefined
+    }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.cancelAction();
+          this.refreshResults();
+          this.notification.success(this.translate.instant('screening.actionRecorded'));
+        } else {
+          this.notification.error(res.message ?? this.translate.instant('common.errorGeneric'));
+        }
+      },
+      error: (err: unknown) => {
+        const msg = (err as { error?: { message?: string } })?.error?.message
+          ?? this.translate.instant('common.errorGeneric');
+        this.notification.error(msg);
+      }
+    });
+  }
+
   private toDateInputValue(value: string): string {
     // Accepts ISO string or yyyy-MM-dd.
     if (!value) return '';

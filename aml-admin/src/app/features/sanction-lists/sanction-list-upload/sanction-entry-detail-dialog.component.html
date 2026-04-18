@@ -1,0 +1,361 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+  role="dialog"
+  aria-modal="true"
+  tabindex="-1"
+  (keydown)="onBackdropKeydown($event)"
+  (click)="close()"
+>
+  <div
+    class="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-lg bg-white dark:bg-slate-900 shadow-xl flex flex-col"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="flex items-start justify-between gap-4 px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+      <div class="min-w-0">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
+          {{ entry().fullName }}
+        </h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+          {{ entry().listSource }}
+          @if (entry().referenceNumber) {
+            · {{ entry().referenceNumber }}
+          }
+          @if (entry().entryType) {
+            · {{ entry().entryType }}
+          }
+        </p>
+      </div>
+      <button
+        type="button"
+        (click)="close()"
+        class="shrink-0 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
+        [attr.aria-label]="'common.close' | translate"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="overflow-auto p-5 space-y-5 text-sm">
+      @if (isEmpty()) {
+        <p class="text-slate-600 dark:text-slate-400">
+          {{ 'sanctionLists.detail.noExtraInfo' | translate }}
+        </p>
+      }
+
+      @if (hasIdentity()) {
+        <section>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+            {{ 'sanctionLists.detail.identity' | translate }}
+          </h3>
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+            @if (entry().fullName) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.fullName' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().fullName }}</dd>
+              </div>
+            }
+            @if (entry().fullNameArabic) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.fullNameArabic' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100" dir="rtl">{{ entry().fullNameArabic }}</dd>
+              </div>
+            }
+            @if (entry().firstName) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.firstName' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().firstName }}</dd>
+              </div>
+            }
+            @if (entry().secondName) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.secondName' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().secondName }}</dd>
+              </div>
+            }
+            @if (entry().familyNameLatin) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.familyNameLatin' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().familyNameLatin }}</dd>
+              </div>
+            }
+            @if (entry().familyNameArabic) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.familyNameArabic' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100" dir="rtl">{{ entry().familyNameArabic }}</dd>
+              </div>
+            }
+            @if (entry().gender) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.gender' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().gender }}</dd>
+              </div>
+            }
+            @if (entry().entryType) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.entryType' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().entryType }}</dd>
+              </div>
+            }
+            @if (entry().typeDetail) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.typeDetail' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().typeDetail }}</dd>
+              </div>
+            }
+          </dl>
+        </section>
+      }
+
+      @if (aliases().length > 0) {
+        <section>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+            {{ 'sanctionLists.detail.aliases' | translate }} ({{ aliases().length }})
+          </h3>
+          <ul class="flex flex-wrap gap-2">
+            @for (a of aliases(); track $index) {
+              <li
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs"
+                [class.bg-emerald-100]="isGoodAlias(a.quality)"
+                [class.dark:bg-emerald-900]="isGoodAlias(a.quality)"
+                [class.text-emerald-800]="isGoodAlias(a.quality)"
+                [class.dark:text-emerald-200]="isGoodAlias(a.quality)"
+                [class.bg-slate-100]="!isGoodAlias(a.quality)"
+                [class.dark:bg-slate-800]="!isGoodAlias(a.quality)"
+                [class.text-slate-700]="!isGoodAlias(a.quality)"
+                [class.dark:text-slate-200]="!isGoodAlias(a.quality)"
+              >
+                <span>{{ a.name }}</span>
+                @if (a.quality) {
+                  <span class="text-[10px] uppercase opacity-70">{{ a.quality }}</span>
+                }
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (dobs().length > 0) {
+        <section>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+            {{ 'sanctionLists.detail.datesOfBirth' | translate }} ({{ dobs().length }})
+          </h3>
+          <ul class="space-y-1">
+            @for (d of dobs(); track $index) {
+              <li class="text-slate-800 dark:text-slate-100">
+                <span class="font-medium">{{ formatDob(d) }}</span>
+                @if (d.typeOfDate) {
+                  <span class="ml-2 text-xs text-slate-500 dark:text-slate-400">[{{ d.typeOfDate }}]</span>
+                }
+                @if (d.note) {
+                  <span class="ml-2 text-xs text-slate-500 dark:text-slate-400">— {{ d.note }}</span>
+                }
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (nationalities().length > 0) {
+        <section>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+            {{ 'sanctionLists.detail.nationalities' | translate }} ({{ nationalities().length }})
+          </h3>
+          <ul class="flex flex-wrap gap-2">
+            @for (n of nationalities(); track $index) {
+              <li class="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
+                {{ n }}
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (designations().length > 0) {
+        <section>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+            {{ 'sanctionLists.detail.designations' | translate }} ({{ designations().length }})
+          </h3>
+          <ul class="list-disc list-inside space-y-0.5 text-slate-800 dark:text-slate-100">
+            @for (d of designations(); track $index) {
+              <li>{{ d }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (placesOfBirth().length > 0) {
+        <section>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+            {{ 'sanctionLists.detail.placesOfBirth' | translate }} ({{ placesOfBirth().length }})
+          </h3>
+          <ul class="space-y-1">
+            @for (p of placesOfBirth(); track $index) {
+              <li class="text-slate-800 dark:text-slate-100">
+                @if (p.city) { {{ p.city }} }
+                @if (p.stateProvince) { @if (p.city) {, } {{ p.stateProvince }} }
+                @if (p.country) { @if (p.city || p.stateProvince) {, } <span class="font-medium">{{ p.country }}</span> }
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (addresses().length > 0) {
+        <section>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+            {{ 'sanctionLists.detail.addresses' | translate }} ({{ addresses().length }})
+          </h3>
+          <ul class="space-y-2">
+            @for (a of addresses(); track $index) {
+              <li class="rounded border border-slate-200 dark:border-slate-700 p-2">
+                @if (a.street) { <div class="text-slate-800 dark:text-slate-100">{{ a.street }}</div> }
+                @if (a.city || a.stateProvince || a.country) {
+                  <div class="text-slate-700 dark:text-slate-200 text-xs">
+                    @if (a.city) { {{ a.city }} }
+                    @if (a.stateProvince) { @if (a.city) {, } {{ a.stateProvince }} }
+                    @if (a.country) { @if (a.city || a.stateProvince) {, } <span class="font-medium">{{ a.country }}</span> }
+                  </div>
+                }
+                @if (a.note) { <div class="text-slate-500 dark:text-slate-400 text-xs mt-1">{{ a.note }}</div> }
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (documents().length > 0) {
+        <section>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+            {{ 'sanctionLists.detail.documents' | translate }} ({{ documents().length }})
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="text-xs w-full">
+              <thead class="text-slate-500 dark:text-slate-400 text-left">
+                <tr>
+                  <th class="px-2 py-1 font-medium">{{ 'sanctionLists.detail.documentType' | translate }}</th>
+                  <th class="px-2 py-1 font-medium">{{ 'sanctionLists.detail.documentNumber' | translate }}</th>
+                  <th class="px-2 py-1 font-medium">{{ 'sanctionLists.detail.issuingCountry' | translate }}</th>
+                  <th class="px-2 py-1 font-medium">{{ 'sanctionLists.detail.dateOfIssue' | translate }}</th>
+                  <th class="px-2 py-1 font-medium">{{ 'sanctionLists.detail.note' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                @for (d of documents(); track $index) {
+                  <tr>
+                    <td class="px-2 py-1 text-slate-800 dark:text-slate-100">
+                      {{ d.type ?? '—' }}
+                      @if (d.type2) { <span class="text-slate-500 dark:text-slate-400">/ {{ d.type2 }}</span> }
+                    </td>
+                    <td class="px-2 py-1 text-slate-800 dark:text-slate-100">{{ d.number ?? '—' }}</td>
+                    <td class="px-2 py-1 text-slate-800 dark:text-slate-100">{{ d.issuingCountry ?? '—' }}</td>
+                    <td class="px-2 py-1 text-slate-800 dark:text-slate-100">{{ formatDate(d.dateOfIssue) || '—' }}</td>
+                    <td class="px-2 py-1 text-slate-600 dark:text-slate-400">{{ d.note ?? '' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      @if (hasNarrative()) {
+        <section>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+            {{ 'sanctionLists.detail.narrative' | translate }}
+          </h3>
+          @if (entry().comments) {
+            <div class="mb-2">
+              <div class="text-xs text-slate-500 dark:text-slate-400">{{ 'sanctionLists.detail.comments' | translate }}</div>
+              <p class="text-slate-800 dark:text-slate-100 whitespace-pre-wrap">{{ entry().comments }}</p>
+            </div>
+          }
+          @if (entry().otherInformation) {
+            <div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">{{ 'sanctionLists.detail.otherInformation' | translate }}</div>
+              <p class="text-slate-800 dark:text-slate-100 whitespace-pre-wrap">{{ entry().otherInformation }}</p>
+            </div>
+          }
+        </section>
+      }
+
+      @if (hasSourceMetadata()) {
+        <section>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+            {{ 'sanctionLists.detail.sourceMetadata' | translate }}
+          </h3>
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+            @if (entry().listSource) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.listSource' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().listSource }}</dd>
+              </div>
+            }
+            @if (entry().referenceNumber) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.referenceNumber' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().referenceNumber }}</dd>
+              </div>
+            }
+            @if (entry().dataId) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.dataId' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().dataId }}</dd>
+              </div>
+            }
+            @if (entry().versionNum) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.versionNum' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().versionNum }}</dd>
+              </div>
+            }
+            @if (entry().unListType) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.unListType' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().unListType }}</dd>
+              </div>
+            }
+            @if (entry().listType) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.listType' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ entry().listType }}</dd>
+              </div>
+            }
+            @if (entry().listedOn) {
+              <div>
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.listedOn' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ formatDate(entry().listedOn) }}</dd>
+              </div>
+            }
+            @if (lastDayUpdates().length > 0) {
+              <div class="sm:col-span-2">
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.lastDayUpdates' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">
+                  @for (u of lastDayUpdates(); track $index; let last = $last) {
+                    {{ formatDate(u) }}@if (!last) {, }
+                  }
+                </dd>
+              </div>
+            } @else if (entry().lastDayUpdated) {
+              <div class="sm:col-span-2">
+                <dt class="text-slate-500 dark:text-slate-400 text-xs">{{ 'sanctionLists.detail.lastDayUpdated' | translate }}</dt>
+                <dd class="text-slate-800 dark:text-slate-100">{{ formatDate(entry().lastDayUpdated) }}</dd>
+              </div>
+            }
+          </dl>
+        </section>
+      }
+    </div>
+
+    <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+      <button
+        type="button"
+        (click)="close()"
+        class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm"
+      >
+        {{ 'common.close' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

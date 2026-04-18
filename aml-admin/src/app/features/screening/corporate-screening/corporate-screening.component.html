@@ -300,7 +300,21 @@
                   <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                     {{ 'corporateScreening.documentFile' | translate }}
                   </label>
-                  <input type="file" class="cs-input text-sm py-1.5 file:mr-2" />
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    class="cs-input text-sm py-1.5 file:mr-2"
+                    (change)="onCompanyFileSelected(bi, i, $event)"
+                  />
+                  @if (doc.selectedFile) {
+                    <p class="text-xs text-slate-600 dark:text-slate-400 truncate">{{ doc.selectedFile.name }}</p>
+                  }
+                  @if (doc.uploadedDocumentId) {
+                    <p class="text-xs text-green-600 dark:text-green-400">{{ 'screening.uploadSuccess' | translate }}</p>
+                  }
+                  @if (doc.uploadError) {
+                    <p class="text-xs text-red-600 dark:text-red-400">{{ doc.uploadError }}</p>
+                  }
                   <button
                     type="button"
                     (click)="removeDocument(bi, i)"
@@ -468,7 +482,21 @@
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                           {{ 'corporateScreening.documentFile' | translate }}
                         </label>
-                        <input type="file" class="cs-input text-sm py-1.5 file:mr-2" />
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          class="cs-input text-sm py-1.5 file:mr-2"
+                          (change)="onShareholderFileSelected(bi, si, di, $event)"
+                        />
+                        @if (sd.selectedFile) {
+                          <p class="text-xs text-slate-600 dark:text-slate-400 truncate">{{ sd.selectedFile.name }}</p>
+                        }
+                        @if (sd.uploadedDocumentId) {
+                          <p class="text-xs text-green-600 dark:text-green-400">{{ 'screening.uploadSuccess' | translate }}</p>
+                        }
+                        @if (sd.uploadError) {
+                          <p class="text-xs text-red-600 dark:text-red-400">{{ sd.uploadError }}</p>
+                        }
                         <button
                           type="button"
                           (click)="removeShareholderDocument(bi, si, di)"
@@ -595,6 +623,7 @@
                 <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.date' | translate }}</th>
                 <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.status' | translate }}</th>
                 <th class="px-4 py-2 font-medium">{{ 'individualScreening.result.review' | translate }}</th>
+                <th class="px-4 py-2 font-medium">{{ 'screening.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
@@ -607,6 +636,24 @@
                   <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ r.screeningDate | date: 'short' }}</td>
                   <td class="px-4 py-3 text-slate-800 dark:text-slate-100">{{ getStatusLabel(r.status) }}</td>
                   <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ getReviewStatusLabel(r.reviewStatus) }}</td>
+                  <td class="px-4 py-3">
+                    @if (canShowCheckerActions(r)) {
+                      <div class="flex gap-2">
+                        <button type="button"
+                                (click)="openAction(r.id, 'Approve')"
+                                class="px-2 py-1 text-xs rounded bg-emerald-600 hover:bg-emerald-700 text-white">
+                          {{ 'screening.approve' | translate }}
+                        </button>
+                        <button type="button"
+                                (click)="openAction(r.id, 'Reject')"
+                                class="px-2 py-1 text-xs rounded bg-rose-600 hover:bg-rose-700 text-white">
+                          {{ 'screening.reject' | translate }}
+                        </button>
+                      </div>
+                    } @else {
+                      <span class="text-slate-400">—</span>
+                    }
+                  </td>
                 </tr>
               }
             </tbody>
@@ -616,3 +663,39 @@
     </div>
   </div>
 </div>
+
+@if (pendingAction() !== null) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div class="w-full max-w-md rounded-lg bg-white dark:bg-slate-900 shadow-xl p-5">
+      <h3 class="text-lg font-semibold mb-3 text-slate-900 dark:text-slate-100">
+        @if (pendingAction() === 'Approve') {
+          {{ 'screening.approveTitle' | translate }}
+        } @else {
+          {{ 'screening.rejectTitle' | translate }}
+        }
+      </h3>
+      <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-200">
+        {{ 'screening.notes' | translate }}
+      </label>
+      <textarea rows="4"
+                [ngModel]="actionNote()"
+                (ngModelChange)="actionNote.set($event)"
+                class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
+      </textarea>
+      <div class="mt-4 flex justify-end gap-2">
+        <button type="button" (click)="cancelAction()"
+                class="px-3 py-1.5 text-sm rounded bg-slate-200 hover:bg-slate-300 text-slate-800">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button type="button" (click)="submitCheckerAction()"
+                class="px-3 py-1.5 text-sm rounded text-white"
+                [class.bg-emerald-600]="pendingAction() === 'Approve'"
+                [class.hover:bg-emerald-700]="pendingAction() === 'Approve'"
+                [class.bg-rose-600]="pendingAction() === 'Reject'"
+                [class.hover:bg-rose-700]="pendingAction() === 'Reject'">
+          {{ 'common.confirm' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

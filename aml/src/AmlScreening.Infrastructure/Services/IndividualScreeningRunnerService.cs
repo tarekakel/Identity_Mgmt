@@ -3,93 +3,73 @@ using AmlScreening.Application.DTOs.SanctionsScreening;
 using AmlScreening.Application.Interfaces;
 using AmlScreening.Domain.Entities;
 using AmlScreening.Infrastructure.Persistence;
-using FuzzySharp;
-using Microsoft.EntityFrameworkCore;
 
 namespace AmlScreening.Infrastructure.Services;
 
 public class IndividualScreeningRunnerService : IIndividualScreeningRunnerService
 {
-    private const string StatusClear = "Clear";
-    private const string StatusPossibleMatch = "PossibleMatch";
     private const string StatusConfirmedMatch = "ConfirmedMatch";
+    private const string StatusPossibleMatch = "PossibleMatch";
     private const string ReviewStatusPendingReview = "PendingReview";
 
-    private const string MatchTypeFullName = "FullName";
-    private const string MatchTypeNationality = "Nationality";
-    private const string MatchTypeDateOfBirth = "DateOfBirth";
-
     private readonly ApplicationDbContext _context;
+    private readonly IScreeningEngine _engine;
 
-    public IndividualScreeningRunnerService(ApplicationDbContext context)
+    public IndividualScreeningRunnerService(ApplicationDbContext context, IScreeningEngine engine)
     {
         _context = context;
+        _engine = engine;
     }
 
     public async Task<ApiResponse<RunSanctionsScreeningResultDto>> RunAsync(IndividualScreeningRequest request, CancellationToken cancellationToken = default)
     {
-        var possibleThreshold = Math.Clamp(request.MatchThreshold, 0, 100);
-        var confirmedThreshold = Math.Clamp(possibleThreshold + 15, 0, 100);
-        if (confirmedThreshold < possibleThreshold) confirmedThreshold = possibleThreshold;
+        var fullName = request.FullName?.Trim() ?? string.Empty;
+        var (firstName, lastName) = SplitFullName(fullName);
 
-        var selectedSources = GetSelectedListSources(request);
-        var entriesQuery = _context.SanctionListEntries.AsNoTracking();
-        if (selectedSources.Count > 0)
-            entriesQuery = entriesQuery.Where(e => selectedSources.Contains(e.ListSource));
+        var query = new ScreeningQuery
+        {
+            FullName = fullName,
+            FirstName = firstName,
+            LastName = lastName,
+            Nationality = request.Nationality?.Name?.Trim(),
+            PlaceOfBirthCountry = request.PlaceOfBirthCountry?.Name?.Trim(),
+            Gender = request.Gender?.Name?.Trim(),
+            DateOfBirth = request.DateOfBirth,
+            BirthYearRange = request.BirthYearRange ?? 2,
+            ListSources = ListSourceSelector.GetSelectedSources(request),
+            Threshold0to100 = Math.Clamp(request.MatchThreshold, 0, 100),
+            Top = 50
+        };
 
-        var entries = await entriesQuery.ToListAsync(cancellationToken);
-
-        var customerFullName = request.FullName?.Trim() ?? string.Empty;
-        var customerNationality = request.Nationality?.Name?.Trim() ?? string.Empty;
-        var customerDob = request.DateOfBirth;
-        var birthYearRange = request.BirthYearRange;
+        var candidates = await _engine.SearchAsync(query, cancellationToken);
 
         var screenedAt = DateTime.UtcNow;
         var results = new List<SanctionsScreeningResultItemDto>();
         var hasConfirmedMatch = false;
 
-        var byList = entries.GroupBy(e => e.ListSource);
-        foreach (var group in byList)
+        foreach (var c in candidates)
         {
-            var listName = group.Key;
-            foreach (var entry in group)
+            if (c.Status == StatusConfirmedMatch) hasConfirmedMatch = true;
+
+            var reviewStatus = (c.Status == StatusPossibleMatch || c.Status == StatusConfirmedMatch)
+                ? ReviewStatusPendingReview
+                : null;
+
+            var entity = new SanctionsScreening
             {
-                var (score, matchType) = ComputeMatchScore(
-                    customerFullName,
-                    customerNationality,
-                    customerDob,
-                    birthYearRange,
-                    entry.FullName?.Trim() ?? string.Empty,
-                    entry.Nationality?.Trim() ?? string.Empty,
-                    entry.DateOfBirth);
+                Id = Guid.NewGuid(),
+                CustomerId = request.CustomerId,
+                ScreeningList = c.ListSource,
+                Result = c.Status,
+                MatchedName = c.MatchedAlias ?? c.FullName,
+                MatchType = c.MatchType,
+                Score = (decimal)Math.Round(c.NormalizedScore0to100, 2),
+                ScreenedAt = screenedAt,
+                ReviewStatus = reviewStatus
+            };
 
-                if (score < possibleThreshold)
-                    continue;
-
-                var status = GetStatusFromScore(score, possibleThreshold, confirmedThreshold);
-                if (status == StatusConfirmedMatch)
-                    hasConfirmedMatch = true;
-
-                var reviewStatus = (status == StatusPossibleMatch || status == StatusConfirmedMatch)
-                    ? ReviewStatusPendingReview
-                    : null;
-
-                var entity = new SanctionsScreening
-                {
-                    Id = Guid.NewGuid(),
-                    CustomerId = request.CustomerId,
-                    ScreeningList = listName,
-                    Result = status,
-                    MatchedName = entry.FullName,
-                    MatchType = matchType,
-                    Score = (decimal)Math.Round(score, 2),
-                    ScreenedAt = screenedAt,
-                    ReviewStatus = reviewStatus
-                };
-
-                _context.SanctionsScreenings.Add(entity);
-                results.Add(MapToResultItem(entity));
-            }
+            _context.SanctionsScreenings.Add(entity);
+            results.Add(MapToResultItem(entity));
         }
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -101,78 +81,16 @@ public class IndividualScreeningRunnerService : IIndividualScreeningRunnerServic
         });
     }
 
-    private static HashSet<string> GetSelectedListSources(IndividualScreeningRequest request)
+    private static (string? First, string? Last) SplitFullName(string fullName)
     {
-        // Today we only have sanction list sources in DB. Other category toggles are persisted for future APIs.
-        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        if (request.CheckSanctions)
+        if (string.IsNullOrWhiteSpace(fullName)) return (null, null);
+        var parts = fullName.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return parts.Length switch
         {
-            set.Add(SanctionListUploadService.SourceUn);
-            set.Add(SanctionListUploadService.SourceUae);
-            set.Add(SanctionListUploadService.SourceOfac);
-        }
-
-        // If user didn't select anything, default to all known sources so the run isn't empty.
-        if (set.Count == 0)
-        {
-            set.Add(SanctionListUploadService.SourceUn);
-            set.Add(SanctionListUploadService.SourceUae);
-            set.Add(SanctionListUploadService.SourceOfac);
-        }
-
-        return set;
-    }
-
-    private static (double score, string matchType) ComputeMatchScore(
-        string customerFullName,
-        string customerNationality,
-        DateTime? customerDob,
-        int? birthYearRange,
-        string entryFullName,
-        string entryNationality,
-        DateTime? entryDob)
-    {
-        double fullNameScore = 0;
-        if (customerFullName.Length > 0 && entryFullName.Length > 0)
-            fullNameScore = Fuzz.TokenSetRatio(customerFullName, entryFullName);
-
-        double nationalityScore = 0;
-        if (customerNationality.Length > 0 && entryNationality.Length > 0)
-            nationalityScore = Fuzz.TokenSetRatio(customerNationality, entryNationality);
-
-        double dobScore = 0;
-        if (customerDob.HasValue && entryDob.HasValue)
-        {
-            var yRange = Math.Max(0, birthYearRange ?? 0);
-            var yearDiff = Math.Abs(customerDob.Value.Year - entryDob.Value.Year);
-            var dateEqual = customerDob.Value.Date == entryDob.Value.Date;
-
-            if (dateEqual) dobScore = 100;
-            else if (yRange > 0 && yearDiff <= yRange) dobScore = 80;
-            else dobScore = 0;
-        }
-
-        // Weighted combination: name 60%, nationality 25%, DOB 15%
-        var weights = 0.0;
-        var total = 0.0;
-        if (customerFullName.Length > 0 || entryFullName.Length > 0) { weights += 0.6; total += 0.6 * fullNameScore; }
-        if (customerNationality.Length > 0 || entryNationality.Length > 0) { weights += 0.25; total += 0.25 * nationalityScore; }
-        if (customerDob.HasValue || entryDob.HasValue) { weights += 0.15; total += 0.15 * dobScore; }
-
-        var score = weights > 0 ? total / weights : 0;
-
-        var matchType = MatchTypeFullName;
-        if (nationalityScore >= fullNameScore && nationalityScore >= dobScore) matchType = MatchTypeNationality;
-        else if (dobScore >= fullNameScore && dobScore >= nationalityScore) matchType = MatchTypeDateOfBirth;
-
-        return (Math.Round(score, 2), matchType);
-    }
-
-    private static string GetStatusFromScore(double score, int possibleThreshold, int confirmedThreshold)
-    {
-        if (score >= confirmedThreshold) return StatusConfirmedMatch;
-        if (score >= possibleThreshold) return StatusPossibleMatch;
-        return StatusClear;
+            0 => (null, null),
+            1 => (parts[0], null),
+            _ => (parts[0], parts[1])
+        };
     }
 
     private static SanctionsScreeningResultItemDto MapToResultItem(SanctionsScreening s) => new()
@@ -191,4 +109,3 @@ public class IndividualScreeningRunnerService : IIndividualScreeningRunnerServic
         ReviewedBy = s.ReviewedBy
     };
 }
-

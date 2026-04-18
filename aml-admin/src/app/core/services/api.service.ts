@@ -36,6 +36,8 @@ import type {
   CreateSanctionListEntryRequest,
   RecordSanctionScreeningActionRequest,
   SanctionActionAuditLogDto,
+  OnboardingSubmissionRequest,
+  OnboardingSubmissionResultDto,
   IndividualBulkUploadResultDto,
   IndividualBulkUploadBatchListItemDto,
   IndividualBulkUploadLineDetailDto,
@@ -133,6 +135,9 @@ export class ApiService {
   }
   recordSanctionScreeningAction(customerId: string, screeningId: string, body: RecordSanctionScreeningActionRequest): Observable<ApiResponse<SanctionsScreeningResultItemDto>> {
     return this.http.post<ApiResponse<SanctionsScreeningResultItemDto>>(`${BASE}/api/Customers/${customerId}/sanctions-screening/${screeningId}/action`, body);
+  }
+  submitOnboarding(customerId: string, body: OnboardingSubmissionRequest): Observable<ApiResponse<OnboardingSubmissionResultDto>> {
+    return this.http.post<ApiResponse<OnboardingSubmissionResultDto>>(`${BASE}/api/Customers/${customerId}/onboarding/submit`, body);
   }
   getSanctionActionAuditLogs(params: { customerId?: string; sanctionsScreeningId?: string; fromDate?: string; toDate?: string }): Observable<ApiResponse<SanctionActionAuditLogDto[]>> {
     let httpParams = new HttpParams();

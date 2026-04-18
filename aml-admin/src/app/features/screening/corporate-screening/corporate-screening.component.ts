@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
+import { CorporateKycService } from '../../../core/services/corporate-kyc.service';
 import { CorporateScreeningService } from '../../../core/services/corporate-screening.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import type {
@@ -33,6 +34,9 @@ export interface CorporateDocumentRow {
   expiryDate: string;
   details: string;
   remarks: string;
+  selectedFile?: File | null;
+  uploadedDocumentId?: string;
+  uploadError?: string | null;
 }
 
 export interface ShareholderRow {
@@ -124,8 +128,12 @@ function createEmptyBlock(): CorporateFormBlock {
 export class CorporateScreeningComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly corporateApi = inject(CorporateScreeningService);
+  private readonly corporateKycApi = inject(CorporateKycService);
   private readonly notification = inject(NotificationService);
   private readonly translate = inject(TranslateService);
+
+  private static readonly MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+  private static readonly ALLOWED_FILE_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png'];
 
   customerSearchTerm = signal('');
   customerOptions = signal<CustomerDto[]>([]);
@@ -375,6 +383,40 @@ export class CorporateScreeningComponent implements OnInit {
     );
   }
 
+  onCompanyFileSelected(bi: number, docIndex: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0] ?? null;
+    const error = this.validateFile(file);
+    this.updateCompanyDoc(bi, docIndex, { selectedFile: error ? null : file, uploadError: error });
+    if (error) {
+      input.value = '';
+      this.notification.error(error);
+    }
+  }
+
+  onShareholderFileSelected(bi: number, shIndex: number, docIndex: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0] ?? null;
+    const error = this.validateFile(file);
+    this.updateShareholderDoc(bi, shIndex, docIndex, { selectedFile: error ? null : file, uploadError: error });
+    if (error) {
+      input.value = '';
+      this.notification.error(error);
+    }
+  }
+
+  private validateFile(file: File | null): string | null {
+    if (!file) return null;
+    const ext = '.' + (file.name.split('.').pop() ?? '').toLowerCase();
+    if (!CorporateScreeningComponent.ALLOWED_FILE_EXTENSIONS.includes(ext)) {
+      return this.translate.instant('screening.allowedFormats');
+    }
+    if (file.size > CorporateScreeningComponent.MAX_FILE_SIZE_BYTES) {
+      return this.translate.instant('screening.fileSizeMax');
+    }
+    return null;
+  }
+
   updateCompanyDoc(bi: number, docIndex: number, patch: Partial<CorporateDocumentRow>): void {
     this.corporates.update((rows) =>
       rows.map((row, i) => {
@@ -513,7 +555,7 @@ export class CorporateScreeningComponent implements OnInit {
 
       const runUpsert = (pos: number): void => {
         if (pos >= toSave.length) {
-          this.runAllForRequests(customerId, requestIds);
+          this.uploadPendingDocuments(customerId, () => this.runAllForRequests(customerId, requestIds));
           return;
         }
         const { index } = toSave[pos];
@@ -683,6 +725,138 @@ export class CorporateScreeningComponent implements OnInit {
     if (reviewStatus === 'Approved') return this.translate.instant('screening.reviewApproved');
     if (reviewStatus === 'Rejected') return this.translate.instant('screening.reviewRejected');
     return '—';
+  }
+
+  // ---- Checker review actions (Approve / Reject) ----
+  actionScreeningId = signal<string | null>(null);
+  pendingAction = signal<'Approve' | 'Reject' | null>(null);
+  actionNote = signal('');
+
+  canShowCheckerActions(r: SanctionsScreeningResultItemDto): boolean {
+    return (r.status === 'PossibleMatch' || r.status === 'ConfirmedMatch')
+      && r.reviewStatus === 'PendingReview';
+  }
+
+  openAction(screeningId: string, action: 'Approve' | 'Reject'): void {
+    this.actionScreeningId.set(screeningId);
+    this.pendingAction.set(action);
+    this.actionNote.set('');
+  }
+
+  cancelAction(): void {
+    this.actionScreeningId.set(null);
+    this.pendingAction.set(null);
+    this.actionNote.set('');
+  }
+
+  submitCheckerAction(): void {
+    const cid = this.selectedCustomerId();
+    const sid = this.actionScreeningId();
+    const action = this.pendingAction();
+    if (!cid || !sid || !action) return;
+    this.api.recordSanctionScreeningAction(cid, sid, {
+      action,
+      notes: this.actionNote()?.trim() || undefined
+    }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.cancelAction();
+          this.refreshResults();
+          this.notification.success(this.translate.instant('screening.actionRecorded'));
+        } else {
+          this.notification.error(res.message ?? this.translate.instant('common.errorGeneric'));
+        }
+      },
+      error: (err: unknown) => {
+        const msg = (err as { error?: { message?: string } })?.error?.message
+          ?? this.translate.instant('common.errorGeneric');
+        this.notification.error(msg);
+      }
+    });
+  }
+
+  private uploadPendingDocuments(customerId: string, onComplete: () => void): void {
+    const pending: { row: CorporateDocumentRow; file: File }[] = [];
+    for (const block of this.corporates()) {
+      for (const d of block.documents) {
+        if (d.selectedFile && !d.uploadedDocumentId) pending.push({ row: d, file: d.selectedFile });
+      }
+      for (const sh of block.shareholders) {
+        for (const d of sh.documents) {
+          if (d.selectedFile && !d.uploadedDocumentId) pending.push({ row: d, file: d.selectedFile });
+        }
+      }
+    }
+    if (!pending.length) {
+      onComplete();
+      return;
+    }
+    const next = (i: number): void => {
+      if (i >= pending.length) {
+        onComplete();
+        return;
+      }
+      const { row, file } = pending[i];
+      this.corporateKycApi
+        .uploadCorporateKycDocument(
+          customerId,
+          {
+            documentNo: row.documentNo?.trim() || undefined,
+            issuedDate: row.issuedDate ? new Date(row.issuedDate).toISOString() : undefined,
+            expiryDate: row.expiryDate ? new Date(row.expiryDate).toISOString() : undefined
+          },
+          file
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.success && res.data) {
+              this.markRowUploaded(row.id, res.data.id);
+            } else {
+              const msg = res.message ?? this.translate.instant('screening.uploadFailed');
+              this.markRowUploadError(row.id, msg);
+              this.notification.error(`${file.name}: ${msg}`);
+            }
+            next(i + 1);
+          },
+          error: (err) => {
+            const msg = err?.error?.message ?? this.translate.instant('screening.uploadFailed');
+            this.markRowUploadError(row.id, msg);
+            this.notification.error(`${file.name}: ${msg}`);
+            next(i + 1);
+          }
+        });
+    };
+    next(0);
+  }
+
+  private markRowUploaded(rowId: string, uploadedDocumentId: string): void {
+    this.corporates.update((rows) =>
+      rows.map((row) => ({
+        ...row,
+        documents: row.documents.map((d) =>
+          d.id === rowId ? { ...d, uploadedDocumentId, uploadError: null, selectedFile: null } : d
+        ),
+        shareholders: row.shareholders.map((sh) => ({
+          ...sh,
+          documents: sh.documents.map((d) =>
+            d.id === rowId ? { ...d, uploadedDocumentId, uploadError: null, selectedFile: null } : d
+          )
+        }))
+      }))
+    );
+  }
+
+  private markRowUploadError(rowId: string, error: string): void {
+    this.corporates.update((rows) =>
+      rows.map((row) => ({
+        ...row,
+        documents: row.documents.map((d) => (d.id === rowId ? { ...d, uploadError: error } : d)),
+        shareholders: row.shareholders.map((sh) => ({
+          ...sh,
+          documents: sh.documents.map((d) => (d.id === rowId ? { ...d, uploadError: error } : d))
+        }))
+      }))
+    );
   }
 
   private mapCompanyRowToUpsert(d: CorporateDocumentRow): UpsertCorporateScreeningCompanyDocumentDto {

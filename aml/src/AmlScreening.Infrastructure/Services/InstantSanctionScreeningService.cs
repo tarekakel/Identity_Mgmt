@@ -8,13 +8,16 @@ namespace AmlScreening.Infrastructure.Services;
 
 public class InstantSanctionScreeningService : IInstantSanctionScreeningService
 {
-    private const int MaxResults = 200;
+    private const int MaxResults = 50;
+    private const int DefaultThreshold = 70;
 
     private readonly ApplicationDbContext _context;
+    private readonly IScreeningEngine _engine;
 
-    public InstantSanctionScreeningService(ApplicationDbContext context)
+    public InstantSanctionScreeningService(ApplicationDbContext context, IScreeningEngine engine)
     {
         _context = context;
+        _engine = engine;
     }
 
     public async Task<ApiResponse<IReadOnlyList<InstantSanctionScreeningResultItemDto>>> SearchAsync(
@@ -35,80 +38,70 @@ public class InstantSanctionScreeningService : IInstantSanctionScreeningService
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        nationalityName = nationalityName?.Trim() ?? string.Empty;
+        var (firstName, lastName) = SplitFullName(fullName);
 
-        var (searchFirst, searchLast) = SplitFullName(fullName);
+        var query = new ScreeningQuery
+        {
+            FullName = fullName,
+            FirstName = firstName,
+            LastName = lastName,
+            Nationality = nationalityName?.Trim(),
+            DateOfBirth = request.DateOfBirth,
+            BirthYearRange = request.DateOfBirth.HasValue ? 2 : (int?)null,
+            Threshold0to100 = DefaultThreshold,
+            Top = MaxResults
+        };
 
+        var candidates = await _engine.SearchAsync(query, cancellationToken);
+        if (candidates.Count == 0)
+            return ApiResponse<IReadOnlyList<InstantSanctionScreeningResultItemDto>>.Ok(Array.Empty<InstantSanctionScreeningResultItemDto>());
+
+        // Hydrate display fields from the DB by entry IDs (one round-trip)
+        var ids = candidates.Where(c => c.EntryId != Guid.Empty).Select(c => c.EntryId).ToList();
         var entries = await _context.SanctionListEntries
             .AsNoTracking()
-            .ToListAsync(cancellationToken);
+            .Where(e => ids.Contains(e.Id))
+            .ToDictionaryAsync(e => e.Id, cancellationToken);
 
-        var rows = new List<(double Score, InstantSanctionScreeningResultItemDto Dto)>();
-
-        foreach (var entry in entries)
+        var ordered = new List<InstantSanctionScreeningResultItemDto>();
+        foreach (var c in candidates)
         {
-            var (score, _) = SanctionListMatchScoring.ComputeMatchScore(
-                fullName,
-                searchFirst,
-                searchLast,
-                nationalityName,
-                request.DateOfBirth,
-                entry.FullName?.Trim() ?? string.Empty,
-                entry.FirstName?.Trim() ?? string.Empty,
-                entry.SecondName?.Trim() ?? string.Empty,
-                entry.Nationality?.Trim() ?? string.Empty,
-                entry.DateOfBirth);
+            entries.TryGetValue(c.EntryId, out var entry);
 
-            if (score < SanctionListMatchScoring.ThresholdPossibleMatch)
-                continue;
+            var uidKey = entry?.DataId is { Length: > 0 } d
+                ? d
+                : entry?.ReferenceNumber is { Length: > 0 } r
+                    ? r
+                    : c.EntryId.ToString("N")[..8];
 
-            var uidKey = !string.IsNullOrWhiteSpace(entry.DataId)
-                ? entry.DataId!
-                : !string.IsNullOrWhiteSpace(entry.ReferenceNumber)
-                    ? entry.ReferenceNumber!
-                    : entry.Id.ToString("N")[..8];
-
-            var idNumber = !string.IsNullOrWhiteSpace(entry.DocumentNumber)
-                ? entry.DocumentNumber
-                : entry.ReferenceNumber;
-
-            var remarks = !string.IsNullOrWhiteSpace(entry.Comments)
-                ? entry.Comments
-                : entry.OtherInformation;
-
-            var dto = new InstantSanctionScreeningResultItemDto
+            ordered.Add(new InstantSanctionScreeningResultItemDto
             {
-                MatchScore = (decimal)Math.Round(score, 2),
+                MatchScore = (decimal)Math.Round(c.NormalizedScore0to100, 2),
                 CustomerId = null,
-                Uid = $"{entry.ListSource}-{uidKey}",
-                EntryType = entry.EntryType ?? entry.TypeDetail,
-                Name = entry.FullName,
-                NationalityOrCountry = entry.Nationality,
-                DateOfBirth = entry.DateOfBirth,
-                IdNumber = idNumber,
-                Source = entry.ListSource,
-                CreatedOn = entry.ListedOn ?? entry.LastDayUpdated,
-                Remarks = remarks
-            };
-
-            rows.Add((score, dto));
+                Uid = $"{c.ListSource}-{uidKey}",
+                EntryType = entry?.EntryType ?? entry?.TypeDetail,
+                Name = c.MatchedAlias ?? c.FullName,
+                NationalityOrCountry = c.Nationality,
+                DateOfBirth = c.DateOfBirth,
+                IdNumber = entry?.DocumentNumber ?? entry?.ReferenceNumber,
+                Source = c.ListSource,
+                CreatedOn = entry?.ListedOn ?? entry?.LastDayUpdated,
+                Remarks = entry?.Comments ?? entry?.OtherInformation
+            });
         }
-
-        var ordered = rows
-            .OrderByDescending(r => r.Score)
-            .Take(MaxResults)
-            .Select(r => r.Dto)
-            .ToList();
 
         return ApiResponse<IReadOnlyList<InstantSanctionScreeningResultItemDto>>.Ok(ordered);
     }
 
-    private static (string First, string Last) SplitFullName(string fullName)
+    private static (string? First, string? Last) SplitFullName(string fullName)
     {
-        var trimmed = fullName.Trim();
-        var i = trimmed.IndexOf(' ');
-        if (i <= 0)
-            return (trimmed, string.Empty);
-        return (trimmed[..i].Trim(), trimmed[(i + 1)..].Trim());
+        if (string.IsNullOrWhiteSpace(fullName)) return (null, null);
+        var parts = fullName.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return parts.Length switch
+        {
+            0 => (null, null),
+            1 => (parts[0], null),
+            _ => (parts[0], parts[1])
+        };
     }
 }

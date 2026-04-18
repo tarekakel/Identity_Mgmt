@@ -415,11 +415,100 @@
           </button>
         </div>
       }
-    } @else {
-      <!-- Step 4 placeholder -->
-      <div class="p-6 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-        <p class="text-slate-600 dark:text-slate-400">{{ 'screening.comingSoon' | translate }}</p>
-      </div>
+    } @else if (isStep4()) {
+      <!-- Step 4 – Review & Submit -->
+      @if (!createdCustomerId()) {
+        <div class="p-6 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+          <p class="text-slate-600 dark:text-slate-400">{{ 'screening.completeStep1First' | translate }}</p>
+        </div>
+      } @else if (submitResult()) {
+        <div class="p-6 rounded-lg border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 mb-4">
+          <h3 class="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">{{ 'screening.submitSuccess' | translate }}</h3>
+          <p class="text-sm text-slate-700 dark:text-slate-300">
+            Case: <span class="font-mono">{{ submitResult()!.case?.caseNumber ?? submitResult()!.caseId }}</span>
+          </p>
+          <p class="text-sm text-slate-700 dark:text-slate-300">
+            {{ 'screening.status' | translate }}: <span class="font-medium">{{ submitResult()!.caseStatus }}</span>
+          </p>
+          <p class="text-sm text-slate-700 dark:text-slate-300">
+            {{ 'screening.worstStatus' | translate }}: {{ getStatusLabel(submitResult()!.worstScreeningStatus) }}
+          </p>
+          <div class="mt-4 flex gap-2">
+            <button type="button" (click)="goToCase()" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500">
+              {{ 'navigation.cases' | translate }}
+            </button>
+            <button type="button" (click)="goToCustomers()" class="px-4 py-2 rounded-lg bg-slate-700 dark:bg-slate-600 text-white hover:bg-slate-600 dark:hover:bg-slate-500">
+              {{ 'screening.viewCustomers' | translate }}
+            </button>
+          </div>
+        </div>
+      } @else {
+        @if (submitError()) {
+          <div class="mb-4 p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">{{ submitError() }}</div>
+        }
+
+        <fieldset class="rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-4">
+          <legend class="text-lg font-semibold text-slate-800 dark:text-slate-100 px-2">{{ 'screening.customerSummary' | translate }}</legend>
+          @if (customerSummary(); as c) {
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm mt-2">
+              <div><dt class="text-slate-500 dark:text-slate-400 inline">{{ 'customers.fullName' | translate }}: </dt><dd class="inline text-slate-800 dark:text-slate-100 font-medium">{{ c.fullName }}</dd></div>
+              <div><dt class="text-slate-500 dark:text-slate-400 inline">{{ 'screening.customerType' | translate }}: </dt><dd class="inline text-slate-800 dark:text-slate-100">{{ c.customerTypeName ?? c.customerTypeId }}</dd></div>
+              <div><dt class="text-slate-500 dark:text-slate-400 inline">{{ 'customers.dateOfBirth' | translate }}: </dt><dd class="inline text-slate-800 dark:text-slate-100">{{ c.dateOfBirth ? (c.dateOfBirth | date:'mediumDate') : '—' }}</dd></div>
+              <div><dt class="text-slate-500 dark:text-slate-400 inline">{{ 'customers.nationality' | translate }}: </dt><dd class="inline text-slate-800 dark:text-slate-100">{{ c.nationalityName ?? '—' }}</dd></div>
+              <div><dt class="text-slate-500 dark:text-slate-400 inline">{{ 'auth.email' | translate }}: </dt><dd class="inline text-slate-800 dark:text-slate-100">{{ c.email ?? '—' }}</dd></div>
+              <div><dt class="text-slate-500 dark:text-slate-400 inline">{{ 'screening.phone' | translate }}: </dt><dd class="inline text-slate-800 dark:text-slate-100">{{ c.phone ?? '—' }}</dd></div>
+            </dl>
+          } @else {
+            <p class="text-slate-600 dark:text-slate-400 mt-2">{{ 'common.loading' | translate }}</p>
+          }
+        </fieldset>
+
+        <fieldset class="rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-4">
+          <legend class="text-lg font-semibold text-slate-800 dark:text-slate-100 px-2">{{ 'screening.uploadedDocuments' | translate }}</legend>
+          <p class="mt-2 text-sm text-slate-700 dark:text-slate-300">
+            {{ 'screening.kycDocumentsCount' | translate }}: <span class="font-medium">{{ documents().length }}</span>
+          </p>
+          @if (documents().length > 0) {
+            <ul class="mt-2 list-disc list-inside text-sm text-slate-600 dark:text-slate-300">
+              @for (d of documents(); track d.id) {
+                <li>{{ d.documentTypeName ?? d.documentTypeCode }} – {{ d.fileName }}</li>
+              }
+            </ul>
+          }
+        </fieldset>
+
+        <fieldset class="rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-4">
+          <legend class="text-lg font-semibold text-slate-800 dark:text-slate-100 px-2">{{ 'screening.screeningResults' | translate }}</legend>
+          <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+            <div><span class="text-slate-500 dark:text-slate-400">{{ 'screening.screeningResultsCount' | translate }}: </span><span class="font-medium">{{ screeningResults().length }}</span></div>
+            <div><span class="text-slate-500 dark:text-slate-400">{{ 'screening.worstStatus' | translate }}: </span><span class="font-medium">{{ getStatusLabel(worstScreeningStatus()) }}</span></div>
+          </div>
+          @if (hasUnresolvedConfirmed()) {
+            <div class="mt-3 p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-sm">
+              {{ 'screening.submitBlocked' | translate }}
+            </div>
+          }
+        </fieldset>
+
+        <fieldset class="rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-4">
+          <legend class="text-lg font-semibold text-slate-800 dark:text-slate-100 px-2">{{ 'screening.submissionNotes' | translate }}</legend>
+          <textarea [ngModel]="submissionNotes()" name="submissionNotes" (ngModelChange)="submissionNotes.set($event)" rows="3"
+            class="w-full mt-2 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"></textarea>
+        </fieldset>
+
+        <div class="mt-6 flex gap-2">
+          <button type="button" (click)="goToStep(3)" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+            {{ 'common.back' | translate }}
+          </button>
+          <button type="button" (click)="submitOnboarding()" [disabled]="!canSubmitOnboarding()"
+            class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50">
+            {{ submitting() ? ('common.saving' | translate) : ('screening.submitOnboarding' | translate) }}
+          </button>
+          <button type="button" (click)="goToCustomers()" class="px-4 py-2 rounded-lg bg-slate-700 dark:bg-slate-600 text-white hover:bg-slate-600 dark:hover:bg-slate-500">
+            {{ 'screening.viewCustomers' | translate }}
+          </button>
+        </div>
+      }
     }
   }
 </div>

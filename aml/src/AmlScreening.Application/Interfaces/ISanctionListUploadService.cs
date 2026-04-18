@@ -10,4 +10,5 @@ public interface ISanctionListUploadService
     Task<ApiResponse<PagedResult<SanctionListEntryDto>>> GetEntriesAsync(string? searchTerm, string? listSource, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
     Task<ApiResponse<int>> DeleteByListSourceAsync(string listSource, CancellationToken cancellationToken = default);
     Task<ApiResponse<SanctionListEntryDto>> CreateEntryAsync(CreateSanctionListEntryDto dto, CancellationToken cancellationToken = default);
+    Task<ApiResponse<long>> ReindexAllAsync(CancellationToken cancellationToken = default);
 }

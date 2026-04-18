@@ -18,13 +18,20 @@ public class CustomersController : ControllerBase
     private readonly ICustomerDocumentService _documentService;
     private readonly IRunSanctionsScreeningService _runSanctionsScreeningService;
     private readonly ISanctionActionAuditLogService _sanctionActionAuditLogService;
+    private readonly IOnboardingSubmissionService _onboardingService;
 
-    public CustomersController(ICustomerService service, ICustomerDocumentService documentService, IRunSanctionsScreeningService runSanctionsScreeningService, ISanctionActionAuditLogService sanctionActionAuditLogService)
+    public CustomersController(
+        ICustomerService service,
+        ICustomerDocumentService documentService,
+        IRunSanctionsScreeningService runSanctionsScreeningService,
+        ISanctionActionAuditLogService sanctionActionAuditLogService,
+        IOnboardingSubmissionService onboardingService)
     {
         _service = service;
         _documentService = documentService;
         _runSanctionsScreeningService = runSanctionsScreeningService;
         _sanctionActionAuditLogService = sanctionActionAuditLogService;
+        _onboardingService = onboardingService;
     }
 
     [HttpGet]
@@ -161,6 +168,21 @@ public class CustomersController : ControllerBase
         var result = await _sanctionActionAuditLogService.RecordCheckerActionAsync(customerId, screeningId, request, cancellationToken);
         if (!result.Success)
             return result.Message == "Screening result not found." ? NotFound(result) : BadRequest(result);
+        return Ok(result);
+    }
+
+    [HttpPost("{customerId:guid}/onboarding/submit")]
+    [ProducesResponseType(typeof(ApiResponse<OnboardingSubmissionResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SubmitOnboarding(
+        Guid customerId,
+        [FromBody] OnboardingSubmissionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _onboardingService.SubmitAsync(customerId, request ?? new OnboardingSubmissionRequest(), cancellationToken);
+        if (!result.Success)
+            return result.Message == "Customer not found." ? NotFound(result) : BadRequest(result);
         return Ok(result);
     }
 }

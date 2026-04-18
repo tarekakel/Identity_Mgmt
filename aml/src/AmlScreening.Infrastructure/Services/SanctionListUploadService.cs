@@ -13,21 +13,37 @@ public class SanctionListUploadService : ISanctionListUploadService
     public const string SourceUn = "United Nations Security Council";
     public const string SourceUae = "UAE Sanction List";
     public const string SourceOfac = "Office of Foreign Assets Control";
+    public const string SourcePepUk = "PEP UK";
+    public const string SourceProfileOfInterest = "Profile of Interest";
+    public const string SourceAdverseMedia = "Adverse Media";
+
+    public static readonly IReadOnlySet<string> ValidSources = new HashSet<string>
+    {
+        SourceUn, SourceUae, SourceOfac, SourcePepUk, SourceProfileOfInterest, SourceAdverseMedia
+    };
+
+    public static readonly IReadOnlySet<string> SanctionSources = new HashSet<string>
+    {
+        SourceUn, SourceUae, SourceOfac
+    };
 
     private const int BatchSize = 2000;
 
     private readonly ApplicationDbContext _context;
     private readonly IUnConsolidatedListParser _unParser;
     private readonly IUaeSanctionListParser _uaeParser;
+    private readonly ISanctionEntryIndexer _indexer;
 
     public SanctionListUploadService(
         ApplicationDbContext context,
         IUnConsolidatedListParser unParser,
-        IUaeSanctionListParser uaeParser)
+        IUaeSanctionListParser uaeParser,
+        ISanctionEntryIndexer indexer)
     {
         _context = context;
         _unParser = unParser;
         _uaeParser = uaeParser;
+        _indexer = indexer;
     }
 
     public Task<ApiResponse<IReadOnlyList<SanctionListSourceDto>>> GetSourcesAsync(CancellationToken cancellationToken = default)
@@ -36,7 +52,10 @@ public class SanctionListUploadService : ISanctionListUploadService
         {
             new() { Id = SourceUn, Name = "United Nations Security Council Consolidated List", FileFormat = "XML" },
             new() { Id = SourceUae, Name = "UAE Sanction List", FileFormat = "XLS / XLSX" },
-            new() { Id = SourceOfac, Name = "Office of Foreign Assets Control", FileFormat = "XLS / XLSX" }
+            new() { Id = SourceOfac, Name = "Office of Foreign Assets Control", FileFormat = "XLS / XLSX" },
+            new() { Id = SourcePepUk, Name = "PEP UK", FileFormat = "XLS / XLSX" },
+            new() { Id = SourceProfileOfInterest, Name = "Profile of Interest", FileFormat = "XLS / XLSX" },
+            new() { Id = SourceAdverseMedia, Name = "Adverse Media", FileFormat = "XLS / XLSX" }
         };
         return Task.FromResult(ApiResponse<IReadOnlyList<SanctionListSourceDto>>.Ok(sources));
     }
@@ -48,8 +67,7 @@ public class SanctionListUploadService : ISanctionListUploadService
         if (string.IsNullOrWhiteSpace(listSourceId))
             return ApiResponse<SanctionListUploadResultDto>.Fail("List source is required.");
 
-        var validIds = new[] { SourceUn, SourceUae, SourceOfac };
-        if (!validIds.Contains(listSourceId))
+        if (!ValidSources.Contains(listSourceId))
             return ApiResponse<SanctionListUploadResultDto>.Fail("Invalid list source.");
 
         List<SanctionListEntry> entries;
@@ -91,6 +109,9 @@ public class SanctionListUploadService : ISanctionListUploadService
             await _context.SaveChangesAsync(cancellationToken);
         }
 
+        await _indexer.DeleteByListSourceAsync(listSourceId, cancellationToken);
+        await _indexer.IndexBulkAsync(entries, cancellationToken);
+
         return ApiResponse<SanctionListUploadResultDto>.Ok(new SanctionListUploadResultDto
         {
             ImportedCount = entries.Count,
@@ -118,49 +139,20 @@ public class SanctionListUploadService : ISanctionListUploadService
         var totalCount = await query.CountAsync(cancellationToken);
         var page = Math.Max(1, pageNumber);
         var size = Math.Clamp(pageSize, 1, 100);
-        var items = await query
+
+        // Materialize entities first so EF Core 8 hydrates the owned JSON collections
+        // (AliasItems / DatesOfBirth / Addresses / PlacesOfBirth / Documents) and the
+        // List<string>/List<DateTime> JSON-converted columns. We map to DTO in memory to
+        // avoid translating those owned-type projections inside the SQL Select.
+        var entities = await query
             .OrderBy(e => e.ListSource)
             .ThenBy(e => e.FullName)
             .Skip((page - 1) * size)
             .Take(size)
-            .Select(e => new SanctionListEntryDto
-            {
-                Id = e.Id,
-                ListSource = e.ListSource,
-                FullName = e.FullName,
-                Nationality = e.Nationality,
-                DateOfBirth = e.DateOfBirth,
-                ReferenceNumber = e.ReferenceNumber,
-                EntryType = e.EntryType,
-                DataId = e.DataId,
-                VersionNum = e.VersionNum,
-                FirstName = e.FirstName,
-                SecondName = e.SecondName,
-                UnListType = e.UnListType,
-                ListType = e.ListType,
-                ListedOn = e.ListedOn,
-                LastDayUpdated = e.LastDayUpdated,
-                Gender = e.Gender,
-                Designation = e.Designation,
-                Comments = e.Comments,
-                Aliases = e.Aliases,
-                AddressCity = e.AddressCity,
-                AddressCountry = e.AddressCountry,
-                AddressNote = e.AddressNote,
-                PlaceOfBirthCountry = e.PlaceOfBirthCountry,
-                SortKey = e.SortKey,
-                FullNameArabic = e.FullNameArabic,
-                FamilyNameArabic = e.FamilyNameArabic,
-                FamilyNameLatin = e.FamilyNameLatin,
-                DocumentNumber = e.DocumentNumber,
-                IssuingAuthority = e.IssuingAuthority,
-                IssueDate = e.IssueDate,
-                EndDate = e.EndDate,
-                OtherInformation = e.OtherInformation,
-                TypeDetail = e.TypeDetail
-            })
+            .AsNoTracking()
             .ToListAsync(cancellationToken);
 
+        var items = entities.Select(MapToDto).ToList();
         var result = new PagedResult<SanctionListEntryDto>(items, totalCount, page, size);
         return ApiResponse<PagedResult<SanctionListEntryDto>>.Ok(result);
     }
@@ -170,13 +162,16 @@ public class SanctionListUploadService : ISanctionListUploadService
         if (string.IsNullOrWhiteSpace(listSource))
             return ApiResponse<int>.Fail("List source is required.");
 
-        var validIds = new[] { SourceUn, SourceUae, SourceOfac };
-        if (!validIds.Contains(listSource.Trim()))
+        var trimmed = listSource.Trim();
+        if (!ValidSources.Contains(trimmed))
             return ApiResponse<int>.Fail("Invalid list source.");
 
         var count = await _context.SanctionListEntries
-            .Where(e => e.ListSource == listSource.Trim())
+            .Where(e => e.ListSource == trimmed)
             .ExecuteDeleteAsync(cancellationToken);
+
+        await _indexer.DeleteByListSourceAsync(trimmed, cancellationToken);
+
         return ApiResponse<int>.Ok(count);
     }
 
@@ -187,8 +182,7 @@ public class SanctionListUploadService : ISanctionListUploadService
         if (string.IsNullOrWhiteSpace(dto.FullName))
             return ApiResponse<SanctionListEntryDto>.Fail("Full name is required.");
 
-        var validIds = new[] { SourceUn, SourceUae, SourceOfac };
-        if (!validIds.Contains(dto.ListSource.Trim()))
+        if (!ValidSources.Contains(dto.ListSource.Trim()))
             return ApiResponse<SanctionListEntryDto>.Fail("Invalid list source.");
 
         var entry = new SanctionListEntry
@@ -223,7 +217,16 @@ public class SanctionListUploadService : ISanctionListUploadService
         _context.SanctionListEntries.Add(entry);
         await _context.SaveChangesAsync(cancellationToken);
 
+        await _indexer.IndexAsync(entry, cancellationToken);
+
         return ApiResponse<SanctionListEntryDto>.Ok(MapToDto(entry));
+    }
+
+    public async Task<ApiResponse<long>> ReindexAllAsync(CancellationToken cancellationToken = default)
+    {
+        var entries = await _context.SanctionListEntries.AsNoTracking().ToListAsync(cancellationToken);
+        var count = await _indexer.ReindexAllAsync(entries, cancellationToken);
+        return ApiResponse<long>.Ok(count);
     }
 
     private static string? Trunc(string? value, int maxLen)
@@ -268,7 +271,48 @@ public class SanctionListUploadService : ISanctionListUploadService
             IssueDate = e.IssueDate,
             EndDate = e.EndDate,
             OtherInformation = e.OtherInformation,
-            TypeDetail = e.TypeDetail
+            TypeDetail = e.TypeDetail,
+
+            AliasItems = (e.AliasItems ?? new()).Select(a => new SanctionAliasDto
+            {
+                Name = a.Name,
+                Quality = a.Quality
+            }).ToList(),
+            DatesOfBirth = (e.DatesOfBirth ?? new()).Select(d => new SanctionDobDto
+            {
+                Date = d.Date,
+                Year = d.Year,
+                FromYear = d.FromYear,
+                ToYear = d.ToYear,
+                TypeOfDate = d.TypeOfDate,
+                Note = d.Note
+            }).ToList(),
+            Addresses = (e.Addresses ?? new()).Select(a => new SanctionAddressDto
+            {
+                Street = a.Street,
+                City = a.City,
+                StateProvince = a.StateProvince,
+                Country = a.Country,
+                Note = a.Note
+            }).ToList(),
+            PlacesOfBirth = (e.PlacesOfBirth ?? new()).Select(p => new SanctionPlaceOfBirthDto
+            {
+                City = p.City,
+                StateProvince = p.StateProvince,
+                Country = p.Country
+            }).ToList(),
+            Documents = (e.Documents ?? new()).Select(d => new SanctionDocumentDto
+            {
+                Type = d.Type,
+                Type2 = d.Type2,
+                Number = d.Number,
+                IssuingCountry = d.IssuingCountry,
+                DateOfIssue = d.DateOfIssue,
+                Note = d.Note
+            }).ToList(),
+            Nationalities = e.Nationalities ?? new(),
+            Designations = e.Designations ?? new(),
+            LastDayUpdates = e.LastDayUpdates ?? new()
         };
     }
 }

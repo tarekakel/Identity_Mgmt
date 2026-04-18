@@ -37,4 +37,14 @@ public class SanctionListEntryDto
     public DateTime? EndDate { get; set; }
     public string? OtherInformation { get; set; }
     public string? TypeDetail { get; set; }
+
+    // ----- Multi-valued data (populated from EF Core JSON columns) -----
+    public List<SanctionAliasDto> AliasItems { get; set; } = new();
+    public List<SanctionDobDto> DatesOfBirth { get; set; } = new();
+    public List<SanctionAddressDto> Addresses { get; set; } = new();
+    public List<SanctionPlaceOfBirthDto> PlacesOfBirth { get; set; } = new();
+    public List<SanctionDocumentDto> Documents { get; set; } = new();
+    public List<string> Nationalities { get; set; } = new();
+    public List<string> Designations { get; set; } = new();
+    public List<DateTime> LastDayUpdates { get; set; } = new();
 }

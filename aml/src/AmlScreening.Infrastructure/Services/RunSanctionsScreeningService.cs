@@ -9,15 +9,18 @@ namespace AmlScreening.Infrastructure.Services;
 
 public class RunSanctionsScreeningService : IRunSanctionsScreeningService
 {
+    private const int DefaultThreshold = 70;
     private const string StatusConfirmedMatch = "ConfirmedMatch";
     private const string StatusPossibleMatch = "PossibleMatch";
     private const string ReviewStatusPendingReview = "PendingReview";
 
     private readonly ApplicationDbContext _context;
+    private readonly IScreeningEngine _engine;
 
-    public RunSanctionsScreeningService(ApplicationDbContext context)
+    public RunSanctionsScreeningService(ApplicationDbContext context, IScreeningEngine engine)
     {
         _context = context;
+        _engine = engine;
     }
 
     public async Task<ApiResponse<RunSanctionsScreeningResultDto>> RunScreeningForCustomerAsync(Guid customerId, CancellationToken cancellationToken = default)
@@ -25,79 +28,66 @@ public class RunSanctionsScreeningService : IRunSanctionsScreeningService
         var customer = await _context.Customers
             .AsNoTracking()
             .Include(c => c.Nationality)
+            .Include(c => c.Gender)
             .FirstOrDefaultAsync(c => c.Id == customerId, cancellationToken);
 
         if (customer == null)
             return ApiResponse<RunSanctionsScreeningResultDto>.Fail("Customer not found.");
 
-        var entries = await _context.SanctionListEntries
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        var fullName = customer.FullName?.Trim() ?? string.Empty;
+        var firstName = customer.FirstName?.Trim();
+        var lastName = customer.LastName?.Trim();
+        if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName))
+            (firstName, lastName) = SplitFullName(fullName);
 
-        var customerFullName = customer.FullName?.Trim() ?? string.Empty;
-        var customerFirstName = customer.FirstName?.Trim() ?? string.Empty;
-        var customerLastName = customer.LastName?.Trim() ?? string.Empty;
-        var customerNationality = customer.Nationality?.Name?.Trim() ?? string.Empty;
-        var customerDob = customer.DateOfBirth;
+        var query = new ScreeningQuery
+        {
+            FullName = fullName,
+            FirstName = firstName,
+            LastName = lastName,
+            Nationality = customer.Nationality?.Name?.Trim(),
+            Gender = customer.Gender?.Name?.Trim(),
+            DateOfBirth = customer.DateOfBirth,
+            BirthYearRange = customer.DateOfBirth.HasValue ? 2 : (int?)null,
+            Threshold0to100 = DefaultThreshold,
+            Top = 50
+        };
+
+        var candidates = await _engine.SearchAsync(query, cancellationToken);
 
         var screenedAt = DateTime.UtcNow;
         var results = new List<SanctionsScreeningResultItemDto>();
         var hasConfirmedMatch = false;
 
-        var byList = entries.GroupBy(e => e.ListSource);
-        foreach (var group in byList)
+        foreach (var c in candidates)
         {
-            var listName = group.Key;
+            if (c.Status == StatusConfirmedMatch) hasConfirmedMatch = true;
 
-            foreach (var entry in group)
+            var reviewStatus = (c.Status == StatusPossibleMatch || c.Status == StatusConfirmedMatch)
+                ? ReviewStatusPendingReview
+                : null;
+
+            var entity = new SanctionsScreening
             {
-                var (score, matchType) = SanctionListMatchScoring.ComputeMatchScore(
-                    customerFullName,
-                    customerFirstName,
-                    customerLastName,
-                    customerNationality,
-                    customerDob,
-                    entry.FullName?.Trim() ?? string.Empty,
-                    entry.FirstName?.Trim() ?? string.Empty,
-                    entry.SecondName?.Trim() ?? string.Empty,
-                    entry.Nationality?.Trim() ?? string.Empty,
-                    entry.DateOfBirth);
-
-                if (score < SanctionListMatchScoring.ThresholdPossibleMatch)
-                    continue;
-
-                var status = SanctionListMatchScoring.GetStatusFromScore(score);
-                if (status == StatusConfirmedMatch)
-                    hasConfirmedMatch = true;
-
-                var reviewStatus = (status == StatusPossibleMatch || status == StatusConfirmedMatch)
-                    ? ReviewStatusPendingReview
-                    : null;
-
-                var entity = new SanctionsScreening
-                {
-                    Id = Guid.NewGuid(),
-                    CustomerId = customerId,
-                    ScreeningList = listName,
-                    Result = status,
-                    MatchedName = entry.FullName,
-                    MatchType = matchType,
-                    Score = (decimal)Math.Round(score, 2),
-                    ScreenedAt = screenedAt,
-                    ReviewStatus = reviewStatus
-                };
-                _context.SanctionsScreenings.Add(entity);
-                results.Add(MapToResultItem(entity));
-            }
+                Id = Guid.NewGuid(),
+                CustomerId = customerId,
+                ScreeningList = c.ListSource,
+                Result = c.Status,
+                MatchedName = c.MatchedAlias ?? c.FullName,
+                MatchType = c.MatchType,
+                Score = (decimal)Math.Round(c.NormalizedScore0to100, 2),
+                ScreenedAt = screenedAt,
+                ReviewStatus = reviewStatus
+            };
+            _context.SanctionsScreenings.Add(entity);
+            results.Add(MapToResultItem(entity));
         }
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        var sortedResults = results.OrderByDescending(r => r.MatchScore).ToList();
-
         return ApiResponse<RunSanctionsScreeningResultDto>.Ok(new RunSanctionsScreeningResultDto
         {
-            Results = sortedResults,
+            Results = results.OrderByDescending(r => r.MatchScore).ToList(),
             HasConfirmedMatch = hasConfirmedMatch
         });
     }
@@ -129,6 +119,18 @@ public class RunSanctionsScreeningService : IRunSanctionsScreeningService
         }).ToList();
 
         return ApiResponse<IReadOnlyList<SanctionsScreeningResultItemDto>>.Ok(dtos);
+    }
+
+    private static (string? First, string? Last) SplitFullName(string fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName)) return (null, null);
+        var parts = fullName.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return parts.Length switch
+        {
+            0 => (null, null),
+            1 => (parts[0], null),
+            _ => (parts[0], parts[1])
+        };
     }
 
     private static SanctionsScreeningResultItemDto MapToResultItem(SanctionsScreening s) => new()

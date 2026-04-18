@@ -87,6 +87,8 @@ public class IndividualScreeningService : IIndividualScreeningService
         var entity = await _context.IndividualScreeningRequests
             .AsNoTracking()
             .Include(r => r.Nationality)
+            .Include(r => r.Gender)
+            .Include(r => r.PlaceOfBirthCountry)
             .FirstOrDefaultAsync(r => r.CustomerId == customerId && !r.IsDeleted, cancellationToken);
 
         if (entity == null)

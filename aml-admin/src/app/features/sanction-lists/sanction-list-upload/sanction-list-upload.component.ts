@@ -12,11 +12,12 @@ import type {
     SanctionListUploadResultDto,
     SanctionListEntryDto
   } from '../../../shared/models/api.model';
+import { SanctionEntryDetailDialogComponent } from './sanction-entry-detail-dialog.component';
 
 @Component({
   selector: 'app-sanction-list-upload',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule, SanctionEntryDetailDialogComponent],
   templateUrl: './sanction-list-upload.component.html'
 })
 export class SanctionListUploadComponent implements OnInit {
@@ -42,6 +43,8 @@ export class SanctionListUploadComponent implements OnInit {
   pageNumber = signal(1);
   readonly pageSize = 20;
   deletingBySource = signal(false);
+
+  selectedEntry = signal<SanctionListEntryDto | null>(null);
 
   showAddManualSection = signal(false);
   manualListSource = signal('');
@@ -173,6 +176,42 @@ export class SanctionListUploadComponent implements OnInit {
         }
       });
     });
+  }
+
+  openDetail(entry: SanctionListEntryDto): void {
+    this.selectedEntry.set(entry);
+  }
+
+  /**
+   * True when the entry has any data beyond the six columns already shown in the table row.
+   * Drives whether an info-icon button is rendered for that row.
+   */
+  hasExtraInfo(e: SanctionListEntryDto): boolean {
+    if ((e.aliasItems?.length ?? 0) > 0) return true;
+    if ((e.datesOfBirth?.length ?? 0) > 0) return true;
+    if ((e.addresses?.length ?? 0) > 0) return true;
+    if ((e.placesOfBirth?.length ?? 0) > 0) return true;
+    if ((e.documents?.length ?? 0) > 0) return true;
+    if ((e.nationalities?.length ?? 0) > 0) return true;
+    if ((e.designations?.length ?? 0) > 0) return true;
+    if ((e.lastDayUpdates?.length ?? 0) > 0) return true;
+    if (this.nonEmpty(e.comments)) return true;
+    if (this.nonEmpty(e.otherInformation)) return true;
+    if (this.nonEmpty(e.fullNameArabic)) return true;
+    if (this.nonEmpty(e.familyNameArabic)) return true;
+    if (this.nonEmpty(e.familyNameLatin)) return true;
+    if (this.nonEmpty(e.dataId)) return true;
+    if (this.nonEmpty(e.versionNum)) return true;
+    if (this.nonEmpty(e.unListType)) return true;
+    if (this.nonEmpty(e.listType)) return true;
+    if (this.nonEmpty(e.listedOn)) return true;
+    if (this.nonEmpty(e.gender)) return true;
+    if (this.nonEmpty(e.typeDetail)) return true;
+    return false;
+  }
+
+  private nonEmpty(value: string | null | undefined): boolean {
+    return !!value && value.trim().length > 0;
   }
 
   formatDate(value: string | null | undefined): string {

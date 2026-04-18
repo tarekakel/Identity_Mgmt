@@ -17,7 +17,8 @@ import type {
   CustomerDocumentDto,
   OccupationDto,
   SourceOfFundsDto,
-  SanctionsScreeningResultItemDto
+  SanctionsScreeningResultItemDto,
+  OnboardingSubmissionResultDto
 } from '../../../shared/models/api.model';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -59,6 +60,7 @@ export class ScreeningStepperComponent implements OnInit {
   isStep1 = computed(() => this.currentStep() === 1);
   isStep2 = computed(() => this.currentStep() === 2);
   isStep3 = computed(() => this.currentStep() === 3);
+  isStep4 = computed(() => this.currentStep() === 4);
   step2CustomerId = computed(() => this.createdCustomerId());
   documentTypes = signal<DocumentTypeDto[]>([]);
   documents = signal<CustomerDocumentDto[]>([]);
@@ -76,6 +78,28 @@ export class ScreeningStepperComponent implements OnInit {
   screeningRunLoading = signal(false);
   screeningRunError = signal<string | null>(null);
   hasConfirmedMatch = signal(false);
+
+  // Step 4 – Review & Submit
+  customerSummary = signal<CustomerDto | null>(null);
+  submissionNotes = signal('');
+  submitting = signal(false);
+  submitError = signal<string | null>(null);
+  submitResult = signal<OnboardingSubmissionResultDto | null>(null);
+
+  worstScreeningStatus = computed<string>(() => {
+    const rs = this.screeningResults();
+    if (rs.some(r => r.status === 'ConfirmedMatch')) return 'ConfirmedMatch';
+    if (rs.some(r => r.status === 'PossibleMatch')) return 'PossibleMatch';
+    return 'Clear';
+  });
+
+  hasUnresolvedConfirmed = computed<boolean>(() =>
+    this.screeningResults().some(r => r.status === 'ConfirmedMatch' && r.reviewStatus !== 'Approved')
+  );
+
+  canSubmitOnboarding = computed<boolean>(() =>
+    !!this.createdCustomerId() && !this.hasUnresolvedConfirmed() && !this.submitting()
+  );
 
   // Step 1 – Customer profile form
   firstName = signal('');
@@ -256,7 +280,64 @@ export class ScreeningStepperComponent implements OnInit {
       this.loadStep3Data();
       return;
     }
-    if (step > 3 && this.createdCustomerId()) this.currentStep.set(step);
+    if (step === 4 && this.createdCustomerId()) {
+      this.currentStep.set(4);
+      this.submitError.set(null);
+      this.loadStep4Data();
+      return;
+    }
+    if (step > 4 && this.createdCustomerId()) this.currentStep.set(step);
+  }
+
+  loadStep4Data(): void {
+    const cid = this.createdCustomerId();
+    if (!cid) return;
+    this.api.getCustomer(cid).subscribe({
+      next: (res: ApiResponse<CustomerDto>) => {
+        if (res.success && res.data) this.customerSummary.set(res.data);
+      },
+      error: () => this.notification.error(this.translate.instant('common.errorGeneric'))
+    });
+    if (this.documents().length === 0) this.loadStep2Data();
+    if (this.screeningResults().length === 0) this.loadStep3Data();
+  }
+
+  submitOnboarding(): void {
+    const cid = this.createdCustomerId();
+    if (!cid) return;
+    if (this.hasUnresolvedConfirmed()) {
+      const msg = this.translate.instant('screening.submitBlocked');
+      this.submitError.set(msg);
+      this.notification.error(msg);
+      return;
+    }
+    this.submitError.set(null);
+    this.submitting.set(true);
+    this.api.submitOnboarding(cid, { notes: this.submissionNotes()?.trim() || undefined }).subscribe({
+      next: (res: ApiResponse<OnboardingSubmissionResultDto>) => {
+        this.submitting.set(false);
+        if (res.success && res.data) {
+          this.submitResult.set(res.data);
+          this.notification.success(this.translate.instant('screening.submitSuccess'));
+        } else {
+          const errMsg = res.message ?? this.translate.instant('screening.submitFailed');
+          this.submitError.set(errMsg);
+          this.notification.error(errMsg);
+        }
+      },
+      error: (err) => {
+        this.submitting.set(false);
+        const errMsg = err?.error?.message ?? this.translate.instant('screening.submitFailed');
+        this.submitError.set(errMsg);
+        this.notification.error(errMsg);
+      }
+    });
+  }
+
+  goToCase(): void {
+    const caseId = this.submitResult()?.caseId;
+    if (caseId) this.router.navigate(['/cases', caseId, 'edit']);
+    else this.router.navigate(['/cases']);
   }
 
   loadStep2Data(): void {

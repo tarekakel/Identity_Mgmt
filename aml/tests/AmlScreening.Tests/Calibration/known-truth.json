@@ -1,0 +1,81 @@
+{
+  "comment": "Known-truth dataset used to calibrate Elasticsearch field boosts and topScoreReference. Each case lists the expected entry that SHOULD score above the threshold for the given query (when indexed).",
+  "thresholds": {
+    "minNormalizedScore": 60,
+    "expectedTopRank": 3
+  },
+  "cases": [
+    {
+      "id": "exact-1",
+      "category": "exact",
+      "queryName": "Osama Bin Laden",
+      "expectedFullName": "Usama bin Muhammed bin Awad bin Ladin",
+      "expectedAliases": ["Osama Bin Laden", "Usama bin Laden"],
+      "nationality": "SAU",
+      "dateOfBirth": "1957-03-10"
+    },
+    {
+      "id": "typo-1",
+      "category": "typo",
+      "queryName": "Osma Bin Ladn",
+      "expectedFullName": "Usama bin Muhammed bin Awad bin Ladin",
+      "expectedAliases": ["Osama Bin Laden"],
+      "nationality": "SAU",
+      "dateOfBirth": "1957-03-10"
+    },
+    {
+      "id": "alias-only-1",
+      "category": "alias-only",
+      "queryName": "Carlos the Jackal",
+      "expectedFullName": "Ilich Ramirez Sanchez",
+      "expectedAliases": ["Carlos the Jackal", "Carlos Andres Martinez Torres"],
+      "nationality": "VEN",
+      "dateOfBirth": "1949-10-12"
+    },
+    {
+      "id": "transliteration-1",
+      "category": "transliteration",
+      "queryName": "Mohammad al-Qaddafi",
+      "expectedFullName": "Muammar Mohammed Abu Minyar al-Qadhafi",
+      "expectedAliases": ["Muammar Gaddafi", "Moamar al-Qaddafi"],
+      "nationality": "LBY",
+      "dateOfBirth": "1942-06-07"
+    },
+    {
+      "id": "transliteration-2",
+      "category": "transliteration",
+      "queryName": "Vladimir Putn",
+      "expectedFullName": "Vladimir Vladimirovich Putin",
+      "expectedAliases": ["Vladimir Putin", "Wladimir Putin"],
+      "nationality": "RUS",
+      "dateOfBirth": "1952-10-07"
+    },
+    {
+      "id": "punctuation-1",
+      "category": "punctuation",
+      "queryName": "ABU-BAKR AL BAGHDADI",
+      "expectedFullName": "Ibrahim Awwad Ibrahim Ali al-Badri al-Samarrai",
+      "expectedAliases": ["Abu Bakr al-Baghdadi", "Abu Du'a"],
+      "nationality": "IRQ",
+      "dateOfBirth": "1971-01-01"
+    },
+    {
+      "id": "abbrev-1",
+      "category": "abbrev",
+      "queryName": "M. Gaddafi",
+      "expectedFullName": "Muammar Mohammed Abu Minyar al-Qadhafi",
+      "expectedAliases": ["Muammar Gaddafi"],
+      "nationality": "LBY",
+      "dateOfBirth": "1942-06-07"
+    },
+    {
+      "id": "negative-1",
+      "category": "negative",
+      "queryName": "John Smith Australian Citizen 1980",
+      "expectedFullName": null,
+      "expectedAliases": [],
+      "nationality": "AUS",
+      "dateOfBirth": "1980-01-01"
+    }
+  ]
+}

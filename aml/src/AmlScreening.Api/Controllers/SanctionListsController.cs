@@ -67,6 +67,14 @@ public class SanctionListsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("reindex")]
+    [ProducesResponseType(typeof(ApiResponse<long>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Reindex(CancellationToken cancellationToken)
+    {
+        var result = await _uploadService.ReindexAllAsync(cancellationToken);
+        return Ok(result);
+    }
+
     [HttpPost("upload")]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(ApiResponse<SanctionListUploadResultDto>), StatusCodes.Status200OK)]
